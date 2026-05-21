@@ -1191,6 +1191,9 @@ const state = {
     { name: 'Stretch',      txChange: 60,  takeUp: 75, newPrice: 0, recommended: false },
   ],
   bGlobals: { bevPerTx: 0, foodCostPct: 30 },
+  bExecSummary: null,      // AI-generated executive summary, cached to avoid re-cost on re-render
+  bActionItems: null,      // AI-generated action items list
+  bReportHTML: null,       // generated report HTML, cached
 };
 
 // ── Helpers ────────────────────────────────────────────────────────
@@ -1369,14 +1372,18 @@ function parseLineTransactions(rows) {
         // All-items index for fuzzy matching later
         let ai = allItems.get(item);
         if (!ai) {
-          ai = { qty: 0, totalRev: 0, days: {}, prices: [] };
-          DAYS.forEach(d => ai.days[d] = 0);
+          ai = { qty: 0, totalRev: 0, days: {}, prices: [], pricesByDay: {} };
+          DAYS.forEach(d => { ai.days[d] = 0; ai.pricesByDay[d] = []; });
           allItems.set(item, ai);
         }
         ai.qty += qty;
         ai.totalRev += finalPrice;
-        ai.days[dayName(dt)] += qty;
-        if (unitPrice > 0) ai.prices.push(unitPrice);
+        const dn = dayName(dt);
+        ai.days[dn] += qty;
+        if (unitPrice > 0) {
+          ai.prices.push(unitPrice);
+          ai.pricesByDay[dn].push(unitPrice);
+        }
       }
     } else if (sg === 'Beverage' && qty > 0) {
       rec.bevRev += finalPrice;
@@ -1523,6 +1530,50 @@ function findSkuCandidates(special, parsed) {
   return candidates.slice(0, 6);
 }
 
+// ── Compute effective full price for a special ─────────────────────
+// When the MM enters a special with a range of items (e.g. "Pizza Day - $13" where pizzas
+// range $22-32 at full price), the "Full price" field they enter is just one value.
+// The real discount % is more accurate when we use the WEIGHTED-AVERAGE price these items
+// sold at on NON-SPECIAL days (i.e. the natural menu price).
+// SAMPLE SIZE: requires at least 10 non-special-day price points. If the special item only
+// sells on its special day (e.g. "Thursday Burger Night" - exclusive to Thursdays), there
+// won't be enough data and we fall back to MM's entered RRP.
+// Returns { effectiveFullPrice, isRange, priceMin, priceMax, sampleSize, derived } or null.
+function computeEffectiveFullPrice(selectedItems, specialDay, parsed) {
+  let totalQty = 0;
+  let weightedSum = 0;
+  let minP = Infinity;
+  let maxP = -Infinity;
+  for (const itemName of selectedItems) {
+    const ai = parsed.allItems.get(itemName);
+    if (!ai) continue;
+    for (const day of DAYS) {
+      if (day === specialDay) continue;
+      const prices = ai.pricesByDay[day] || [];
+      for (const p of prices) {
+        if (p <= 0) continue;
+        totalQty++;
+        weightedSum += p;
+        if (p < minP) minP = p;
+        if (p > maxP) maxP = p;
+      }
+    }
+  }
+  // Minimum sample threshold - need 10+ non-special-day price points to trust the avg
+  if (totalQty < 10) return null;
+  const avgPrice = weightedSum / totalQty;
+  // Treat as range only if there's a meaningful spread (>20% difference between min and max)
+  const isRange = minP > 0 && (maxP - minP) / minP > 0.2;
+  return {
+    effectiveFullPrice: avgPrice,
+    isRange,
+    priceMin: minP === Infinity ? 0 : minP,
+    priceMax: maxP === -Infinity ? 0 : maxP,
+    sampleSize: totalQty,
+    derived: true,
+  };
+}
+
 // ── Compute per-special results ────────────────────────────────────
 function avg(arr) { return arr.length ? arr.reduce((a,b) => a+b, 0) / arr.length : 0; }
 
@@ -1567,8 +1618,12 @@ function computeResults() {
     // Take-up rate: units ÷ food-bearing transactions
     const takeUp = avgFoodTx > 0 ? Math.min(unitsPerNight / avgFoodTx, 1) : 0;
 
-    // Discount %
-    const discPct = sp.fp > 0 ? Math.round((sp.fp - sp.sp) / sp.fp * 100) : 0;
+    // Discount % - use effective full price (weighted average from non-special-day sales)
+    // if it differs meaningfully from the MM-entered RRP. This handles range specials.
+    const effective = computeEffectiveFullPrice(selectedItems, sp.day, parsed);
+    const effectiveFullPrice = effective ? effective.effectiveFullPrice : sp.fp;
+    const fpForDisc = effective ? effective.effectiveFullPrice : sp.fp;
+    const discPct = fpForDisc > 0 ? Math.round((fpForDisc - sp.sp) / fpForDisc * 100) : 0;
     // Per-transaction
     const spendPerTx = avgTx > 0 ? avgFoodRev + avgBevRev - totalDisc : 0;
     const spendPerTxVal = avgTx > 0 ? (avgFoodRev + avgBevRev - totalDisc) / avgTx : 0;
@@ -1582,6 +1637,12 @@ function computeResults() {
       nights,
       hasData: true,
       selectedItems,
+      // Effective full price (weighted avg from non-special days). When the special covers
+      // a range of items, this is the most accurate "what would they have paid normally" figure.
+      effectiveFullPrice: effective ? Math.round(effective.effectiveFullPrice * 100) / 100 : sp.fp,
+      isRange: effective ? effective.isRange : false,
+      priceMin: effective ? effective.priceMin : sp.fp,
+      priceMax: effective ? effective.priceMax : sp.fp,
       // Volumes
       unitsPerNight: Math.round(unitsPerNight),
       avgTx: Math.round(avgTx),
@@ -1782,11 +1843,19 @@ function render() {
 }
 
 function setupSpecialsDefaults() {
-  // If no rows present, add 4 starter rows
+  // If no rows present, restore from state.specials (if MM went back), or use defaults
   const tbody = document.getElementById('specials-body');
   if (!tbody || tbody.children.length > 0) return;
-  for (const d of ['Monday', 'Tuesday', 'Wednesday', 'Thursday']) {
-    addSpecialRow({ day: d });
+  if (state.specials && state.specials.length > 0) {
+    // Restore what the MM previously entered
+    for (const s of state.specials) {
+      addSpecialRow(s);
+    }
+  } else {
+    // First time on this screen - show defaults
+    for (const d of ['Monday', 'Tuesday', 'Wednesday', 'Thursday']) {
+      addSpecialRow({ day: d });
+    }
   }
 }
 
@@ -1976,7 +2045,8 @@ function renderSpecials() {
   <div class="card" style="margin-top:1.5rem;">
     <div class="card-head">Your specials</div>
     <div class="card-desc">
-      One row per special day. <strong>Special $</strong> is what you charge. <strong>Full price $</strong> is the normal menu price (used to calculate discount depth).
+      One row per special day. <strong>Special $</strong> is what you charge. <strong>Full price $</strong> is the normal menu price.
+      <br><span style="color:var(--support-grey); font-size:12px;">If your special covers a range of items at different prices (e.g. "Pizza Day" where pizzas range $22-32), enter the <strong>most expensive</strong> price. The tool will also derive the average price from your data for the real discount calc.</span>
     </div>
     <table class="spec-table">
       <thead>
@@ -2060,23 +2130,75 @@ function renderSkuPanel(sp, idx) {
 
   return `
 <div class="sku-panel" id="sku-panel-${idx}">
-  <div class="sku-panel-head">
+  <div class="sku-panel-head" id="sku-head-${idx}">
     <span class="day-pill">${sp.day}</span>
-    ${escHtml(sp.name)} · ${fmtD(sp.sp)} (RRP ${fmtD(sp.fp)})
+    <span style="display:inline-flex; align-items:center; gap:8px;">
+      <span class="sku-name-display" id="sku-name-${idx}" style="display:inline;">${escHtml(sp.name)}</span>
+      <input type="text" id="sku-edit-${idx}" value="${escHtml(sp.name)}" style="display:none; padding:4px 8px; font-size:12.5px; border:1px solid var(--brand-blue); border-radius:4px; min-width:180px;" />
+      <button class="edit-name-btn" id="sku-edit-btn-${idx}" onclick="editSkuName(${idx})" style="background:none; border:none; cursor:pointer; color:var(--brand-blue); font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:2px 6px;">Edit</button>
+      <button class="edit-name-save" id="sku-save-btn-${idx}" onclick="saveSkuName(${idx})" style="display:none; background:var(--brand-blue); border:none; cursor:pointer; color:#fff; font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:3px 8px; border-radius:4px;">Save</button>
+      <button class="edit-name-cancel" id="sku-cancel-btn-${idx}" onclick="cancelSkuName(${idx})" style="display:none; background:none; border:none; cursor:pointer; color:var(--support-grey); font-size:11px; padding:2px 6px;">Cancel</button>
+    </span>
+    · ${fmtD(sp.sp)} (RRP ${fmtD(sp.fp)})
   </div>
   ${items.length === 0 ? `
-    <p style="font-size:12.5px; color:var(--support-grey); font-style:italic;">No items containing "${escHtml(sp.name)}" found in your data on ${sp.day}s. The unit count for this special will be zero - you may want to check the item name matches what shows on your POS.</p>
+    <p style="font-size:12.5px; color:var(--support-grey); font-style:italic; padding:8px 0;">No items containing "${escHtml(sp.name)}" found in your data on ${sp.day}s. Try the <strong>Edit</strong> button above - your POS item might be called something slightly different (e.g. "Schnitzel" not "Schnitty").</p>
   ` : items.map(itemName => {
     const m = matches[itemName];
+    const idSafe = 'sku-' + idx + '-' + btoa(unescape(encodeURIComponent(itemName))).replace(/=/g, '');
     return `
     <div class="sku-row">
-      <input type="checkbox" id="sku-${idx}-${escHtml(itemName)}" ${m.selected ? 'checked' : ''} onchange="toggleSku(${idx}, '${escHtml(itemName).replace(/'/g, "\\'")}', this.checked)">
-      <label for="sku-${idx}-${escHtml(itemName)}" class="sku-name" style="cursor:pointer;">${escHtml(itemName)}${m.priceMatch ? ' <span style="color:var(--green); font-size:10px; font-weight:600;">PRICE MATCH</span>' : ''}</label>
+      <input type="checkbox" id="${idSafe}" ${m.selected ? 'checked' : ''} onchange="toggleSku(${idx}, '${itemName.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}', this.checked)">
+      <label for="${idSafe}" class="sku-name" style="cursor:pointer;">${escHtml(itemName)}${m.priceMatch ? ' <span style="color:var(--green); font-size:10px; font-weight:600;">PRICE MATCH</span>' : ''}</label>
       <span class="sku-stats">${m.qtyOnDay} sold · avg ${fmtD(m.avgPrice)}</span>
     </div>`;
   }).join('')}
   ${items.length > 0 ? `<div class="sku-total" id="sku-total-${idx}">Selected: <strong>${totalQty}</strong> units across ${nights} ${sp.day}s = <strong>${avgPerDay} units/${sp.day.toLowerCase()}</strong> avg</div>` : ''}
 </div>`;
+}
+
+function editSkuName(idx) {
+  document.getElementById('sku-name-' + idx).style.display = 'none';
+  document.getElementById('sku-edit-btn-' + idx).style.display = 'none';
+  const input = document.getElementById('sku-edit-' + idx);
+  input.style.display = 'inline-block';
+  input.focus();
+  input.select();
+  document.getElementById('sku-save-btn-' + idx).style.display = 'inline-block';
+  document.getElementById('sku-cancel-btn-' + idx).style.display = 'inline-block';
+  // Allow Enter to save, Escape to cancel
+  input.onkeydown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); saveSkuName(idx); }
+    if (e.key === 'Escape') { e.preventDefault(); cancelSkuName(idx); }
+  };
+}
+
+function cancelSkuName(idx) {
+  const sp = state.specials[idx];
+  document.getElementById('sku-edit-' + idx).value = sp.name;
+  document.getElementById('sku-name-' + idx).style.display = 'inline';
+  document.getElementById('sku-edit-btn-' + idx).style.display = 'inline-block';
+  document.getElementById('sku-edit-' + idx).style.display = 'none';
+  document.getElementById('sku-save-btn-' + idx).style.display = 'none';
+  document.getElementById('sku-cancel-btn-' + idx).style.display = 'none';
+}
+
+function saveSkuName(idx) {
+  const newName = document.getElementById('sku-edit-' + idx).value.trim();
+  if (!newName) { cancelSkuName(idx); return; }
+  // Update state
+  state.specials[idx].name = newName;
+  // Re-run fuzzy match for this special only - this replaces skuMatches[idx]
+  const candidates = findSkuCandidates(state.specials[idx], state.parsedData);
+  state.skuMatches[idx] = {};
+  for (const c of candidates) {
+    state.skuMatches[idx][c.itemName] = { selected: c.autoTick, qtyOnDay: c.qtyOnDay, avgPrice: c.avgPrice, priceMatch: c.priceMatch };
+  }
+  // Re-render just this panel
+  const panel = document.getElementById('sku-panel-' + idx);
+  if (panel) {
+    panel.outerHTML = renderSkuPanel(state.specials[idx], idx);
+  }
 }
 
 function toggleSku(idx, itemName, checked) {
@@ -2215,8 +2337,8 @@ function renderSpecCard(r, maxFood, maxBev, maxDisc, maxBpt) {
       <div class="spec-item">${escHtml(r.name)}</div>
       <div class="price-badge">
         <div class="price-special">${fmtD(r.sp)}</div>
-        <div class="price-rrp">${fmtD(r.fp)}</div>
-        <div class="disc-badge" style="${discBadgeStyle}">-${r.discPct}%</div>
+        <div class="price-rrp" title="${r.isRange ? `Items range ${fmtD(r.priceMin)} - ${fmtD(r.priceMax)}, avg ${fmtD(r.effectiveFullPrice)}` : ''}">${r.isRange ? `${fmtD(r.priceMin)}-${fmtD(r.priceMax)}` : fmtD(r.fp)}</div>
+        <div class="disc-badge" style="${discBadgeStyle}" title="${r.isRange ? `Discount % based on weighted-average full price ${fmtD(r.effectiveFullPrice)} from non-${r.day} sales` : ''}">-${r.discPct}%</div>
       </div>
       <div class="kpi-grid">
         <div><div class="kpi-val">${fmtN(r.unitsPerNight)}</div><div class="kpi-label">Units/${r.day.slice(0,3).toLowerCase()}</div></div>
@@ -2402,7 +2524,10 @@ function renderPickSpecial() {
   ${block ? '' : `
   <div class="card" style="margin-top:1.5rem;">
     <div class="card-head">The special</div>
-    <div class="card-desc">Enter the one special you want to deep-dive on. The strategic plan will be built around this single item.</div>
+    <div class="card-desc">
+      Enter the one special you want to deep-dive on. The strategic plan will be built around this single item.
+      <br><span style="color:var(--support-grey); font-size:12px;">If your special covers a range of items at different prices (e.g. "Pizza Day" where pizzas range $22-32), enter the <strong>most expensive</strong> price.</span>
+    </div>
 
     <div style="display:grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
       <div class="field">
@@ -2483,22 +2608,29 @@ function renderBSkuMatch() {
   <div class="step-eyebrow">Strategic Plan · Step 4</div>
   <h1 class="step-title"><span class="light">Confirm the</span> matching items</h1>
   <div class="step-divider"></div>
-  <p class="step-sub">We've searched your data for items matching "${escHtml(sp.name)}" sold on ${sp.day}s. Tick the items that ARE the special.</p>
+  <p class="step-sub">We've searched your data for items matching "${escHtml(sp.name)}" sold on ${sp.day}s. Tick the items that ARE the special. If your POS uses a different name, click <strong>Edit</strong>.</p>
 
-  <div class="sku-panel">
+  <div class="sku-panel" id="bsku-panel">
     <div class="sku-panel-head">
       <span class="day-pill">${sp.day}</span>
-      ${escHtml(sp.name)} · ${fmtD(sp.sp)} (RRP ${fmtD(sp.fp)})
+      <span style="display:inline-flex; align-items:center; gap:8px;">
+        <span class="sku-name-display" id="bsku-name" style="display:inline;">${escHtml(sp.name)}</span>
+        <input type="text" id="bsku-edit" value="${escHtml(sp.name)}" style="display:none; padding:4px 8px; font-size:12.5px; border:1px solid var(--brand-blue); border-radius:4px; min-width:180px;" />
+        <button id="bsku-edit-btn" onclick="editBSkuName()" style="background:none; border:none; cursor:pointer; color:var(--brand-blue); font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:2px 6px;">Edit</button>
+        <button id="bsku-save-btn" onclick="saveBSkuName()" style="display:none; background:var(--brand-blue); border:none; cursor:pointer; color:#fff; font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:3px 8px; border-radius:4px;">Save</button>
+        <button id="bsku-cancel-btn" onclick="cancelBSkuName()" style="display:none; background:none; border:none; cursor:pointer; color:var(--support-grey); font-size:11px; padding:2px 6px;">Cancel</button>
+      </span>
+      · ${fmtD(sp.sp)} (RRP ${fmtD(sp.fp)})
     </div>
     ${items.length === 0 ? `
-      <p style="font-size:12.5px; color:var(--support-grey); font-style:italic;">No items containing "${escHtml(sp.name)}" found on ${sp.day}s. Check the item name matches your POS - or go back and adjust.</p>
+      <p style="font-size:12.5px; color:var(--support-grey); font-style:italic; padding:8px 0;">No items containing "${escHtml(sp.name)}" found on ${sp.day}s. Try the <strong>Edit</strong> button above - your POS item might be called something slightly different.</p>
     ` : items.map(itemName => {
       const m = matches[itemName];
-      const idSafe = btoa(itemName).replace(/=/g, '');
+      const idSafe = 'bsku-' + btoa(unescape(encodeURIComponent(itemName))).replace(/=/g, '');
       return `
       <div class="sku-row">
-        <input type="checkbox" id="bsku-${idSafe}" ${m.selected ? 'checked' : ''} onchange="toggleBSku('${itemName.replace(/'/g, "\\'")}', this.checked)">
-        <label for="bsku-${idSafe}" class="sku-name" style="cursor:pointer;">${escHtml(itemName)}${m.priceMatch ? ' <span style="color:var(--green); font-size:10px; font-weight:600;">PRICE MATCH</span>' : ''}</label>
+        <input type="checkbox" id="${idSafe}" ${m.selected ? 'checked' : ''} onchange="toggleBSku('${itemName.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}', this.checked)">
+        <label for="${idSafe}" class="sku-name" style="cursor:pointer;">${escHtml(itemName)}${m.priceMatch ? ' <span style="color:var(--green); font-size:10px; font-weight:600;">PRICE MATCH</span>' : ''}</label>
         <span class="sku-stats">${m.qtyOnDay} sold · avg ${fmtD(m.avgPrice)}</span>
       </div>`;
     }).join('')}
@@ -2510,6 +2642,40 @@ function renderBSkuMatch() {
     <button class="btn btn-primary" onclick="runBAnalysis()">Analyse →</button>
   </div>
 </div>`;
+}
+
+function editBSkuName() {
+  document.getElementById('bsku-name').style.display = 'none';
+  document.getElementById('bsku-edit-btn').style.display = 'none';
+  const input = document.getElementById('bsku-edit');
+  input.style.display = 'inline-block';
+  input.focus();
+  input.select();
+  document.getElementById('bsku-save-btn').style.display = 'inline-block';
+  document.getElementById('bsku-cancel-btn').style.display = 'inline-block';
+  input.onkeydown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); saveBSkuName(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancelBSkuName(); }
+  };
+}
+function cancelBSkuName() {
+  document.getElementById('bsku-edit').value = state.bSpecial.name;
+  document.getElementById('bsku-name').style.display = 'inline';
+  document.getElementById('bsku-edit-btn').style.display = 'inline-block';
+  document.getElementById('bsku-edit').style.display = 'none';
+  document.getElementById('bsku-save-btn').style.display = 'none';
+  document.getElementById('bsku-cancel-btn').style.display = 'none';
+}
+function saveBSkuName() {
+  const newName = document.getElementById('bsku-edit').value.trim();
+  if (!newName) { cancelBSkuName(); return; }
+  state.bSpecial.name = newName;
+  const candidates = findSkuCandidates(state.bSpecial, state.parsedData);
+  state.bSkuMatches = {};
+  for (const c of candidates) {
+    state.bSkuMatches[c.itemName] = { selected: c.autoTick, qtyOnDay: c.qtyOnDay, avgPrice: c.avgPrice, priceMatch: c.priceMatch };
+  }
+  render();
 }
 
 function toggleBSku(itemName, checked) {
@@ -2551,7 +2717,10 @@ function runBAnalysis() {
   }
   const unitsPerNight = nights > 0 ? totalSpecialQty / nights : 0;
   const takeUp = avgFoodTx > 0 ? Math.min(unitsPerNight / avgFoodTx, 1) : 0;
-  const discPct = sp.fp > 0 ? Math.round((sp.fp - sp.sp) / sp.fp * 100) : 0;
+  // Effective full price - weighted avg from non-special-day sales for selected items
+  const effective = computeEffectiveFullPrice(selectedItems, sp.day, parsed);
+  const fpForDisc = effective ? effective.effectiveFullPrice : sp.fp;
+  const discPct = fpForDisc > 0 ? Math.round((fpForDisc - sp.sp) / fpForDisc * 100) : 0;
   const spendPerTx = avgTx > 0 ? (avgFoodRev + avgBevRev - totalDisc) / avgTx : 0;
   const bevPerTx = avgTx > 0 ? avgBevRev / avgTx : 0;
   const discPerTx = avgTx > 0 ? totalDisc / avgTx : 0;
@@ -2573,6 +2742,10 @@ function runBAnalysis() {
     ...sp,
     selectedItems,
     nights,
+    effectiveFullPrice: effective ? Math.round(effective.effectiveFullPrice * 100) / 100 : sp.fp,
+    isRange: effective ? effective.isRange : false,
+    priceMin: effective ? effective.priceMin : sp.fp,
+    priceMax: effective ? effective.priceMax : sp.fp,
     unitsPerNight: Math.round(unitsPerNight),
     avgTx: Math.round(avgTx),
     avgFoodTx: Math.round(avgFoodTx),
@@ -3310,37 +3483,831 @@ function projectScenario(s, a, g, isReplace, altPrice) {
   };
 }
 
-// ── Screen: Generate stub (next turn: real HTML report) ────────────
+// ── Screen: Generate report ────────────────────────────────────────
 function renderGenerateStub() {
-  const a = state.bAnalysis;
-  const rec = state.bScenarios.find(s => s.recommended);
-  return `
+  // If we haven't generated yet, show loading and kick it off
+  if (!state.bReportHTML) {
+    setTimeout(() => generateReport(), 50);
+    return `
 <div class="page">
   <div class="step-eyebrow">Strategic Plan · Report</div>
-  <h1 class="step-title"><span class="light">Report generator</span> coming next</h1>
+  <h1 class="step-title"><span class="light">Writing your</span> strategic plan</h1>
   <div class="step-divider"></div>
-  <p class="step-sub">All the data has been captured. The branded HTML report generator will be built in the next release - it will take everything below and produce a downloadable strategic plan in the Kickon style.</p>
+  <p class="step-sub">Synthesising the analysis, research, and your decisions into the final document. About 20 seconds.</p>
 
-  <div class="card">
-    <div class="card-head">What's been captured</div>
-    <ul style="padding-left:1.3rem; line-height:1.85; font-size:13px;">
-      <li><strong>Venue:</strong> ${escHtml(state.venue.name)}</li>
-      <li><strong>Special:</strong> ${a.day} ${escHtml(a.name)} · ${fmtD(a.sp)} (${a.discPct}% off ${fmtD(a.fp)})</li>
-      <li><strong>Performance:</strong> ${fmtN(a.unitsPerNight)} units/night · ${fmtPct(a.takeUp*100)} take-up · ${fmtD(a.netRev)} net rev/night</li>
-      <li><strong>Verdict:</strong> ${a.verdict.label}</li>
-      <li><strong>Decision:</strong> ${state.bBranch}</li>
-      ${state.bBranch === 'REPLACE' && state.bAlternative.name ? `<li><strong>Proposed replacement:</strong> ${escHtml(state.bAlternative.name)} at ${fmtD(state.bAlternative.price)}</li>` : ''}
-      <li><strong>Competitors verified:</strong> ${Object.keys(state.bVerified).filter(k => state.bVerified[k]).length} of ${(state.bAiData?.competitors?.length) || 0}</li>
-      <li><strong>Recommended scenario:</strong> ${rec ? `${rec.name} - ${rec.txChange >= 0 ? '+' : ''}${rec.txChange}% tx, ${rec.takeUp}% take-up, ${fmtD(rec.newPrice)} price` : 'None picked'}</li>
-      <li><strong>Notes:</strong> ${state.bNotes ? escHtml(state.bNotes).slice(0,140) + (state.bNotes.length > 140 ? '…' : '') : '(none)'}</li>
-    </ul>
-  </div>
-
-  <div class="btn-row">
-    <button class="btn-back" onclick="state.screen='path-b-projections'; render();">← Back</button>
-    <button class="btn btn-primary" onclick="goHome()">Start over</button>
+  <div class="ai-loading">
+    <div class="spinner"></div>
+    <div class="ai-loading-title">Generating report</div>
+    <div class="ai-loading-sub">Drafting executive summary and action items from everything captured.</div>
+    <div class="ai-stages" id="gen-stages">
+      <div class="ai-stage active" data-step="0"><div class="ai-stage-icon">1</div>Drafting executive summary</div>
+      <div class="ai-stage" data-step="1"><div class="ai-stage-icon">2</div>Building action items</div>
+      <div class="ai-stage" data-step="2"><div class="ai-stage-icon">3</div>Assembling the report</div>
+    </div>
+    <div class="err" id="gen-error"></div>
   </div>
 </div>`;
+  }
+
+  // Report has been generated - show preview + download
+  return `
+<div class="page-wide">
+  <div class="step-eyebrow">Strategic Plan · Report ready</div>
+  <h1 class="step-title">Your <span class="light">strategic plan</span></h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">Preview below. Use the download button to save the standalone HTML file - it can be emailed, opened in any browser, or printed to PDF via your browser's print dialog.</p>
+
+  <div style="background:#fff; border:1px solid var(--line); border-radius:var(--r-lg); padding:0; box-shadow:var(--shadow-sm); overflow:hidden; margin-bottom:1.5rem;">
+    <iframe id="report-preview" srcdoc="${escHtml(state.bReportHTML).replace(/&quot;/g, '&#34;')}" style="width:100%; height:800px; border:none; background:#fff;"></iframe>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-text">
+      <strong>Your report is ready.</strong> Download to share, or print to PDF from your browser.
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="btn btn-ghost" onclick="state.bReportHTML=null; state.bExecSummary=null; state.bActionItems=null; render();">↻ Regenerate</button>
+      <button class="btn btn-ghost" onclick="state.screen='path-b-projections'; render();">← Edit scenarios</button>
+      <button class="btn btn-primary" onclick="downloadBReport()">↓ Download HTML</button>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:2rem;">
+    <button class="btn-back" onclick="goHome()">Start a new review</button>
+  </div>
+</div>`;
+}
+
+function setGenStage(idx) {
+  const steps = document.querySelectorAll('#gen-stages .ai-stage');
+  steps.forEach((el, i) => {
+    el.classList.remove('active', 'done');
+    if (i < idx) el.classList.add('done');
+    else if (i === idx) el.classList.add('active');
+  });
+}
+
+async function generateReport() {
+  try {
+    // 1. Get exec summary + action items from AI (if not already cached)
+    if (!state.bExecSummary || !state.bActionItems) {
+      setGenStage(0);
+      const result = await generateExecSummary();
+      state.bExecSummary = result.execSummary;
+      state.bActionItems = result.actionItems;
+    }
+    setGenStage(1);
+    await new Promise(r => setTimeout(r, 200));
+    setGenStage(2);
+    // 2. Build the HTML report
+    state.bReportHTML = buildReportHTML();
+    setGenStage(3);
+    // 3. Re-render to show the preview
+    await new Promise(r => setTimeout(r, 400));
+    render();
+  } catch (e) {
+    console.error(e);
+    const errEl = document.getElementById('gen-error');
+    if (errEl) {
+      errEl.classList.add('visible');
+      errEl.innerHTML = `Report generation failed: ${escHtml(e.message)}<br><br>
+        <button class="btn btn-ghost" onclick="state.bReportHTML=null; state.bExecSummary=null; state.bActionItems=null; render();" style="margin-right:8px;">Try again</button>
+        <button class="btn btn-ghost" onclick="state.screen='path-b-projections'; render();">Back to scenarios</button>`;
+    }
+  }
+}
+
+// ── Generate exec summary + action items via Claude ────────────────
+async function generateExecSummary() {
+  const v = state.venue;
+  const a = state.bAnalysis;
+  const branch = state.bBranch;
+  const ai = state.bAiData || { competitors: [], supplyContext: [] };
+  const alt = state.bAlternative;
+  const notes = state.bNotes;
+  const recScenario = state.bScenarios.find(s => s.recommended) || state.bScenarios[1];
+  const verifiedComps = (ai.competitors || []).filter((_, i) => state.bVerified[`comp-${i}`]);
+  // Compute projected impact from recommended scenario
+  const proj = projectScenario(recScenario, a, state.bGlobals, branch === 'REPLACE', alt.price || a.sp);
+
+  // Trend signals
+  const trend = a.weeklyTrend || [];
+  let trendSignal = 'flat';
+  if (trend.length >= 4) {
+    const first = trend.filter(w => !w.partial).slice(0, Math.ceil(trend.length / 3));
+    const last = trend.filter(w => !w.partial).slice(-Math.ceil(trend.length / 3));
+    if (first.length && last.length) {
+      const firstAvg = first.reduce((s, w) => s + w.takeUp, 0) / first.length;
+      const lastAvg = last.reduce((s, w) => s + w.takeUp, 0) / last.length;
+      const delta = lastAvg - firstAvg;
+      if (delta > 0.05) trendSignal = 'rising';
+      else if (delta < -0.05) trendSignal = 'falling';
+    }
+  }
+
+  let key = getApiKey();
+  if (!key) throw new Error('API key not available. The exec summary requires an Anthropic API call.');
+
+  const sys = `You are a senior hospitality analyst writing an executive summary for a venue marketing manager at Kickon Group. Write clearly, decisively, and in the manager's voice. Be specific with numbers. No fluff, no jargon, no em-dashes (use hyphens). Output only valid JSON.`;
+
+  const userPrompt = `
+CONTEXT:
+- Venue: ${v.name} (${v.area}, ${v.region})
+- Special under review: ${a.day} ${a.name} at $${a.sp} (RRP $${a.fp}${a.isRange ? `, range $${Math.round(a.priceMin)}-$${Math.round(a.priceMax)}` : ''})
+- Discount depth: ${a.discPct}%
+- Period analysed: ${a.nights} ${a.day}s
+
+PERFORMANCE DATA (per-${a.day.toLowerCase()} averages):
+- Units sold: ${a.unitsPerNight}
+- Food transactions: ${a.avgFoodTx}
+- Take-up rate: ${Math.round(a.takeUp * 100)}% (of food-bearing transactions)
+- Food revenue: $${a.avgFoodRev}
+- Bev revenue: $${a.avgBevRev}
+- Discount cost: $${a.totalDisc}
+- Net revenue: $${a.netRev}
+- Spend per transaction: $${a.spendPerTx}
+- Bev per transaction: $${a.bevPerTx}
+- Food vs bev: ${a.isBevLed ? 'BEV-LED (drinks revenue exceeds food)' : 'FOOD-LED (food revenue exceeds drinks)'}
+- 12-week take-up trend: ${trendSignal}
+- Verdict from analysis: ${a.verdict.label}
+
+MARKETING MANAGER'S DECISION: ${branch}
+${branch === 'REPLACE' && alt.name ? `Proposed replacement: ${alt.name} at $${alt.price}
+Rationale (MM's words): ${alt.rationale}` : ''}
+
+VERIFIED COMPETITORS (${verifiedComps.length} of ${(ai.competitors || []).length} from research):
+${verifiedComps.map(c => `- ${c.venue}: ${c.offer}`).join('\n') || '(none verified)'}
+
+SUPPLY/CATEGORY CONTEXT:
+${(ai.supplyContext || []).map(c => `- ${c.point}: ${c.detail}`).join('\n') || '(none captured)'}
+
+MARKETING MANAGER'S NOTES:
+${notes || '(none provided)'}
+
+RECOMMENDED SCENARIO (${recScenario.name}):
+- Food transaction change: ${recScenario.txChange >= 0 ? '+' : ''}${recScenario.txChange}%
+- Take-up rate: ${recScenario.takeUp}%
+- New price: $${recScenario.newPrice}
+- Projected net revenue: $${Math.round(proj.netRev)} per ${a.day.toLowerCase()} (vs current $${a.netRev}, ${proj.deltaPct >= 0 ? '+' : ''}${proj.deltaPct.toFixed(0)}%)
+
+TASKS:
+
+1. EXECUTIVE SUMMARY (3-4 paragraphs, total ~200-280 words):
+Write a tight executive summary that:
+- Opens with a single clear claim: what the data shows about this special
+- Cites specific numbers (units, take-up, revenue, food vs bev split)
+- States the recommendation (${branch}) with brief reasoning that ties to the data
+- Names the projected impact if the recommendation is enacted
+- Closes with one clear call to action
+
+Write in third person institutional voice. Don't use phrases like "this report explores" - just state findings. Don't repeat the special name in every paragraph. No bullet points - prose only.
+
+2. ACTION ITEMS (3-5 numbered items):
+Specific, concrete steps to enact the ${branch} decision. Each item should:
+- Start with a verb (Brief the kitchen, Update menu boards, Set a go-live date, Test the new mechanic, etc.)
+- Be doable in 1-2 weeks
+- Reference specific items, prices, or dates where applicable
+- Sequence logically (preparation → execution → measurement)
+
+OUTPUT FORMAT (valid JSON, no markdown, no preamble):
+{
+  "execSummary": "3-4 paragraphs of plain prose separated by \\n\\n",
+  "actionItems": [
+    "Action item 1 starting with a verb",
+    "Action item 2",
+    ...
+  ]
+}
+`;
+
+  const body = {
+    model: 'claude-sonnet-4-6',
+    max_tokens: 2000,
+    system: sys,
+    messages: [{ role: 'user', content: userPrompt }],
+  };
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error(`API ${resp.status}: ${txt.slice(0, 200)}`);
+  }
+  const data = await resp.json();
+  const text = data.content.filter(c => c.type === 'text').map(c => c.text).join('\n').trim();
+  let cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  if (firstBrace >= 0 && lastBrace > firstBrace) cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+  try { return JSON.parse(cleaned); }
+  catch (e) {
+    console.error('Failed to parse exec summary response:', text);
+    throw new Error('AI response was not valid JSON. Try again.');
+  }
+}
+
+// ── Build the standalone HTML report ───────────────────────────────
+function buildReportHTML() {
+  const v = state.venue;
+  const a = state.bAnalysis;
+  const branch = state.bBranch;
+  const ai = state.bAiData || { competitors: [], supplyContext: [] };
+  const alt = state.bAlternative;
+  const notes = state.bNotes;
+  const recScenario = state.bScenarios.find(s => s.recommended) || state.bScenarios[1];
+  const verifiedComps = (ai.competitors || []).filter((_, i) => state.bVerified[`comp-${i}`]);
+  const proj = projectScenario(recScenario, a, state.bGlobals, branch === 'REPLACE', alt.price || a.sp);
+  const today = new Date();
+  const reportDate = `${today.getDate()} ${['January','February','March','April','May','June','July','August','September','October','November','December'][today.getMonth()]} ${today.getFullYear()}`;
+  const range = state.parsedData.dateRange;
+  const fmtDate = d => d ? `${d.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]} ${d.getFullYear()}` : '?';
+  const dateRangeStr = `${fmtDate(range.start)} to ${fmtDate(range.end)}`;
+  const dayColor = DAY_COLORS[a.day] || '#4A8BC4';
+
+  // Embed combo chart as SVG (regenerate it directly into the report HTML)
+  const comboSvg = buildComboChartSVG(a, dayColor);
+
+  // Executive summary paragraphs
+  const execParas = (state.bExecSummary || '').split(/\n\n+/).filter(p => p.trim()).map(p => `<p>${escHtml(p.trim())}</p>`).join('\n');
+
+  // Action items
+  const actionItems = (state.bActionItems || []).map(i => `<li>${escHtml(i)}</li>`).join('\n');
+
+  // Trend signals for the diagnostic readout
+  const trend = a.weeklyTrend || [];
+  let trendReadout = '';
+  if (trend.length >= 2) {
+    const firstNonPartial = trend.find(w => !w.partial);
+    const lastNonPartial = trend.slice().reverse().find(w => !w.partial);
+    if (firstNonPartial && lastNonPartial && firstNonPartial !== lastNonPartial) {
+      const txChange = ((lastNonPartial.foodTx - firstNonPartial.foodTx) / Math.max(firstNonPartial.foodTx, 1)) * 100;
+      const unitChange = ((lastNonPartial.specialUnits - firstNonPartial.specialUnits) / Math.max(firstNonPartial.specialUnits, 1)) * 100;
+      const takeUpChange = (lastNonPartial.takeUp - firstNonPartial.takeUp) * 100;
+      const trendSym = v => v > 5 ? '↑' : v < -5 ? '↓' : '→';
+      const trendCol = v => v > 5 ? '#1f6f3e' : v < -5 ? '#7a2a2a' : '#334155';
+      trendReadout = `
+      <div class="rep-readout">
+        <div class="rep-readout-cell">
+          <div class="rep-readout-label">Food tx trend</div>
+          <div class="rep-readout-val" style="color:${trendCol(txChange)};">${trendSym(txChange)} ${txChange > 0 ? '+' : ''}${txChange.toFixed(0)}%</div>
+        </div>
+        <div class="rep-readout-cell">
+          <div class="rep-readout-label">Special units trend</div>
+          <div class="rep-readout-val" style="color:${trendCol(unitChange)};">${trendSym(unitChange)} ${unitChange > 0 ? '+' : ''}${unitChange.toFixed(0)}%</div>
+        </div>
+        <div class="rep-readout-cell">
+          <div class="rep-readout-label">Take-up rate trend</div>
+          <div class="rep-readout-val" style="color:${trendCol(takeUpChange)};">${trendSym(takeUpChange)} ${takeUpChange > 0 ? '+' : ''}${takeUpChange.toFixed(1)}pp</div>
+        </div>
+      </div>`;
+    }
+  }
+
+  // Competitor table rows (verified + own venue as last row)
+  const compRows = verifiedComps.map(c => `
+    <tr>
+      <td>${escHtml(c.venue || '')}</td>
+      <td>${escHtml(c.offer || '')}</td>
+      <td style="font-size:11px; color:#94A3B8;">${c.source ? (c.source.startsWith('http') ? `<a href="${escHtml(c.source)}" style="color:#4A8BC4; text-decoration:none;">${escHtml(new URL(c.source).hostname.replace('www.',''))}</a>` : escHtml(c.source)) : ''}</td>
+    </tr>`).join('');
+  const ownRow = `
+    <tr style="background:#F5F7FA; font-weight:600;">
+      <td>${escHtml(v.name)} (this venue)</td>
+      <td>${a.day} ${escHtml(a.name)} at $${a.sp}${a.isRange ? ` (range $${Math.round(a.priceMin)}-$${Math.round(a.priceMax)} RRP)` : ` (RRP $${a.fp})`}</td>
+      <td style="font-size:11px; color:#94A3B8;">${a.discPct}% off · ${a.unitsPerNight} units/${a.day.toLowerCase()}</td>
+    </tr>`;
+
+  // Supply context list
+  const supplyList = (ai.supplyContext || []).map(c => `
+    <li>
+      <div style="font-size:13px; font-weight:600; color:#0B1F3A; margin-bottom:3px;">${escHtml(c.point || '')}</div>
+      <div style="font-size:12.5px; color:#334155;">${escHtml(c.detail || '')}</div>
+      ${c.source ? `<div style="font-size:11px; color:#94A3B8; margin-top:3px;">${c.source.startsWith('http') ? `<a href="${escHtml(c.source)}" style="color:#4A8BC4; text-decoration:none;">${escHtml(c.source)}</a>` : escHtml(c.source)}</div>` : ''}
+    </li>`).join('');
+
+  // Proposed action section - branch-specific
+  let actionSection = '';
+  if (branch === 'KEEP') {
+    actionSection = `
+      <p>The data supports keeping ${escHtml(a.name)} in its current form. With ${fmtN(a.unitsPerNight)} units sold per ${a.day.toLowerCase()} at ${fmtPct(a.takeUp * 100)} take-up of food-bearing transactions, the special is the reason guests are choosing this venue on ${a.day}s. Food revenue (${fmtD(a.avgFoodRev)}/${a.day.toLowerCase()}) ${a.isBevLed ? 'sits behind' : 'leads'} beverage revenue (${fmtD(a.avgBevRev)}), and ${fmtD(a.totalDisc)} discount cost is justified by the trade it generates.</p>
+      <p><strong>Action:</strong> Maintain the current price point and item. Monitor monthly for any erosion in take-up rate or units sold.</p>`;
+  } else if (branch === 'TWEAK') {
+    const priceMove = recScenario.newPrice - a.sp;
+    actionSection = `
+      <p>${escHtml(a.name)} is broadly working but has room to optimise. ${priceMove > 0 ? `A price adjustment from ${fmtD(a.sp)} to ${fmtD(recScenario.newPrice)} (a ${fmtD(priceMove)} increase) is the proposed tweak.` : priceMove < 0 ? `A price reduction from ${fmtD(a.sp)} to ${fmtD(recScenario.newPrice)} is the proposed tweak.` : 'The proposed tweak adjusts mechanics rather than price.'} ${priceMove > 0 ? `At current volume of ${fmtN(a.unitsPerNight)} units/${a.day.toLowerCase()}, this recovers approximately ${fmtD(priceMove * a.unitsPerNight)} per ${a.day.toLowerCase()} (${fmtD(priceMove * a.unitsPerNight * a.nights * 4)} annualised) before factoring in any volume change.` : ''}</p>
+      ${notes ? `<p><strong>Operational context:</strong> ${escHtml(notes)}</p>` : ''}`;
+  } else if (branch === 'REPLACE' && alt.name) {
+    actionSection = `
+      <p><strong>Proposed replacement: ${escHtml(alt.name)} at ${fmtD(alt.price)}.</strong></p>
+      <p>${escHtml(alt.rationale)}</p>
+      ${notes ? `<p><strong>Operational context:</strong> ${escHtml(notes)}</p>` : ''}`;
+  } else if (branch === 'KILL') {
+    actionSection = `
+      <p>The recommendation is to drop the food special on ${a.day}s entirely. ${a.isBevLed ? `Beverage revenue (${fmtD(a.avgBevRev)}) already exceeds food (${fmtD(a.avgFoodRev)}), suggesting guests are coming for drinks regardless of the food offer.` : ''} ${fmtD(a.totalDisc)} discount cost per ${a.day.toLowerCase()} can be reallocated elsewhere or banked.</p>
+      ${notes ? `<p><strong>Operational context:</strong> ${escHtml(notes)}</p>` : ''}`;
+  }
+
+  // Scenarios table
+  const isReplace = branch === 'REPLACE';
+  const altPrice = isReplace ? alt.price : a.sp;
+  const scenarioRows = state.bScenarios.map(s => {
+    const p = projectScenario(s, a, state.bGlobals, isReplace, altPrice);
+    const deltaCol = p.deltaPct >= 0 ? '#1f6f3e' : '#7a2a2a';
+    return `
+    <tr${s.recommended ? ' style="background:#e0ecf7;"' : ''}>
+      <td>${s.recommended ? '★ ' : ''}${escHtml(s.name)}</td>
+      <td>${s.txChange >= 0 ? '+' : ''}${s.txChange}%</td>
+      <td>${s.takeUp}%</td>
+      <td>${fmtD(s.newPrice)}</td>
+      <td>${fmtN(p.unitsPerNight)}</td>
+      <td>${fmtD(p.foodRev)}</td>
+      <td>${fmtD(p.bevRev)}</td>
+      <td><strong>${fmtD(p.netRev)}</strong></td>
+      <td style="color:${deltaCol}; font-weight:600;">${p.deltaPct >= 0 ? '+' : ''}${p.deltaPct.toFixed(0)}%</td>
+    </tr>`;
+  }).join('');
+
+  // Build the full HTML
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${escHtml(v.name)} - ${escHtml(a.day)} ${escHtml(a.name)} - Strategic Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Poppins', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: #F5F7FA;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+.report {
+  max-width: 920px;
+  margin: 0 auto;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(11,31,58,0.08);
+}
+.rep-cover {
+  background: #0B1F3A;
+  color: #fff;
+  padding: 3rem 3rem 2.5rem;
+}
+.rep-cover-eyebrow {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: #4A8BC4;
+  margin-bottom: 0.8rem;
+}
+.rep-cover h1 {
+  font-size: 38px; font-weight: 300;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin-bottom: 1.2rem;
+}
+.rep-cover h1 .bold { font-weight: 600; }
+.rep-cover-divider {
+  width: 64px; height: 3px;
+  background: #4A8BC4;
+  margin-bottom: 1.5rem;
+}
+.rep-cover-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+.rep-cover-meta-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 4px;
+}
+.rep-cover-meta-val {
+  font-size: 14px; font-weight: 500;
+  color: #fff;
+}
+
+.rep-hero-stats {
+  background: #1A3655;
+  color: #fff;
+  padding: 1.8rem 3rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+.rep-stat-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.10em; text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 5px;
+}
+.rep-stat-val {
+  font-size: 26px; font-weight: 600;
+  color: #fff;
+}
+.rep-stat-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+}
+
+.rep-body { padding: 2.5rem 3rem 3rem; }
+
+.rep-section {
+  margin-bottom: 2.5rem;
+}
+.rep-section-num {
+  display: inline-block;
+  width: 28px; height: 28px;
+  background: #4A8BC4;
+  color: #fff;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 28px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-right: 12px;
+}
+.rep-section h2 {
+  display: flex;
+  align-items: center;
+  font-size: 16px; font-weight: 600;
+  color: #0B1F3A;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.4rem;
+}
+.rep-section-divider {
+  width: 48px; height: 3px;
+  background: #4A8BC4;
+  margin: 0.5rem 0 1.2rem;
+}
+.rep-section p {
+  font-size: 14px;
+  margin-bottom: 0.8rem;
+  line-height: 1.7;
+}
+.rep-section p:last-child { margin-bottom: 0; }
+.rep-section strong { color: #0B1F3A; font-weight: 600; }
+
+.rep-chart {
+  background: #F5F7FA;
+  border-radius: 8px;
+  padding: 1.4rem 1.6rem;
+  margin-top: 1rem;
+}
+.rep-chart h3 {
+  font-size: 13px; font-weight: 600;
+  color: #0B1F3A;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.3rem;
+}
+.rep-chart-sub {
+  font-size: 11.5px;
+  color: #94A3B8;
+  margin-bottom: 1rem;
+}
+.rep-chart svg { width: 100%; height: 260px; display: block; }
+.rep-chart-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #E2E8F0;
+  font-size: 11px;
+  flex-wrap: wrap;
+}
+.rep-legend-item { display: flex; align-items: center; gap: 6px; color: #334155; }
+.rep-legend-swatch { width: 12px; height: 12px; border-radius: 2px; }
+.rep-legend-line { width: 16px; height: 3px; border-radius: 2px; }
+.rep-readout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #E2E8F0;
+}
+.rep-readout-cell { font-size: 12px; }
+.rep-readout-label {
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: #94A3B8;
+  margin-bottom: 3px;
+}
+.rep-readout-val { font-size: 16px; font-weight: 600; }
+
+.rep-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.8rem;
+  font-size: 13px;
+}
+.rep-table thead tr { background: #0B1F3A; color: #fff; }
+.rep-table thead th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.rep-table tbody tr { border-bottom: 1px solid #E2E8F0; }
+.rep-table tbody tr:last-child { border-bottom: none; }
+.rep-table td { padding: 10px 12px; color: #334155; vertical-align: top; }
+
+.rep-supply-list {
+  list-style: none;
+  margin-top: 0.8rem;
+}
+.rep-supply-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid #E2E8F0;
+}
+.rep-supply-list li:last-child { border-bottom: none; }
+.rep-supply-list li:first-child { padding-top: 0; }
+
+.rep-actions ol {
+  padding-left: 1.5rem;
+  margin-top: 0.8rem;
+}
+.rep-actions li {
+  font-size: 14px;
+  margin-bottom: 0.7rem;
+  line-height: 1.6;
+  padding-left: 0.3rem;
+}
+
+.rep-action-box {
+  background: #F5F7FA;
+  border-left: 3px solid #4A8BC4;
+  border-radius: 0 8px 8px 0;
+  padding: 1.2rem 1.4rem;
+  margin-top: 0.8rem;
+}
+
+.rep-footer {
+  background: #F5F7FA;
+  padding: 1.5rem 3rem;
+  font-size: 11px;
+  color: #94A3B8;
+  text-align: center;
+  border-top: 1px solid #E2E8F0;
+}
+
+@media print {
+  body { background: #fff; }
+  .report { box-shadow: none; max-width: 100%; }
+  .rep-section { page-break-inside: avoid; }
+  .rep-table { page-break-inside: avoid; }
+  .rep-chart { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="report">
+
+  <!-- COVER -->
+  <div class="rep-cover">
+    <div class="rep-cover-eyebrow">Strategic Plan</div>
+    <h1>${escHtml(a.day)} <span class="bold">${escHtml(a.name)}</span></h1>
+    <div class="rep-cover-divider"></div>
+    <div style="font-size:15px; color:rgba(255,255,255,0.85);">${escHtml(v.name)} - ${escHtml(v.area)}</div>
+    <div class="rep-cover-meta">
+      <div>
+        <div class="rep-cover-meta-label">Data period</div>
+        <div class="rep-cover-meta-val">${dateRangeStr}</div>
+      </div>
+      <div>
+        <div class="rep-cover-meta-label">Verdict</div>
+        <div class="rep-cover-meta-val">${a.verdict.label.replace(/[🏆⭐✓◐⚠?]/g, '').trim()}</div>
+      </div>
+      <div>
+        <div class="rep-cover-meta-label">Recommendation</div>
+        <div class="rep-cover-meta-val">${branch}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO STATS -->
+  <div class="rep-hero-stats">
+    <div>
+      <div class="rep-stat-label">Units/${a.day.toLowerCase()}</div>
+      <div class="rep-stat-val">${fmtN(a.unitsPerNight)}</div>
+      <div class="rep-stat-sub">of the special sold</div>
+    </div>
+    <div>
+      <div class="rep-stat-label">Take-up rate</div>
+      <div class="rep-stat-val">${fmtPct(a.takeUp * 100)}</div>
+      <div class="rep-stat-sub">of ${fmtN(a.avgFoodTx)} food tx</div>
+    </div>
+    <div>
+      <div class="rep-stat-label">Net rev/${a.day.toLowerCase()}</div>
+      <div class="rep-stat-val">${fmtD(a.netRev)}</div>
+      <div class="rep-stat-sub">across ${a.nights} ${a.day.toLowerCase()}s</div>
+    </div>
+    <div>
+      <div class="rep-stat-label">Discount cost</div>
+      <div class="rep-stat-val">${fmtD(a.totalDisc)}</div>
+      <div class="rep-stat-sub">per ${a.day.toLowerCase()}</div>
+    </div>
+  </div>
+
+  <div class="rep-body">
+
+    <!-- 1. EXECUTIVE SUMMARY -->
+    <div class="rep-section">
+      <h2><span class="rep-section-num">1</span>Executive Summary</h2>
+      <div class="rep-section-divider"></div>
+      ${execParas}
+    </div>
+
+    <!-- 2. CURRENT PERFORMANCE & TREND -->
+    <div class="rep-section">
+      <h2><span class="rep-section-num">2</span>Current Performance</h2>
+      <div class="rep-section-divider"></div>
+      <p>${a.day} ${escHtml(a.name)} sells <strong>${fmtN(a.unitsPerNight)} units per ${a.day.toLowerCase()}</strong> on average across ${fmtN(a.avgFoodTx)} food-bearing transactions - a <strong>${fmtPct(a.takeUp * 100)} take-up rate</strong>. The special is priced at ${fmtD(a.sp)} against ${a.isRange ? `a range of ${fmtD(a.priceMin)}-${fmtD(a.priceMax)} (avg ${fmtD(a.effectiveFullPrice)})` : `an RRP of ${fmtD(a.fp)}`}, giving a <strong>${a.discPct}% discount depth</strong>.</p>
+      <p>Food revenue averages ${fmtD(a.avgFoodRev)} per ${a.day.toLowerCase()} against beverage at ${fmtD(a.avgBevRev)}, making this a <strong>${a.isBevLed ? 'beverage-led' : 'food-led'} night</strong>. Discount cost runs at ${fmtD(a.totalDisc)} per ${a.day.toLowerCase()} (${fmtD(a.discPerTx)}/tx), and net revenue averages ${fmtD(a.netRev)}.</p>
+
+      <div class="rep-chart">
+        <h3>${a.day} Trend · ${trend.length} weeks</h3>
+        <div class="rep-chart-sub">Each column is one ${a.day} - height shows food-bearing transactions, filled portion shows units of the special. Line shows take-up rate.</div>
+        ${comboSvg}
+        <div class="rep-chart-legend">
+          <div class="rep-legend-item"><span class="rep-legend-swatch" style="background:${dayColor}; opacity:0.25;"></span>Food-bearing transactions</div>
+          <div class="rep-legend-item"><span class="rep-legend-swatch" style="background:${dayColor};"></span>Special units sold</div>
+          <div class="rep-legend-item"><span class="rep-legend-line" style="background:#0B1F3A;"></span>Take-up rate (%)</div>
+        </div>
+        ${trendReadout}
+      </div>
+    </div>
+
+    ${(ai.supplyContext || []).length ? `
+    <!-- 3. SUPPLY CONTEXT -->
+    <div class="rep-section">
+      <h2><span class="rep-section-num">3</span>Supply & Category Context</h2>
+      <div class="rep-section-divider"></div>
+      ${ai.supplyInsight ? `<p>${escHtml(ai.supplyInsight)}</p>` : ''}
+      <ul class="rep-supply-list">${supplyList}</ul>
+    </div>
+    ` : ''}
+
+    ${verifiedComps.length ? `
+    <!-- 4. COMPETITORS -->
+    <div class="rep-section">
+      <h2><span class="rep-section-num">${(ai.supplyContext || []).length ? 4 : 3}</span>Competitor Landscape</h2>
+      <div class="rep-section-divider"></div>
+      ${ai.competitorInsight ? `<p>${escHtml(ai.competitorInsight)}</p>` : ''}
+      <table class="rep-table">
+        <thead>
+          <tr><th>Venue</th><th>${a.day} offer</th><th>Source</th></tr>
+        </thead>
+        <tbody>
+          ${compRows}
+          ${ownRow}
+        </tbody>
+      </table>
+    </div>
+    ` : ''}
+
+    <!-- PROPOSED ACTION -->
+    <div class="rep-section">
+      <h2><span class="rep-section-num">${(ai.supplyContext || []).length ? (verifiedComps.length ? 5 : 4) : (verifiedComps.length ? 4 : 3)}</span>Proposed Action: ${branch}</h2>
+      <div class="rep-section-divider"></div>
+      <div class="rep-action-box">
+        ${actionSection}
+      </div>
+    </div>
+
+    <!-- SCENARIOS -->
+    <div class="rep-section">
+      <h2><span class="rep-section-num">${(ai.supplyContext || []).length ? (verifiedComps.length ? 6 : 5) : (verifiedComps.length ? 5 : 4)}</span>Financial Projections</h2>
+      <div class="rep-section-divider"></div>
+      <p>Four scenarios modelling the impact of ${branch === 'KEEP' ? 'continued operation' : branch === 'TWEAK' ? 'the proposed tweak' : branch === 'REPLACE' ? `replacing with ${escHtml(alt.name || 'the new special')}` : 'dropping the special'} at different volume and take-up assumptions. The ★ row marks the recommended scenario.</p>
+      <table class="rep-table">
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Tx Δ</th>
+            <th>Take-up</th>
+            <th>Price</th>
+            <th>Units</th>
+            <th>Food rev</th>
+            <th>Bev rev</th>
+            <th>Net rev</th>
+            <th>vs now</th>
+          </tr>
+        </thead>
+        <tbody>${scenarioRows}</tbody>
+      </table>
+      <p style="font-size:11.5px; color:#94A3B8; margin-top:0.8rem;">All figures per-${a.day.toLowerCase()}. Bev revenue scales with food transactions at ${fmtD(state.bGlobals.bevPerTx)}/tx (current run rate). Recommended scenario projects ${fmtD(proj.netRev)} net revenue per ${a.day.toLowerCase()} - a ${proj.deltaPct >= 0 ? '+' : ''}${proj.deltaPct.toFixed(0)}% change from current ${fmtD(a.netRev)}.</p>
+    </div>
+
+    <!-- ACTION ITEMS -->
+    <div class="rep-section rep-actions">
+      <h2><span class="rep-section-num">${(ai.supplyContext || []).length ? (verifiedComps.length ? 7 : 6) : (verifiedComps.length ? 6 : 5)}</span>Action Items</h2>
+      <div class="rep-section-divider"></div>
+      <ol>${actionItems}</ol>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="rep-footer">
+    Generated ${reportDate} · Weekday Offer Review · Kickon Group<br>
+    Data: Lightspeed Line Transactions export, ${dateRangeStr} · ${a.nights} ${a.day}s analysed
+  </div>
+</div>
+</body>
+</html>`;
+}
+
+// ── Build combo chart SVG for the standalone report ────────────────
+function buildComboChartSVG(a, dayColor) {
+  const trend = a.weeklyTrend || [];
+  if (!trend.length) return '<svg viewBox="0 0 780 260"><text x="390" y="130" text-anchor="middle" fill="#94A3B8" font-size="13">No trend data</text></svg>';
+
+  const W = 780, H = 260;
+  const padL = 50, padR = 50, padT = 20, padB = 40;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+  const colW = innerW / trend.length;
+  const barW = colW * 0.65;
+  const maxFoodTx = Math.max(...trend.map(w => w.foodTx), 1);
+  const yMax = Math.ceil(maxFoodTx / 50) * 50;
+
+  const elts = [];
+  for (let i = 0; i <= 5; i++) {
+    const y = padT + (innerH * i / 5);
+    const val = Math.round(yMax * (5 - i) / 5);
+    elts.push(`<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#E2E8F0" stroke-width="1"/>`);
+    elts.push(`<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#94A3B8" font-size="10">${val}</text>`);
+    const pct = (5 - i) * 20;
+    elts.push(`<text x="${W - padR + 8}" y="${y + 4}" text-anchor="start" fill="#94A3B8" font-size="10">${pct}%</text>`);
+  }
+  elts.push(`<text x="14" y="${padT + innerH / 2}" text-anchor="middle" fill="#94A3B8" font-size="10" transform="rotate(-90, 14, ${padT + innerH / 2})">Food-bearing tx</text>`);
+  elts.push(`<text x="${W - 14}" y="${padT + innerH / 2}" text-anchor="middle" fill="#94A3B8" font-size="10" transform="rotate(90, ${W - 14}, ${padT + innerH / 2})">Take-up rate (%)</text>`);
+  elts.push(`<defs><pattern id="repPartialPat" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)"><rect width="6" height="6" fill="${dayColor}" opacity="0.18"/><line x1="0" y1="0" x2="0" y2="6" stroke="${dayColor}" stroke-width="2" opacity="0.55"/></pattern></defs>`);
+
+  trend.forEach((w, i) => {
+    const x = padL + i * colW + (colW - barW) / 2;
+    const foodH = (w.foodTx / yMax) * innerH;
+    const foodY = padT + innerH - foodH;
+    const specialH = (w.specialUnits / yMax) * innerH;
+    const specialY = padT + innerH - specialH;
+    const colFill = w.partial ? 'url(#repPartialPat)' : dayColor;
+    const colOpacity = w.partial ? 1 : 0.22;
+    elts.push(`<rect x="${x}" y="${foodY}" width="${barW}" height="${foodH}" fill="${colFill}" opacity="${colOpacity}" rx="2"/>`);
+    if (specialH > 0 && !w.partial) {
+      elts.push(`<rect x="${x}" y="${specialY}" width="${barW}" height="${specialH}" fill="${dayColor}" rx="2"/>`);
+    }
+    const lbl = `${w.weekStart.getDate()}/${w.weekStart.getMonth()+1}`;
+    elts.push(`<text x="${x + barW/2}" y="${H - padB + 14}" text-anchor="middle" fill="#94A3B8" font-size="10">${lbl}</text>`);
+  });
+  const linePoints = trend.map((w, i) => {
+    const x = padL + i * colW + colW / 2;
+    const y = padT + innerH - (w.takeUp * innerH);
+    return `${x},${y}`;
+  }).join(' ');
+  elts.push(`<polyline points="${linePoints}" fill="none" stroke="#0B1F3A" stroke-width="2"/>`);
+  trend.forEach((w, i) => {
+    const x = padL + i * colW + colW / 2;
+    const y = padT + innerH - (w.takeUp * innerH);
+    elts.push(`<circle cx="${x}" cy="${y}" r="3.5" fill="#0B1F3A" stroke="#fff" stroke-width="1.5"/>`);
+  });
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${elts.join('')}</svg>`;
+}
+
+// ── Download the standalone HTML report ────────────────────────────
+function downloadBReport() {
+  if (!state.bReportHTML) return;
+  const v = state.venue;
+  const a = state.bAnalysis;
+  const safe = s => String(s||'').replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase().replace(/^-+|-+$/g, '');
+  const fname = `${safe(v.name)}-${safe(a.day)}-${safe(a.name)}-strategic-plan.html`;
+  const blob = new Blob([state.bReportHTML], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fname;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 // ── Init ───────────────────────────────────────────────────────────
