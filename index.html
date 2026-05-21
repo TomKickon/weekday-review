@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Weekday Offer Review · Kickon Group</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -28,6 +27,7 @@
   --amber:   #8a6420; --amber-bg: #f7e9c5;
   --red:     #7a2a2a; --red-bg:   #f0d4d4;
   --blue-tag: #4A8BC4; --blue-bg: #e0ecf7;
+  --purple:  #4a235a; --purple-bg: #e2d9f3;
 
   --shadow-sm: 0 1px 2px rgba(11,31,58,0.04), 0 2px 8px rgba(11,31,58,0.06);
   --shadow:    0 2px 4px rgba(11,31,58,0.06), 0 8px 24px rgba(11,31,58,0.08);
@@ -53,10 +53,10 @@ body {
   position: relative; z-index: 10;
 }
 .topbar-inner {
-  max-width: 980px; margin: 0 auto;
+  max-width: 1100px; margin: 0 auto;
   display: flex; align-items: center; justify-content: space-between;
 }
-.brand { display: flex; align-items: center; gap: 0.85rem; }
+.brand { display: flex; align-items: center; gap: 0.85rem; cursor: pointer; }
 .brand-logo {
   width: 38px; height: 38px;
   display: flex; align-items: center; justify-content: center;
@@ -78,808 +78,665 @@ body {
   border-radius: 100px;
   padding: 5px 14px;
   font-size: 10.5px; color: rgba(255,255,255,0.85);
-  font-weight: 500; letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.06em; text-transform: uppercase;
 }
 
-/* ── Page wrapper ────────────────────────────────────── */
+/* ── Main wrapper ─────────────────────────────────────── */
 .page {
-  max-width: 800px;
+  max-width: 980px;
   margin: 0 auto;
   padding: 2.5rem 1.5rem 5rem;
-  position: relative; z-index: 1;
 }
-.wider { max-width: 1000px; }
+.page-wide {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 5rem;
+}
 
-/* ── Step header (Kickon style) ──────────────────────── */
+/* ── Step heading ──────────────────────────────────────── */
 .step-eyebrow {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--brand-blue);
-  margin-bottom: 0.6rem;
-}
-.divider-sig {
-  width: 60px; height: 3px;
-  background: var(--brand-blue);
-  border-radius: 2px;
-  margin-bottom: 1.1rem;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--brand-blue); margin-bottom: 0.5rem;
 }
 .step-title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 38px;
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
+  font-size: 28px; font-weight: 600;
   color: var(--deep-navy);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.6rem;
   text-transform: uppercase;
-  margin-bottom: 1.1rem;
 }
 .step-title .light { font-weight: 300; }
-.step-lede {
-  font-size: 15px;
-  color: var(--body-text);
-  line-height: 1.65;
-  margin-bottom: 2.25rem;
-  max-width: 620px;
+.step-divider {
+  height: 3px; width: 56px;
+  background: var(--brand-blue);
+  margin: 0.8rem 0 1.5rem;
 }
-.step-lede strong { color: var(--deep-navy); font-weight: 600; }
+.step-sub {
+  font-size: 14.5px; color: var(--body-text);
+  max-width: 720px;
+  margin-bottom: 2rem;
+}
 
-/* ── Cards ────────────────────────────────────────────── */
+/* ── Cards ─────────────────────────────────────────────── */
 .card {
-  background: #fff;
+  background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
+  padding: 1.6rem 1.8rem;
   box-shadow: var(--shadow-sm);
-  padding: 1.5rem 1.75rem;
-  margin-bottom: 1.1rem;
 }
-.card-tight { padding: 1rem 1.2rem; }
-.card-title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 13px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.08em;
+.card + .card { margin-top: 1rem; }
+.card-head {
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--deep-navy);
-  margin-bottom: 0.85rem;
+  margin-bottom: 1rem;
 }
-.card-desc { font-size: 13.5px; color: var(--body-text); margin-bottom: 1.1rem; line-height: 1.6; }
+.card-desc {
+  font-size: 13px; color: var(--body-text);
+  margin-bottom: 1.2rem;
+  line-height: 1.55;
+}
+
+/* ── Two-path home page ───────────────────────────────── */
+.path-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+@media (max-width: 720px) {
+  .path-grid { grid-template-columns: 1fr; }
+}
+.path-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 2rem 1.8rem 1.8rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  position: relative;
+  overflow: hidden;
+}
+.path-card:hover {
+  border-color: var(--brand-blue);
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+.path-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--brand-blue);
+}
+.path-eyebrow {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--brand-blue);
+  margin-bottom: 0.5rem;
+}
+.path-title {
+  font-size: 20px; font-weight: 600;
+  color: var(--deep-navy);
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  margin-bottom: 0.8rem;
+}
+.path-title .light { font-weight: 300; }
+.path-q {
+  font-size: 14.5px;
+  font-style: italic;
+  color: var(--mid-navy);
+  margin-bottom: 1.1rem;
+  line-height: 1.45;
+}
+.path-desc {
+  font-size: 13px;
+  color: var(--body-text);
+  margin-bottom: 1.2rem;
+  line-height: 1.55;
+}
+.path-meta {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  font-size: 11.5px;
+  color: var(--support-grey);
+}
+.path-meta strong { color: var(--mid-navy); font-weight: 500; }
+.path-stub {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.path-stub:hover {
+  border-color: var(--line);
+  box-shadow: none;
+  transform: none;
+}
+.stub-badge {
+  display: inline-block;
+  background: var(--amber-bg);
+  color: var(--amber);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
 
 /* ── Buttons ──────────────────────────────────────────── */
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 12px 24px;
-  border-radius: var(--r);
-  font-family: 'Poppins', sans-serif;
-  font-size: 12px; font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 11px 24px;
+  border: none;
+  border-radius: var(--r-md);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border: none; cursor: pointer;
+  cursor: pointer;
   transition: all 0.15s;
 }
 .btn-primary {
-  background: var(--deep-navy); color: #fff;
-}
-.btn-primary:hover { background: var(--mid-navy); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(11,31,58,0.25); }
-.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
-.btn-ghost {
-  background: transparent; color: var(--deep-navy);
-  border: 1.5px solid var(--deep-navy);
-}
-.btn-ghost:hover { background: var(--deep-navy); color: #fff; }
-.btn-accent {
-  background: var(--brand-blue); color: #fff;
-}
-.btn-accent:hover { background: var(--steel-blue); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(74,139,196,0.35); }
-.btn-lg { padding: 14px 28px; font-size: 13px; }
-.btn-row {
-  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-  margin-top: 2rem;
-}
-.btn-row .spacer { flex: 1; }
-.icon-arrow { font-size: 13px; }
-
-/* ── Forms ────────────────────────────────────────────── */
-.field { margin-bottom: 1rem; }
-.field-label {
-  display: block; font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.1em;
-  color: var(--brand-blue); margin-bottom: 0.4rem;
-}
-.field-hint { font-size: 11.5px; color: var(--support-grey); margin-top: 0.3rem; }
-input[type=text], input[type=number], select, textarea {
-  width: 100%;
-  background: #fff;
-  border: 1px solid var(--line-2);
-  border-radius: var(--r);
-  padding: 10px 12px;
-  font-size: 13.5px; font-family: 'Poppins', sans-serif; color: var(--body-text);
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-input:focus, select:focus, textarea:focus {
-  outline: none; border-color: var(--brand-blue);
-  box-shadow: 0 0 0 3px rgba(74,139,196,0.15);
-}
-textarea { resize: vertical; min-height: 90px; line-height: 1.55; }
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6' width='10' height='6'%3E%3Cpath fill='%234A8BC4' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 9px;
-  padding-right: 32px;
-  -webkit-appearance: none; appearance: none;
-}
-
-/* ── Venue picker ─────────────────────────────────────── */
-.venue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.venue-card {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  padding: 1rem 1.15rem;
-  cursor: pointer;
-  transition: all 0.15s;
-  position: relative;
-}
-.venue-card:hover { border-color: var(--brand-blue); background: rgba(74,139,196,0.04); }
-.venue-card.selected {
-  border-color: var(--deep-navy); border-width: 2px;
-  padding: calc(1rem - 1px) calc(1.15rem - 1px);
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(11,31,58,0.08);
-}
-.venue-card.selected::after {
-  content: ''; position: absolute; top: 12px; right: 12px;
-  width: 20px; height: 20px; border-radius: 50%;
   background: var(--deep-navy);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M3 6l2 2 4-4'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: center;
-}
-.venue-name {
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px; font-weight: 700;
-  color: var(--deep-navy);
-  margin-bottom: 3px;
-}
-.venue-addr { font-size: 11.5px; color: var(--support-grey); line-height: 1.4; }
-.venue-region {
-  display: inline-block;
-  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--brand-blue);
-  margin-bottom: 5px;
-}
-
-/* ── Lightspeed instructions ──────────────────────────── */
-.lightspeed-steps {
-  list-style: none;
-  counter-reset: ls-step;
-}
-.lightspeed-steps li {
-  counter-increment: ls-step;
-  padding: 0.9rem 0 0.9rem 2.5rem;
-  border-bottom: 1px solid var(--line);
-  position: relative;
-  font-size: 13.5px;
-  color: var(--body-text);
-  line-height: 1.6;
-}
-.lightspeed-steps li:last-child { border-bottom: none; }
-.lightspeed-steps li::before {
-  content: counter(ls-step);
-  position: absolute; left: 0; top: 0.85rem;
-  width: 28px; height: 28px;
-  background: var(--deep-navy);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Poppins', sans-serif;
-  font-size: 12px; font-weight: 700;
   color: #fff;
 }
-.lightspeed-steps strong { color: var(--deep-navy); font-weight: 700; }
-.lightspeed-steps code {
+.btn-primary:hover { background: var(--mid-navy); }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-ghost {
+  background: transparent;
+  color: var(--mid-navy);
+  border: 1px solid var(--line-2);
+}
+.btn-ghost:hover { background: var(--off-white); border-color: var(--steel-blue); }
+.btn-back {
+  background: transparent;
+  border: none;
+  color: var(--support-grey);
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 6px 0;
+  font-family: inherit;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.btn-back:hover { color: var(--deep-navy); }
+
+.btn-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+/* ── Forms ────────────────────────────────────────────── */
+.field {
+  margin-bottom: 1rem;
+}
+.field label {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--mid-navy);
+  margin-bottom: 6px;
+}
+.field input, .field select, .field textarea {
+  width: 100%;
+  background: var(--white);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  font-size: 13.5px;
+  color: var(--body-text);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px rgba(74,139,196,0.15);
+}
+
+/* ── Specials table ──────────────────────────────────── */
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+.spec-table th {
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--support-grey);
+  text-align: left;
+  padding: 0 8px 7px;
+  border-bottom: 1px solid var(--line);
+}
+.spec-table td { padding: 5px 8px; vertical-align: middle; }
+.spec-table select, .spec-table input {
+  width: 100%;
   background: var(--off-white);
   border: 1px solid var(--line);
-  padding: 1px 7px;
-  border-radius: 3px;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  color: var(--steel-blue);
+  border-radius: var(--r-md);
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--body-text);
+  font-family: inherit;
+  outline: none;
 }
-.note-box {
-  margin-top: 1.25rem;
-  padding: 1rem 1.2rem;
-  background: var(--blue-bg);
-  border-left: 3px solid var(--brand-blue);
-  border-radius: 0 var(--r) var(--r) 0;
-  font-size: 12.5px;
+.spec-table select:focus, .spec-table input:focus {
+  border-color: var(--brand-blue);
+}
+.del-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--support-grey); font-size: 20px; line-height: 1;
+  padding: 4px 6px;
+}
+.del-btn:hover { color: var(--red); }
+.add-btn {
+  background: transparent;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-md);
+  padding: 8px 16px;
+  font-size: 12px; font-weight: 500;
   color: var(--mid-navy);
-  line-height: 1.55;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: all 0.15s;
 }
-.note-box strong { color: var(--deep-navy); font-weight: 700; }
+.add-btn:hover {
+  background: var(--off-white);
+  border-color: var(--brand-blue);
+  color: var(--deep-navy);
+}
 
 /* ── Drop zone ────────────────────────────────────────── */
 .drop-zone {
   border: 1.5px dashed var(--line-2);
-  border-radius: var(--r-md);
+  border-radius: var(--r-lg);
   padding: 2rem 1.5rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.15s;
-  background: var(--off-white);
 }
 .drop-zone:hover, .drop-zone.over {
-  background: var(--blue-bg);
+  background: var(--off-white);
   border-color: var(--brand-blue);
 }
 .drop-zone input { display: none; }
-.dz-icon { font-size: 28px; margin-bottom: 8px; color: var(--brand-blue); }
-.dz-main { font-size: 14px; font-weight: 600; color: var(--deep-navy); margin-bottom: 3px; }
+.dz-icon { font-size: 32px; margin-bottom: 10px; }
+.dz-main {
+  font-size: 14px; font-weight: 500;
+  color: var(--deep-navy);
+  margin-bottom: 4px;
+}
 .dz-sub { font-size: 12px; color: var(--support-grey); }
 
-.file-list { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
 .file-tag {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: var(--off-white);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  padding: 9px 13px;
+  border-radius: var(--r-md);
+  padding: 8px 12px;
   font-size: 12.5px;
+  color: var(--body-text);
 }
-.file-tag .fn { display: flex; align-items: center; gap: 8px; color: var(--deep-navy); font-weight: 500; }
-.file-tag .fs { font-size: 11px; color: var(--support-grey); font-family: monospace; font-weight: 400; }
-.file-tag button {
-  background: none; border: none; cursor: pointer; color: var(--support-grey);
-  font-size: 18px; line-height: 1; padding: 0 4px;
-}
+.file-tag .fn { display: flex; align-items: center; gap: 8px; }
+.file-tag .fs { font-size: 11px; color: var(--support-grey); font-family: monospace; }
+.file-tag button { background: none; border: none; cursor: pointer; color: var(--support-grey); font-size: 18px; line-height: 1; }
 .file-tag button:hover { color: var(--red); }
 
-/* ── Specials table ───────────────────────────────────── */
-.config-table { width: 100%; border-collapse: collapse; }
-.config-table th {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.1em; color: var(--brand-blue);
-  text-align: left; padding: 0 8px 10px; border-bottom: 2px solid var(--line);
-}
-.config-table td { padding: 8px 8px 0; vertical-align: top; }
-.config-table input, .config-table select { padding: 9px 11px; font-size: 13px; }
-.del-btn {
-  background: none; border: none; cursor: pointer;
-  color: var(--support-grey); font-size: 20px;
-  padding: 10px 4px;
-}
-.del-btn:hover { color: var(--red); }
-.add-row-btn {
-  background: none;
-  border: 1.5px dashed var(--line-2);
-  border-radius: var(--r);
-  padding: 9px 16px;
-  font-size: 11px; font-weight: 700; color: var(--brand-blue);
-  text-transform: uppercase; letter-spacing: 0.08em;
-  font-family: 'Poppins', sans-serif; cursor: pointer;
-  margin-top: 14px;
-  transition: all 0.15s;
-}
-.add-row-btn:hover { background: var(--blue-bg); border-color: var(--brand-blue); border-style: solid; }
-
-/* ── Pick special list ────────────────────────────────── */
-.special-pick-list { display: flex; flex-direction: column; gap: 10px; }
-.special-pick-card {
-  background: #fff;
-  border: 1px solid var(--line);
+/* ── Data range banner ─────────────────────────────────── */
+.range-banner {
   border-radius: var(--r-md);
-  padding: 1.1rem 1.3rem;
-  cursor: pointer;
-  transition: all 0.15s;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 1rem;
+  padding: 0.85rem 1rem;
+  margin-top: 1rem;
+  font-size: 12.5px;
+  line-height: 1.55;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
-.special-pick-card:hover { border-color: var(--brand-blue); background: rgba(74,139,196,0.03); }
-.special-pick-card.selected {
-  border-color: var(--deep-navy); border-width: 2px;
-  padding: calc(1.1rem - 1px) calc(1.3rem - 1px);
-  background: #fff;
-}
-.spc-left { flex: 1; }
-.spc-day {
-  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--brand-blue); margin-bottom: 4px;
-}
-.spc-name {
-  font-family: 'Poppins', sans-serif;
-  font-size: 15px; font-weight: 700;
-  color: var(--deep-navy);
-  text-transform: uppercase; letter-spacing: 0.01em;
-}
-.spc-price {
-  font-family: 'Poppins', sans-serif;
-  font-size: 20px; font-weight: 700;
-  color: var(--deep-navy);
-}
-.spc-price-rrp {
-  font-size: 11px; color: var(--support-grey);
-  text-decoration: line-through; margin-left: 6px; font-weight: 400;
-}
+.range-green { background: var(--green-bg); color: var(--green); }
+.range-amber { background: var(--amber-bg); color: var(--amber); }
+.range-red   { background: var(--red-bg); color: var(--red); }
+.range-banner strong { font-weight: 600; }
 
-/* ── Dashboard (Kickon style with navy gradient) ──────── */
-.dashboard-hero {
-  background: linear-gradient(135deg, var(--deep-navy) 0%, var(--mid-navy) 60%, var(--steel-blue) 100%);
-  border-radius: var(--r-lg);
-  padding: 2rem 2.25rem;
-  margin-bottom: 1.25rem;
-  color: #fff;
-  position: relative;
-  overflow: hidden;
-}
-.dashboard-hero::before {
-  content: ''; position: absolute; top: 0; right: 0;
-  width: 240px; height: 240px;
-  background: radial-gradient(circle, rgba(74,139,196,0.25) 0%, transparent 70%);
-  pointer-events: none;
-}
-.dh-top {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  gap: 1rem; margin-bottom: 1.75rem;
-  position: relative; z-index: 1;
-}
-.dh-eyebrow {
-  font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--brand-blue); margin-bottom: 6px;
-}
-.dh-divider {
-  width: 50px; height: 3px;
-  background: var(--brand-blue);
-  border-radius: 2px;
-  margin-bottom: 0.75rem;
-}
-.dh-name {
-  font-family: 'Poppins', sans-serif;
-  font-size: 30px; font-weight: 700;
-  line-height: 1.05;
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-}
-.dh-meta { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 6px; }
-.dh-price-block { text-align: right; }
-.dh-rrp { font-size: 12px; color: rgba(255,255,255,0.55); text-decoration: line-through; }
-.dh-price {
-  font-family: 'Poppins', sans-serif;
-  font-size: 32px; font-weight: 700;
-  color: #fff; display: block; line-height: 1;
-}
-.dh-disc {
-  display: inline-block; margin-top: 6px;
-  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
-  padding: 3px 10px; border-radius: 12px;
-  background: var(--brand-blue); color: #fff;
-}
-
-.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; position: relative; z-index: 1; }
-.kpi {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
+/* ── Errors ────────────────────────────────────────────── */
+.err {
+  font-size: 13px;
+  color: var(--red);
+  background: var(--red-bg);
   border-radius: var(--r-md);
-  padding: 1rem 1.1rem;
-  backdrop-filter: blur(8px);
+  padding: 10px 12px;
+  margin-top: 1rem;
+  display: none;
 }
-.kpi-num {
-  font-family: 'Poppins', sans-serif;
-  font-size: 26px; font-weight: 700;
-  color: #fff; line-height: 1; margin-bottom: 6px;
-}
-.kpi-lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.65); }
+.err.visible { display: block; }
 
-/* mini bars */
-.bar-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.25rem; }
-.bar-block {
-  background: #fff; border: 1px solid var(--line);
-  border-radius: var(--r-md); padding: 1.2rem 1.35rem;
-}
-.bar-block .bb-title {
-  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--brand-blue); margin-bottom: 1rem;
-  display: flex; align-items: center; gap: 8px;
-}
-.bar-block .bb-title::after {
-  content: ''; flex: 1; height: 1px; background: var(--line);
-}
-.mini-bar { margin-bottom: 10px; }
-.mini-bar:last-child { margin-bottom: 0; }
-.mb-lbl { display: flex; justify-content: space-between; margin-bottom: 4px; }
-.mb-lbl-l { font-size: 12px; color: var(--body-text); font-weight: 600; }
-.mb-lbl-r { font-size: 12px; color: var(--deep-navy); font-variant-numeric: tabular-nums; font-weight: 700; }
-.mb-bg { height: 6px; background: var(--off-white); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
-.mb-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
-
-/* ── Recommendation cards ─────────────────────────────── */
-.rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.rec-card {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  padding: 1.4rem 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-}
-.rec-card:hover { border-color: var(--brand-blue); transform: translateY(-2px); box-shadow: var(--shadow); }
-.rec-card.selected {
-  border-color: var(--deep-navy); border-width: 2px;
-  padding: calc(1.4rem - 1px) calc(1.5rem - 1px);
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(11,31,58,0.06);
-}
-.rec-card.recommended {
-  background: var(--deep-navy);
-  border-color: var(--deep-navy);
-  color: #fff;
-}
-.rec-card.recommended.selected {
-  box-shadow: 0 0 0 4px rgba(74,139,196,0.4);
-}
-.rec-badge {
-  position: absolute; top: -10px; right: 14px;
-  background: var(--brand-blue); color: #fff;
-  font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
-  padding: 4px 11px; border-radius: 12px; text-transform: uppercase;
-}
-.rec-letter {
-  font-family: 'Poppins', sans-serif;
-  font-size: 38px; font-weight: 300;
-  line-height: 1; margin-bottom: 8px;
-  color: var(--brand-blue);
-}
-.rec-card.recommended .rec-letter { color: var(--brand-blue); }
-.rec-name {
-  font-family: 'Poppins', sans-serif;
-  font-size: 17px; font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
-  margin-bottom: 5px;
-}
-.rec-card.recommended .rec-name { color: #fff; }
-.rec-desc { font-size: 12.5px; color: var(--body-text); line-height: 1.55; }
-.rec-card.recommended .rec-desc { color: rgba(255,255,255,0.8); }
-.rec-because {
-  font-size: 11.5px; color: var(--brand-blue);
-  margin-top: 12px;
-  padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.15);
-  font-weight: 500;
-}
-
-/* ── Notes textarea ───────────────────────────────────── */
-.notes-card { padding: 1.5rem 1.75rem; }
-.notes-chips {
-  display: flex; gap: 6px; flex-wrap: wrap;
-  margin-bottom: 0.9rem;
-}
-.note-chip {
+/* ── SKU matching panel ───────────────────────────────── */
+.sku-panel {
   background: var(--off-white);
   border: 1px solid var(--line);
-  border-radius: 100px;
-  padding: 5px 12px;
-  font-size: 11.5px; color: var(--body-text);
-  cursor: pointer; transition: all 0.15s;
-  font-family: 'Poppins', sans-serif; font-weight: 500;
+  border-radius: var(--r-lg);
+  padding: 1.2rem 1.4rem;
+  margin-top: 1rem;
 }
-.note-chip:hover { background: var(--blue-bg); border-color: var(--brand-blue); color: var(--steel-blue); }
+.sku-panel-head {
+  font-size: 11.5px; font-weight: 600;
+  color: var(--deep-navy);
+  margin-bottom: 0.85rem;
+}
+.sku-panel-head .day-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--deep-navy);
+  color: #fff;
+  border-radius: var(--r-md);
+  margin-right: 8px;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.sku-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+}
+.sku-row:last-child { border-bottom: none; }
+.sku-row input[type="checkbox"] {
+  width: 16px; height: 16px;
+  accent-color: var(--brand-blue);
+  cursor: pointer;
+}
+.sku-name { flex: 1; font-size: 13px; color: var(--body-text); }
+.sku-stats { font-size: 11.5px; color: var(--support-grey); font-family: monospace; }
+.sku-total {
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  color: var(--mid-navy);
+}
+.sku-total strong { color: var(--deep-navy); font-weight: 600; }
 
-/* ── AI loading state ─────────────────────────────────── */
-.ai-loading {
+/* ── Dashboard (Path A output) ─────────────────────────── */
+.dash-header {
+  background: var(--deep-navy);
+  color: #fff;
+  padding: 1.8rem 2rem;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  margin-bottom: 0;
+}
+.dash-header h2 {
+  font-size: 22px; font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.dash-header .light { font-weight: 300; }
+.dash-header-sub {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.04em;
+}
+.dash-divider {
+  height: 3px;
+  background: var(--brand-blue);
+  margin-bottom: 1.8rem;
+}
+
+.section-label {
+  font-size: 10.5px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--brand-blue);
+  margin: 2rem 0 0.85rem;
+}
+
+/* Per-special cards */
+.specials-grid {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+.spec-card {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+.spec-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.6rem;
+}
+.spec-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.spec-day {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--deep-navy);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.spec-item {
+  font-size: 11px;
+  color: var(--body-text);
+  margin-bottom: 0.7rem;
+}
+.price-badge {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  margin-bottom: 0.6rem;
+}
+.price-special {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--deep-navy);
+}
+.price-rrp {
+  font-size: 11px;
+  color: var(--support-grey);
+  text-decoration: line-through;
+}
+.disc-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
+  letter-spacing: 0.04em;
+}
+.kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 0.6rem;
+}
+.kpi-val {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--deep-navy);
+}
+.kpi-label {
+  font-size: 9px;
+  color: var(--support-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.divider-line {
+  height: 1px;
+  background: var(--line);
+  margin: 0.6rem 0;
+}
+.mini-bar-wrap { margin-bottom: 4px; }
+.mini-bar-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+.mini-bar-label span {
+  font-size: 9.5px;
+  color: var(--body-text);
+}
+.mini-bg {
+  height: 5px;
+  background: var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.mini-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+.verdict-wrap { margin-top: 0.6rem; }
+.pill {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.pill-green  { background: var(--green-bg);  color: var(--green); }
+.pill-amber  { background: var(--amber-bg);  color: var(--amber); }
+.pill-red    { background: var(--red-bg);    color: var(--red); }
+.pill-blue   { background: var(--blue-bg);   color: var(--blue-tag); }
+.pill-purple { background: var(--purple-bg); color: var(--purple); }
+.spec-note {
+  font-size: 10.5px;
+  color: var(--support-grey);
+  margin-top: 5px;
+  line-height: 1.45;
+}
+
+/* Summary table */
+.sum-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin-bottom: 0.85rem;
+  background: var(--white);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.sum-table thead tr { background: var(--deep-navy); color: #fff; }
+.sum-table thead th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.sum-table thead th.r { text-align: right; }
+.sum-table tbody tr { border-bottom: 1px solid var(--line); }
+.sum-table tbody tr:last-child { border-bottom: none; }
+.sum-table tbody tr:hover { background: var(--off-white); cursor: pointer; }
+.sum-table td {
+  padding: 10px 12px;
+  color: var(--body-text);
+  vertical-align: middle;
+}
+.sum-table td.r { text-align: right; font-variant-numeric: tabular-nums; }
+.sum-table td.c-red   { color: var(--red);   font-weight: 600; }
+.sum-table td.c-green { color: var(--green); font-weight: 600; }
+.sum-table td strong { color: var(--deep-navy); font-weight: 600; }
+
+/* Insights box */
+.ibox {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 1.2rem 1.4rem;
+  box-shadow: var(--shadow-sm);
+}
+.ir {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.ir:last-child { margin-bottom: 0; }
+.idot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.it {
+  font-size: 13px;
+  color: var(--body-text);
+  line-height: 1.55;
+}
+.it strong { color: var(--deep-navy); font-weight: 600; }
+
+/* Loading state */
+.loading-wrap {
   text-align: center;
   padding: 3rem 2rem;
 }
-.ai-loading-pulse {
-  width: 70px; height: 70px; margin: 0 auto 1.5rem;
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--line);
+  border-top-color: var(--brand-blue);
   border-radius: 50%;
-  background: var(--brand-blue);
-  position: relative;
-  animation: pulse 2s infinite;
+  animation: spin 0.85s linear infinite;
+  margin: 0 auto 1rem;
 }
-.ai-loading-pulse::after {
-  content: ''; position: absolute; inset: -10px;
-  border: 2px solid var(--brand-blue);
-  border-radius: 50%; opacity: 0.3;
-  animation: pulse-ring 2s infinite;
-}
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(0.9); }
-}
-@keyframes pulse-ring {
-  0% { transform: scale(1); opacity: 0.4; }
-  100% { transform: scale(1.5); opacity: 0; }
-}
-.ai-loading-title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 22px; font-weight: 700;
-  text-transform: uppercase;
-  color: var(--deep-navy);
-  margin-bottom: 0.5rem;
-}
-.ai-loading-sub { color: var(--body-text); font-size: 13px; max-width: 460px; margin: 0 auto; }
-.ai-loading-steps {
-  margin-top: 1.75rem;
-  text-align: left;
-  display: inline-block;
-}
-.ai-step {
-  font-size: 12.5px; color: var(--support-grey);
-  padding: 5px 0;
-  display: flex; align-items: center; gap: 10px;
-  font-weight: 500;
-}
-.ai-step.done { color: var(--green); }
-.ai-step.active { color: var(--deep-navy); font-weight: 600; }
-.ai-step::before {
-  content: ''; display: inline-block; width: 14px; height: 14px; border-radius: 50%;
-  border: 1.5px solid var(--line-2);
-  flex-shrink: 0;
-}
-.ai-step.done::before {
-  background: var(--green); border-color: var(--green);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M3.5 7l2.5 2.5 4.5-4.5'/%3E%3C/svg%3E");
-}
-.ai-step.active::before {
-  background: var(--brand-blue); border-color: var(--brand-blue);
-  animation: pulse 1.2s infinite;
-}
-
-/* ── AI review (findings) ─────────────────────────────── */
-.findings-section { margin-bottom: 1.75rem; }
-.findings-section-title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 13px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.08em;
-  color: var(--deep-navy);
-  margin-bottom: 0.9rem;
-  display: flex; align-items: center; gap: 10px;
-}
-.findings-section-title .badge {
-  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
-  background: var(--brand-blue); color: #fff;
-  padding: 3px 8px; border-radius: 10px;
-  text-transform: uppercase;
-}
-.finding-card {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  padding: 1rem 1.25rem;
-  margin-bottom: 8px;
-}
-.finding-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 5px; }
-.finding-title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px; font-weight: 700;
-  color: var(--deep-navy);
-}
-.finding-detail { font-size: 12.5px; color: var(--body-text); line-height: 1.55; }
-.finding-source {
-  font-size: 11px; color: var(--support-grey);
-  margin-top: 7px;
-}
-.finding-source a { color: var(--brand-blue); text-decoration: none; }
-.finding-source a:hover { text-decoration: underline; }
-.verify-btn {
-  background: var(--off-white);
-  border: 1px solid var(--line-2);
-  border-radius: 100px;
-  padding: 5px 13px;
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--body-text);
-  cursor: pointer;
-  white-space: nowrap;
-  font-family: 'Poppins', sans-serif;
-  transition: all 0.15s;
-}
-.verify-btn:hover { background: var(--line); }
-.verify-btn.verified {
-  background: var(--green-bg); border-color: var(--green);
-  color: var(--green);
-}
-
-.context-block {
-  background: var(--blue-bg);
-  border-left: 3px solid var(--brand-blue);
-  border-radius: 0 var(--r-md) var(--r-md) 0;
-  padding: 1rem 1.25rem;
-  font-size: 13px; color: var(--mid-navy); line-height: 1.6;
-}
-.context-block strong { color: var(--deep-navy); font-weight: 700; }
-
-/* ── Alternative picker ───────────────────────────────── */
-.alt-grid { display: flex; flex-direction: column; gap: 10px; }
-.alt-card {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  padding: 1.2rem 1.4rem;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.alt-card:hover { border-color: var(--brand-blue); background: rgba(74,139,196,0.03); }
-.alt-card.selected {
-  border-color: var(--deep-navy); border-width: 2px;
-  padding: calc(1.2rem - 1px) calc(1.4rem - 1px);
-  background: #fff;
-}
-.alt-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
-.alt-name {
-  font-family: 'Poppins', sans-serif;
-  font-size: 16px; font-weight: 700;
-  color: var(--deep-navy);
-}
-.alt-price {
-  font-family: 'Poppins', sans-serif;
-  font-size: 18px; font-weight: 700;
-  color: var(--brand-blue);
-}
-.alt-rationale { font-size: 12.5px; color: var(--body-text); line-height: 1.55; }
-
-.alt-custom {
-  border: 1.5px dashed var(--line-2);
-  border-radius: var(--r-md);
-  padding: 1.2rem 1.4rem;
-  margin-top: 10px;
-}
-.alt-custom-row { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 8px; }
-
-/* ── Projections ──────────────────────────────────────── */
-.proj-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 1.25rem; }
-.proj-controls {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  padding: 1.5rem 1.75rem;
-}
-.proj-output {
-  background: linear-gradient(135deg, var(--deep-navy) 0%, var(--mid-navy) 100%);
-  border-radius: var(--r-lg);
-  padding: 1.75rem 2rem;
-  color: #fff;
-  position: relative;
-  overflow: hidden;
-}
-.proj-output::before {
-  content: ''; position: absolute; top: -40px; right: -40px;
-  width: 200px; height: 200px;
-  background: radial-gradient(circle, rgba(74,139,196,0.2) 0%, transparent 70%);
-}
-.proj-output-eyebrow {
-  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--brand-blue); margin-bottom: 0.4rem;
-  position: relative;
-}
-.proj-output-divider {
-  width: 40px; height: 3px;
-  background: var(--brand-blue); border-radius: 2px;
-  margin-bottom: 1rem;
-}
-.proj-line {
-  display: flex; justify-content: space-between; align-items: baseline;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
   font-size: 13px;
-  position: relative;
-}
-.proj-line:last-of-type { border-bottom: none; }
-.proj-line-label { color: rgba(255,255,255,0.7); font-weight: 500; }
-.proj-line-val {
-  font-family: 'Poppins', sans-serif;
-  font-size: 17px; font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.proj-net {
-  background: rgba(74,139,196,0.15);
-  border: 1px solid rgba(74,139,196,0.3);
-  border-radius: var(--r-md);
-  padding: 1.1rem 1.3rem;
-  margin-top: 1.25rem;
-  text-align: center;
-  position: relative;
-}
-.proj-net-lbl {
-  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
-  text-transform: uppercase; color: rgba(255,255,255,0.7);
-  margin-bottom: 6px;
-}
-.proj-net-val {
-  font-family: 'Poppins', sans-serif;
-  font-size: 40px; font-weight: 700;
-  color: #fff; letter-spacing: -0.02em; line-height: 1;
-}
-.proj-net-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 6px; }
-
-.slider-row { margin-bottom: 1.4rem; }
-.slider-row:last-child { margin-bottom: 0; }
-.slider-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-.slider-label {
-  font-size: 12px; font-weight: 600;
-  color: var(--deep-navy);
-  text-transform: uppercase; letter-spacing: 0.04em;
-}
-.slider-val {
-  font-family: 'Poppins', sans-serif;
-  font-size: 18px; font-weight: 700;
-  color: var(--brand-blue);
-}
-.slider-row input[type="range"] {
-  width: 100%;
-  -webkit-appearance: none; appearance: none;
-  background: transparent;
-}
-.slider-row input[type="range"]::-webkit-slider-runnable-track {
-  height: 6px; background: var(--off-white); border: 1px solid var(--line); border-radius: 3px;
-}
-.slider-row input[type="range"]::-moz-range-track {
-  height: 6px; background: var(--off-white); border: 1px solid var(--line); border-radius: 3px;
-}
-.slider-row input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; appearance: none;
-  width: 20px; height: 20px; border-radius: 50%;
-  background: var(--brand-blue); cursor: pointer; margin-top: -8px;
-  box-shadow: 0 2px 6px rgba(74,139,196,0.4);
-  border: 2px solid #fff;
-}
-.slider-row input[type="range"]::-moz-range-thumb {
-  width: 20px; height: 20px; border-radius: 50%;
-  background: var(--brand-blue); cursor: pointer; border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(74,139,196,0.4);
-}
-.slider-bounds {
-  display: flex; justify-content: space-between;
-  font-size: 10px; color: var(--support-grey); margin-top: 4px;
-}
-
-/* ── Done / report screen ─────────────────────────────── */
-.done-hero {
-  text-align: center; padding: 2.5rem 1rem 2.75rem;
-  background: linear-gradient(135deg, var(--deep-navy) 0%, var(--mid-navy) 100%);
-  border-radius: var(--r-lg);
-  margin-bottom: 1.5rem;
-  color: #fff;
-  position: relative;
-  overflow: hidden;
-}
-.done-hero::before {
-  content: ''; position: absolute; top: -80px; left: -80px;
-  width: 280px; height: 280px;
-  background: radial-gradient(circle, rgba(74,139,196,0.2) 0%, transparent 70%);
-}
-.done-icon {
-  width: 64px; height: 64px; border-radius: 50%;
-  background: var(--brand-blue); color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 1rem; font-size: 28px;
-  position: relative; z-index: 1;
-}
-.done-title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 32px; font-weight: 700;
+  color: var(--support-grey);
   text-transform: uppercase;
-  margin-bottom: 0.5rem;
-  position: relative; z-index: 1;
-}
-.done-sub { color: rgba(255,255,255,0.7); font-size: 14px; position: relative; z-index: 1; }
-
-/* ── Error/alert ──────────────────────────────────────── */
-.alert {
-  background: var(--red-bg);
-  border-left: 3px solid var(--red);
-  border-radius: 0 var(--r) var(--r) 0;
-  padding: 11px 15px;
-  font-size: 13px; color: var(--red);
-  margin-top: 12px;
+  letter-spacing: 0.08em;
 }
 
-/* ── Hidden states ────────────────────────────────────── */
-.hidden { display: none !important; }
-
-@media (max-width: 720px) {
-  .step-title { font-size: 28px; }
-  .venue-grid, .rec-grid, .proj-grid, .bar-row { grid-template-columns: 1fr; }
-  .kpi-row { grid-template-columns: 1fr 1fr; }
-  .page { padding: 2rem 1rem 4rem; }
-  .dashboard-hero { padding: 1.5rem; }
+/* Download bar at bottom of dashboard */
+.action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding: 1.2rem 1.4rem;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
 }
+.action-bar-text {
+  font-size: 13px;
+  color: var(--body-text);
+}
+.action-bar-text strong { color: var(--deep-navy); }
 </style>
 </head>
 <body>
@@ -887,26 +744,26 @@ select {
 <!-- Top bar -->
 <div class="topbar">
   <div class="topbar-inner">
-    <div class="brand">
-      <div class="brand-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 566.929 566.929"><path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 558.109375 210.90625 C 556.890625 204.054688 554.902344 198.101562 552.621094 191.554688 C 551.449219 188.191406 550.140625 185.472656 550.007812 181.964844 C 549.910156 179.355469 548.976562 175.035156 547.726562 172.589844 C 543.484375 164.3125 540.320312 155.746094 535.125 147.953125 C 529.90625 140.121094 523.710938 132.996094 517.496094 125.941406 C 508.3125 115.519531 498.90625 104.832031 488.847656 95.242188 C 479.257812 86.097656 468.121094 78.679688 457.675781 70.566406 C 446.265625 61.710938 434.816406 52.921875 423.277344 44.230469 C 412.054688 35.777344 401.125 26.808594 388.808594 19.929688 C 377.074219 13.378906 364.332031 9.414062 351.113281 7.132812 C 323.480469 2.367188 295.148438 3.3125 267.21875 3.148438 C 253.335938 3.066406 239.3125 3.082031 225.636719 5.730469 C 212.480469 8.277344 199.804688 12.746094 187.019531 16.65625 C 174.550781 20.46875 161.984375 24.382812 150.84375 31.3125 C 140.222656 37.921875 130.613281 46.015625 120.066406 52.757812 C 98.253906 66.707031 80.082031 84.308594 63.714844 104.25 C 55.648438 114.082031 48.179688 124.40625 41.507812 135.226562 C 35.214844 145.429688 28.695312 156.160156 26.671875 168.144531 C 25.570312 174.6875 25.878906 181.480469 25.527344 188.09375 C 25.148438 195.183594 24.652344 202.269531 24.421875 209.367188 C 23.992188 222.703125 25.195312 236.109375 23.21875 249.363281 C 21.234375 262.65625 15.519531 275.113281 11.578125 287.894531 C 7.621094 300.734375 5.171875 314.070312 5.816406 327.546875 C 7.042969 353.207031 21.8125 375.726562 30.378906 399.394531 C 38.308594 421.308594 46.351562 442.773438 64.589844 458.390625 C 73.121094 465.691406 82.648438 471.699219 91.558594 478.507812 C 102.742188 487.054688 111.949219 497.578125 122.066406 507.273438 C 136.117188 520.738281 152.632812 531.15625 170.292969 539.28125 C 175.335938 541.601562 180.460938 543.742188 185.644531 545.734375 C 208.019531 554.328125 231.613281 559.859375 255.46875 562.242188 C 280.34375 564.71875 304.964844 563.238281 329.617188 559.449219 C 353.253906 555.8125 376.9375 551.140625 399.167969 542.113281 C 419.648438 533.796875 439.597656 523.246094 456.445312 508.839844 C 465.375 501.203125 472.160156 491.695312 480.726562 483.761719 C 489.015625 476.085938 498.390625 470.351562 505.585938 461.46875 C 519.464844 444.332031 530.277344 423.792969 538.515625 403.441406 C 547.367188 381.578125 552.429688 358.652344 555.488281 335.324219 C 557.789062 317.808594 558.800781 300.152344 559.46875 282.507812 C 559.664062 277.429688 559.828125 272.347656 559.984375 267.265625 C 560.570312 248.625 561.390625 229.359375 558.109375 210.90625 M 547.640625 292.398438 C 547.640625 433.4375 433.300781 547.777344 292.257812 547.777344 C 151.21875 547.777344 36.878906 433.4375 36.878906 292.398438 C 36.878906 151.355469 151.21875 37.015625 292.257812 37.015625 C 433.300781 37.015625 547.640625 151.355469 547.640625 292.398438 "/><path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 146.882812 315.421875 L 111.445312 280.644531 L 144.054688 249.449219 L 136.515625 249.449219 L 105.414062 279.042969 L 105.414062 249.449219 L 99.757812 249.449219 L 99.757812 315.421875 L 105.414062 315.421875 L 105.414062 282.058594 L 139.34375 315.421875 Z M 167.617188 315.421875 L 173.273438 315.421875 L 173.273438 249.449219 L 167.617188 249.449219 Z M 250.742188 300.625 C 246.125 306.65625 238.113281 310.992188 229.066406 310.992188 C 212.667969 310.992188 201.074219 298.457031 201.074219 282.4375 C 201.074219 266.601562 212.667969 253.878906 228.5 253.878906 C 236.699219 253.878906 243.957031 257.363281 248.574219 262.453125 L 252.441406 258.59375 C 246.691406 252.273438 237.925781 248.507812 228.5 248.507812 C 209.460938 248.507812 195.417969 263.398438 195.417969 282.4375 C 195.417969 301.945312 209.652344 316.367188 229.347656 316.367188 C 239.527344 316.367188 249.140625 311.464844 254.796875 304.207031 Z M 322.65625 315.421875 L 287.21875 280.644531 L 319.828125 249.449219 L 312.289062 249.449219 L 281.183594 279.042969 L 281.183594 249.449219 L 275.53125 249.449219 L 275.53125 315.421875 L 281.183594 315.421875 L 281.183594 282.058594 L 315.113281 315.421875 Z M 350.457031 282.4375 C 350.457031 269.996094 359.691406 259.816406 372.132812 259.816406 C 384.574219 259.816406 393.8125 269.996094 393.8125 282.4375 C 393.8125 294.875 384.574219 305.054688 372.132812 305.054688 C 359.691406 305.054688 350.457031 294.875 350.457031 282.4375 M 337.730469 282.4375 C 337.730469 301.191406 351.773438 316.367188 372.132812 316.367188 C 392.488281 316.367188 406.53125 301.191406 406.53125 282.4375 C 406.53125 263.679688 392.488281 248.507812 372.132812 248.507812 C 351.773438 248.507812 337.730469 263.679688 337.730469 282.4375 M 427.269531 315.421875 L 439.992188 315.421875 L 439.992188 272.445312 L 476.75 315.421875 L 485.703125 315.421875 L 485.703125 249.449219 L 472.980469 249.449219 L 472.980469 292.425781 L 436.21875 249.449219 L 427.269531 249.449219 Z M 427.269531 315.421875 "/><path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 249.609375 362.320312 L 239.554688 362.320312 L 239.554688 365.503906 L 246.257812 365.503906 L 246.257812 371.535156 C 245.019531 372.777344 242.972656 373.714844 240.492188 373.714844 C 235.5 373.714844 231.679688 370.128906 231.679688 364.832031 C 231.679688 359.773438 235.402344 355.949219 240.191406 355.949219 C 242.707031 355.949219 245.152344 357.089844 246.527344 358.597656 L 248.773438 356.386719 C 246.726562 354.140625 243.542969 352.769531 240.191406 352.769531 C 233.421875 352.769531 228.328125 358.0625 228.328125 364.832031 C 228.328125 371.769531 233.488281 376.898438 240.492188 376.898438 C 244.113281 376.898438 247.601562 375.089844 249.609375 372.542969 Z M 264.484375 365.503906 L 272.828125 376.5625 L 276.886719 376.5625 L 268.472656 365.371094 C 269.644531 365.167969 270.480469 364.734375 271.21875 364.132812 C 272.625 362.992188 273.535156 361.25 273.535156 359.300781 C 273.535156 357.359375 272.625 355.617188 271.21875 354.476562 C 270.148438 353.605469 268.804688 353.101562 266.660156 353.101562 L 258.453125 353.101562 L 258.453125 376.5625 L 261.804688 376.5625 L 261.804688 365.503906 Z M 261.804688 362.320312 L 261.804688 356.289062 L 266.492188 356.289062 C 268.003906 356.289062 268.773438 356.621094 269.308594 357.15625 C 269.84375 357.695312 270.183594 358.464844 270.183594 359.300781 C 270.183594 360.140625 269.84375 360.914062 269.308594 361.449219 C 268.773438 361.984375 268.003906 362.320312 266.492188 362.320312 Z M 280.867188 364.832031 C 280.867188 371.671875 285.960938 376.898438 292.597656 376.898438 C 299.230469 376.898438 304.328125 371.671875 304.328125 364.832031 C 304.328125 357.996094 299.230469 352.769531 292.597656 352.769531 C 285.960938 352.769531 280.867188 357.996094 280.867188 364.832031 M 284.21875 364.832031 C 284.21875 359.773438 287.800781 355.949219 292.597656 355.949219 C 297.386719 355.949219 300.976562 359.773438 300.976562 364.832031 C 300.976562 369.929688 297.386719 373.714844 292.597656 373.714844 C 287.800781 373.714844 284.21875 369.929688 284.21875 364.832031 M 321.878906 376.898438 C 324.761719 376.898438 327.375 375.726562 329.152344 373.816406 C 330.660156 372.175781 331.597656 369.996094 331.597656 366.84375 L 331.597656 353.101562 L 328.246094 353.101562 L 328.246094 367.011719 C 328.246094 369.226562 327.710938 370.597656 326.773438 371.636719 C 325.597656 372.945312 323.855469 373.714844 321.878906 373.714844 C 319.902344 373.714844 318.160156 372.945312 316.984375 371.636719 C 316.046875 370.597656 315.511719 369.226562 315.511719 367.011719 L 315.511719 353.101562 L 312.160156 353.101562 L 312.160156 366.84375 C 312.160156 369.996094 313.097656 372.175781 314.609375 373.816406 C 316.382812 375.726562 318.996094 376.898438 321.878906 376.898438 M 344.292969 362.992188 L 344.292969 356.289062 L 349.65625 356.289062 C 351.265625 356.289062 352.136719 356.6875 352.742188 357.328125 C 353.308594 357.929688 353.675781 358.734375 353.675781 359.640625 C 353.675781 360.542969 353.308594 361.347656 352.742188 361.949219 C 352.136719 362.589844 351.265625 362.992188 349.65625 362.992188 Z M 349.824219 366.175781 C 352.101562 366.175781 353.578125 365.605469 354.714844 364.632812 C 356.125 363.425781 357.027344 361.648438 357.027344 359.640625 C 357.027344 357.625 356.125 355.851562 354.714844 354.644531 C 353.578125 353.671875 352.101562 353.101562 349.824219 353.101562 L 340.941406 353.101562 L 340.941406 376.5625 L 344.292969 376.5625 L 344.292969 366.175781 Z M 349.824219 366.175781 "/></svg></div>
+    <div class="brand" onclick="goHome()">
+      <div class="brand-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 566.929 566.929"><path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 558.109375 210.90625 C 556.890625 204.054688 554.902344 198.101562 552.621094 191.554688 C 551.449219 188.191406 550.140625 185.472656 550.007812 181.964844 C 549.910156 179.355469 548.976562 175.035156 547.726562 172.589844 C 543.484375 164.3125 540.320312 155.746094 535.125 147.953125 C 529.90625 140.121094 523.710938 132.996094 517.496094 125.941406 C 508.3125 115.519531 498.90625 104.832031 488.847656 95.242188 C 479.257812 86.097656 468.121094 78.679688 457.675781 70.566406 C 446.265625 61.710938 434.816406 52.921875 423.277344 44.230469 C 412.054688 35.777344 401.125 26.808594 388.808594 19.929688 C 377.074219 13.378906 364.332031 9.414062 351.113281 7.132812 C 323.480469 2.367188 295.148438 3.3125 267.21875 3.148438 C 253.335938 3.066406 239.3125 3.082031 225.636719 5.730469 C 212.480469 8.277344 199.804688 12.746094 187.019531 16.65625 C 174.550781 20.46875 161.984375 24.382812 150.84375 31.3125 C 140.222656 37.921875 130.613281 46.015625 120.066406 52.757812 C 98.253906 66.707031 80.082031 84.308594 63.714844 104.25 C 55.648438 114.082031 48.179688 124.40625 41.507812 135.226562 C 35.214844 145.429688 28.695312 156.160156 26.671875 168.144531 C 25.570312 174.6875 25.878906 181.480469 25.527344 188.09375 C 25.148438 195.183594 24.652344 202.269531 24.421875 209.367188 C 23.992188 222.703125 25.195312 236.109375 23.21875 249.363281 C 21.234375 262.65625 15.519531 275.113281 11.578125 287.894531 C 7.621094 300.734375 5.171875 314.070312 5.816406 327.546875 C 7.042969 353.207031 21.8125 375.726562 30.378906 399.394531 C 38.308594 421.308594 46.351562 442.773438 64.589844 458.390625 C 73.121094 465.691406 82.648438 471.699219 91.558594 478.507812 C 102.742188 487.054688 111.949219 497.578125 122.066406 507.273438 C 136.117188 520.738281 152.632812 531.15625 170.292969 539.28125 C 175.335938 541.601562 180.460938 543.742188 185.644531 545.734375 C 208.019531 554.328125 231.613281 559.859375 255.46875 562.242188 C 280.34375 564.71875 304.964844 563.238281 329.617188 559.449219 C 353.253906 555.8125 376.9375 551.140625 399.167969 542.113281 C 419.648438 533.796875 439.597656 523.246094 456.445312 508.839844 C 465.375 501.203125 472.160156 491.695312 480.726562 483.761719 C 489.015625 476.085938 498.390625 470.351562 505.585938 461.46875 C 519.464844 444.332031 530.277344 423.792969 538.515625 403.441406 C 547.367188 381.578125 552.429688 358.652344 555.488281 335.324219 C 557.789062 317.808594 558.800781 300.152344 559.46875 282.507812 C 559.664062 277.429688 559.828125 272.347656 559.984375 267.265625 C 560.570312 248.625 561.390625 229.359375 558.109375 210.90625 M 547.640625 292.398438 C 547.640625 433.4375 433.300781 547.777344 292.257812 547.777344 C 151.21875 547.777344 36.878906 433.4375 36.878906 292.398438 C 36.878906 151.355469 151.21875 37.015625 292.257812 37.015625 C 433.300781 37.015625 547.640625 151.355469 547.640625 292.398438 "/><path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 146.882812 315.421875 L 111.445312 280.644531 L 144.054688 249.449219 L 136.515625 249.449219 L 105.414062 279.042969 L 105.414062 249.449219 L 99.757812 249.449219 L 99.757812 315.421875 L 105.414062 315.421875 L 105.414062 282.058594 L 139.34375 315.421875 Z M 167.617188 315.421875 L 173.273438 315.421875 L 173.273438 249.449219 L 167.617188 249.449219 Z M 250.742188 300.625 C 246.125 306.65625 238.113281 310.992188 229.066406 310.992188 C 212.667969 310.992188 201.074219 298.457031 201.074219 282.4375 C 201.074219 266.601562 212.667969 253.878906 228.5 253.878906 C 236.699219 253.878906 243.957031 257.363281 248.574219 262.453125 L 252.441406 258.59375 C 246.691406 252.273438 237.925781 248.507812 228.5 248.507812 C 209.460938 248.507812 195.417969 263.398438 195.417969 282.4375 C 195.417969 301.945312 209.652344 316.367188 229.347656 316.367188 C 239.527344 316.367188 249.140625 311.464844 254.796875 304.207031 Z M 322.65625 315.421875 L 287.21875 280.644531 L 319.828125 249.449219 L 312.289062 249.449219 L 281.183594 279.042969 L 281.183594 249.449219 L 275.53125 249.449219 L 275.53125 315.421875 L 281.183594 315.421875 L 281.183594 282.058594 L 315.113281 315.421875 Z M 350.457031 282.4375 C 350.457031 269.996094 359.691406 259.816406 372.132812 259.816406 C 384.574219 259.816406 393.8125 269.996094 393.8125 282.4375 C 393.8125 294.875 384.574219 305.054688 372.132812 305.054688 C 359.691406 305.054688 350.457031 294.875 350.457031 282.4375 M 337.730469 282.4375 C 337.730469 301.191406 351.773438 316.367188 372.132812 316.367188 C 392.488281 316.367188 406.53125 301.191406 406.53125 282.4375 C 406.53125 263.679688 392.488281 248.507812 372.132812 248.507812 C 351.773438 248.507812 337.730469 263.679688 337.730469 282.4375 M 427.269531 315.421875 L 439.992188 315.421875 L 439.992188 272.445312 L 476.75 315.421875 L 485.703125 315.421875 L 485.703125 249.449219 L 472.980469 249.449219 L 472.980469 292.425781 L 436.21875 249.449219 L 427.269531 249.449219 Z M 427.269531 315.421875 "/></svg></div>
       <div class="brand-text-wrap">
         <span class="brand-text">Weekday Offer Review</span>
         <span class="brand-text-sub">Kickon Group · Changing The Game</span>
       </div>
     </div>
-    <div class="progress-pill" id="progress-pill">Step 1 of 13</div>
+    <div class="progress-pill" id="progress-pill">Get started</div>
   </div>
 </div>
 
-<!-- Wizard screens -->
 <main id="wizard"></main>
 
 <script>
 // ╔═══════════════════════════════════════════════════════════════╗
 // ║  Weekday Offer Review · Kickon Group                          ║
+// ║  Path A: Performance Review (cross-week triage)               ║
+// ║  Path B: Strategic Plan (deep dive) - stub, coming next        ║
 // ╚═══════════════════════════════════════════════════════════════╝
 
-// ── Venues (baked in) ──────────────────────────────────────────────
 const VENUES = [
   { name: 'Osbourne Hotel', addr: '766 Ann Street, Fortitude Valley QLD 4006', region: 'Queensland', area: 'Fortitude Valley, Brisbane' },
   { name: 'The Plough Inn', addr: 'Building 29, Stanley Street Plaza, South Bank Parklands, South Brisbane QLD 4101', region: 'Queensland', area: 'South Bank, Brisbane' },
@@ -929,1755 +786,1146 @@ const DAY_COLORS = {
   Thursday:'#7a2a2a', Friday:'#5b3a8b', Saturday:'#1a6b6b', Sunday:'#8b4a2a'
 };
 
-const STEPS = [
-  'welcome', 'venue', 'export-instructions', 'upload', 'specials',
-  'pick-special', 'dashboard', 'recommend', 'notes', 'ai-research',
-  'ai-review', 'alternative', 'projections', 'generate'
-];
-
 // ── App state ──────────────────────────────────────────────────────
 const state = {
-  step: 0,
+  screen: 'home',          // home | path-a-* | path-b-stub
+  path: null,              // 'A' or 'B'
   venue: null,
   files: [],
-  salesByDay: null,
-  agByDay: null,
-  agCategoryMap: {},        // accounting group name → 'food' | 'bev' | 'disc_food' | 'disc_bev' | 'other'
-                            // populated from the Product Mix Report CSV (when uploaded)
-  specials: [],
-  pickedSpecialIdx: 0,
-  analysis: null,
-  branch: null,             // KEEP, TWEAK, REPLACE, KILL
-  recommendedBranch: null,
-  notes: '',
-  aiData: null,             // { competitors, supplyContext, framing, alternatives }
-  verified: {},             // { 'comp-0': true, ... }
-  alternative: null,        // chosen alternative (from list or custom)
-  projection: {
-    coversChange: 0,        // % delta
-    bevPerCover: 0,         // $
-    foodCostPct: 30,        // %
-    takeUpRate: 60,         // %
-    newPrice: 0,
-  },
+  // Path A data
+  parsedData: null,        // result of parseLineTransactions()
+  specials: [],            // [{day, name, sp, fp}]
+  skuMatches: {},          // { specialIdx: { itemName: { selected: bool, qty, days } } }
+  results: null,           // final per-special analysis results
 };
 
 // ── Helpers ────────────────────────────────────────────────────────
 const $ = sel => document.querySelector(sel);
-const fmtD = v => '$' + Math.round(v).toLocaleString('en-AU');
-const fmtD2 = v => '$' + (Math.round(v*100)/100).toFixed(2);
+const fmtD = v => {
+  const n = Math.round(v);
+  return n < 0 ? '-$' + Math.abs(n).toLocaleString('en-AU') : '$' + n.toLocaleString('en-AU');
+};
 const fmtN = v => Math.round(v).toLocaleString('en-AU');
 const fmtPct = v => Math.round(v) + '%';
+const escHtml = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-function go(stepKey) {
-  state.step = STEPS.indexOf(stepKey);
+function toNum(s) {
+  if (s == null) return 0;
+  const str = String(s).replace(/[$,\s]/g, '').trim();
+  if (!str || str === '-') return 0;
+  const n = parseFloat(str);
+  return isNaN(n) ? 0 : n;
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (msg) { el.textContent = msg; el.classList.add('visible'); }
+  else     { el.textContent = ''; el.classList.remove('visible'); }
+}
+
+function setProgress(txt) {
+  const el = $('#progress-pill');
+  if (el) el.textContent = txt;
+}
+
+function goHome() {
+  state.screen = 'home';
+  state.path = null;
+  state.files = [];
+  state.parsedData = null;
+  state.specials = [];
+  state.skuMatches = {};
+  state.results = null;
   render();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-function next() { state.step = Math.min(state.step + 1, STEPS.length - 1); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-function back() { state.step = Math.max(state.step - 1, 0); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-function updateProgress() {
-  $('#progress-pill').textContent = `Step ${state.step + 1} of ${STEPS.length}`;
+// ── Date parsing ───────────────────────────────────────────────────
+// Lightspeed Line Transactions format: "21/03/26 11:30 AM"  or  "21/03/2026 11:30 AM"
+function parseTxDate(s) {
+  if (!s) return null;
+  const m = s.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})\s+(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (!m) return null;
+  let [_, d, mo, y, h, mi, ap] = m;
+  d = +d; mo = +mo; y = +y; h = +h; mi = +mi;
+  if (y < 100) y += 2000;
+  if (ap) {
+    ap = ap.toUpperCase();
+    if (ap === 'PM' && h !== 12) h += 12;
+    if (ap === 'AM' && h === 12) h = 0;
+  }
+  // Construct as local date (no UTC weirdness)
+  return new Date(y, mo - 1, d, h, mi);
 }
 
-// ── CSV parsing (lifted from original tool) ────────────────────────
+function dayName(date) {
+  const js = date.getDay(); // 0=Sunday
+  return DAYS[js === 0 ? 6 : js - 1];
+}
+
+// ── CSV streaming parser ───────────────────────────────────────────
+// Handles quoted fields, commas in values, escaped quotes.
+// Returns array of objects keyed by header.
 function parseCSV(text) {
-  const lines = text.split(/\r?\n/);
-  if (lines.length < 2) return [];
-  function split(line) {
-    const res=[]; let cur=''; let q=false;
-    for (const c of line) {
-      if (c==='"'){q=!q;continue;}
-      if (c===','&&!q){res.push(cur.trim());cur='';continue;}
-      cur+=c;
-    }
-    res.push(cur.trim()); return res;
-  }
-  const headers = split(lines[0]).map(h => h.toLowerCase().replace(/\s+/g,'_').replace(/[()]/g,''));
+  // Strip BOM
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
   const rows = [];
-  for (let i=1; i<lines.length; i++) {
-    const l=lines[i].trim(); if(!l) continue;
-    const vals=split(l); const obj={};
-    headers.forEach((h,idx)=>obj[h]=vals[idx]||'');
-    rows.push(obj);
+  let cur = [];
+  let field = '';
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i+1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { cur.push(field); field = ''; }
+      else if (c === '\n') { cur.push(field); rows.push(cur); cur = []; field = ''; }
+      else if (c === '\r') { /* skip */ }
+      else field += c;
+    }
   }
-  return rows;
+  if (field.length || cur.length) { cur.push(field); rows.push(cur); }
+  if (!rows.length) return [];
+  const headers = rows[0].map(h => h.trim());
+  return rows.slice(1).filter(r => r.length > 1 || (r.length === 1 && r[0])).map(r => {
+    const obj = {};
+    headers.forEach((h, idx) => obj[h] = (r[idx] || '').trim());
+    return obj;
+  });
 }
-const toNum = s => parseFloat((s||'').toString().replace(/[$,\s]/g,''))||0;
-const readText = file => new Promise((res,rej)=>{ const r=new FileReader(); r.onload=e=>res(e.target.result); r.onerror=rej; r.readAsText(file); });
 
-function classifyGroup(name) {
-  const g = (name||'').trim();
+async function readText(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = rej;
+    r.readAsText(file);
+  });
+}
 
-  // Discounts always classified the same way regardless of mapping
-  if (/^Discounts?\s*-\s*Food/i.test(g))      return 'disc_food';
-  if (/^Discounts?\s*-\s*Bev/i.test(g))       return 'disc_bev';
+// ── Line Transactions parser ───────────────────────────────────────
+// Produces a structured per-date aggregation.
+// Returns:
+// {
+//   dateRange: { start, end, weeks, status: 'red'|'amber'|'green'|'amber-long' },
+//   byDate: Map<dateKey, { transactions:Set, foodTx:Set, foodRev, bevRev, discFood, discBev, items:{ name -> { qty, revenue, sales:[{date,qty,price}] } } }>
+//   byDow: { Monday: [{date, transactions, foodTx, foodRev, bevRev, discFood, discBev}, ...], Tuesday: [...], ... }
+//   allItems: { itemName -> { qty, days:{Mon,Tue,...}, prices:[], totalRev } }
+// }
+function parseLineTransactions(rows) {
+  // Column names (case-sensitive as exported by Lightspeed)
+  // Date, Type, Account, Item, SKU, Qty, UnitPrice, FinalPrice, Discount, StatGroup
+  const byDate = new Map();
+  const allItems = new Map();
+  let earliest = null, latest = null;
+  let skippedNoDate = 0;
+  let skippedNoSale = 0;
 
-  // PRIMARY: use the products CSV mapping if available (most reliable)
-  // The Product Mix Report's "Statistic group category" column tells us
-  // for every accounting group whether it's Food, Beverage, or other.
-  if (state.agCategoryMap && state.agCategoryMap[g]) {
-    const cat = state.agCategoryMap[g];
-    if (cat === 'food') return 'food';
-    if (cat === 'bev')  return 'bev';
-    return 'other';
+  for (const r of rows) {
+    if ((r.Type || '').toUpperCase() !== 'SALE') { skippedNoSale++; continue; }
+    const dt = parseTxDate(r.Date);
+    if (!dt) { skippedNoDate++; continue; }
+    if (!earliest || dt < earliest) earliest = dt;
+    if (!latest || dt > latest) latest = dt;
+
+    // Date key = YYYY-MM-DD (local)
+    const yr = dt.getFullYear();
+    const mo = String(dt.getMonth() + 1).padStart(2, '0');
+    const dd = String(dt.getDate()).padStart(2, '0');
+    const dateKey = `${yr}-${mo}-${dd}`;
+
+    let rec = byDate.get(dateKey);
+    if (!rec) {
+      rec = {
+        date: new Date(yr, dt.getMonth(), dt.getDate()),
+        transactions: new Set(),
+        foodTx: new Set(),
+        foodRev: 0,
+        bevRev: 0,
+        discFood: 0,
+        discBev: 0,
+        items: new Map(),
+      };
+      byDate.set(dateKey, rec);
+    }
+
+    const acct = (r.Account || '').trim();
+    const sg = (r.StatGroup || '').trim();
+    const qty = toNum(r.Qty);
+    const finalPrice = toNum(r.FinalPrice);
+    const unitPrice = toNum(r.UnitPrice);
+    const item = (r.Item || '').trim();
+
+    if (acct) rec.transactions.add(acct);
+
+    if (sg === 'Food' && qty > 0) {
+      if (acct) rec.foodTx.add(acct);
+      rec.foodRev += finalPrice;
+      if (item) {
+        let it = rec.items.get(item);
+        if (!it) { it = { qty: 0, revenue: 0 }; rec.items.set(item, it); }
+        it.qty += qty;
+        it.revenue += finalPrice;
+
+        // All-items index for fuzzy matching later
+        let ai = allItems.get(item);
+        if (!ai) {
+          ai = { qty: 0, totalRev: 0, days: {}, prices: [] };
+          DAYS.forEach(d => ai.days[d] = 0);
+          allItems.set(item, ai);
+        }
+        ai.qty += qty;
+        ai.totalRev += finalPrice;
+        ai.days[dayName(dt)] += qty;
+        if (unitPrice > 0) ai.prices.push(unitPrice);
+      }
+    } else if (sg === 'Beverage' && qty > 0) {
+      rec.bevRev += finalPrice;
+    } else if (sg === 'Discount Food') {
+      rec.discFood += Math.abs(finalPrice);
+    } else if (sg === 'Discount Beverage') {
+      rec.discBev += Math.abs(finalPrice);
+    }
   }
 
-  // FALLBACK: keyword matching if products CSV wasn't uploaded
-  // Bev: anything containing "BEV" as a word, plus "Bar - Drinks" etc.
-  if (/\bBEV\b/i.test(g))                     return 'bev';
-  if (/Functions.*Bev/i.test(g))              return 'bev';
-  // Food: anything containing FOOD/KITCHEN/etc as a word, OR known venue food prefixes
-  if (/\b(FOOD|KITCHEN|MEALS|MAINS|BISTRO|GRILL|PIZZA|CLASSICS|SHARED|SALADS|DESSERT)\b/i.test(g)
-      && !/discount|surcharge|mods?\b/i.test(g)) return 'food';
-  if (/^OSBOURNE\s*[-–]/i.test(g) && !/discount|surcharge/i.test(g)) return 'food';
-  return 'other';
-}
+  // Build byDow aggregation
+  const byDow = {};
+  DAYS.forEach(d => byDow[d] = []);
 
-// Process the Product Mix CSV to build accounting_group → category mapping.
-// This CSV has columns: Item name, Accounting group, ..., Statistic group category
-// where Statistic group category contains values like "Food", "Beverage", "other",
-// or sometimes "Food Thursday Burger Night" etc (custom stat groups).
-function processProductsCSV(text) {
-  const rows = parseCSV(text);
-  if (!rows.length) return 0;
-  const ks = Object.keys(rows[0]);
-  const agCol  = ks.find(k => k === 'accounting_group');
-  const catCol = ks.find(k => k === 'statistic_group_category');
-  if (!agCol || !catCol) return 0;
+  // Convert Map to sorted array
+  const sortedKeys = Array.from(byDate.keys()).sort();
 
-  const map = state.agCategoryMap || {};
-  let added = 0;
-  for (const row of rows) {
-    const ag  = (row[agCol]  || '').trim();
-    const cat = (row[catCol] || '').trim();
-    if (!ag || !cat || map[ag]) continue;
-    // Normalise the category - Lightspeed sometimes appends a custom stat group name
-    // e.g. "Food Thursday Burger Night" → we want just "food"
-    const catLower = cat.toLowerCase();
-    let normalised = null;
-    if (catLower.startsWith('food'))     normalised = 'food';
-    else if (catLower.startsWith('beverage')) normalised = 'bev';
-    else if (catLower.startsWith('discount food'))     normalised = 'disc_food';
-    else if (catLower.startsWith('discount bev'))      normalised = 'disc_bev';
-    else                                  normalised = 'other';
-    map[ag] = normalised;
-    added++;
+  // Detect & drop partial trading days at edges
+  // Calculate median transaction count per dow first
+  const dowTxCounts = {};
+  DAYS.forEach(d => dowTxCounts[d] = []);
+  for (const k of sortedKeys) {
+    const rec = byDate.get(k);
+    const dow = dayName(rec.date);
+    dowTxCounts[dow].push(rec.transactions.size);
   }
-  state.agCategoryMap = map;
-  return added;
-}
+  const medianByDow = {};
+  for (const d of DAYS) {
+    const arr = dowTxCounts[d].slice().sort((a,b) => a-b);
+    medianByDow[d] = arr.length ? arr[Math.floor(arr.length / 2)] : 0;
+  }
 
-function parseDayName(raw) {
-  if (!raw) return null;
-  const datePart = raw.split('T')[0];
-  const parts = datePart.split('-');
-  if (parts.length !== 3) return null;
-  const [yr, mo, dy] = parts.map(Number);
-  if (!yr || !mo || !dy) return null;
-  const jsDay = new Date(yr, mo-1, dy).getDay();
-  return DAYS[jsDay === 0 ? 6 : jsDay - 1];
-}
+  // Now drop edges if too small
+  const droppedDates = new Set();
+  if (sortedKeys.length >= 3) {
+    const first = byDate.get(sortedKeys[0]);
+    const last = byDate.get(sortedKeys[sortedKeys.length - 1]);
+    const firstDow = dayName(first.date);
+    const lastDow = dayName(last.date);
+    if (medianByDow[firstDow] > 10 && first.transactions.size < medianByDow[firstDow] * 0.2) {
+      droppedDates.add(sortedKeys[0]);
+    }
+    if (medianByDow[lastDow] > 10 && last.transactions.size < medianByDow[lastDow] * 0.2) {
+      droppedDates.add(sortedKeys[sortedKeys.length - 1]);
+    }
+  }
 
-function processSalesCSV(text, salesByDay) {
-  const rows = parseCSV(text);
-  if (!rows.length) return;
-  const ks = Object.keys(rows[0]);
-  const dateCol  = ks.find(k=>k==='interval_from');
-  const netCol   = ks.find(k=>k==='net_sales_aud');
-  const grossCol = ks.find(k=>k==='gross_sales_aud');
-  const covCol   = ks.find(k=>k==='covers');
-  const discCol  = ks.find(k=>k==='discounts_aud');
-  if (!dateCol || !netCol) return;
-  for (const row of rows) {
-    const dayName = parseDayName(row[dateCol]);
-    if (!dayName) continue;
-    const net = toNum(row[netCol]);
-    if (net <= 0) continue;
-    salesByDay[dayName].push({
-      net,
-      gross:    grossCol ? toNum(row[grossCol]) : net * 1.1,
-      covers:   covCol   ? toNum(row[covCol])   : 0,
-      discounts:discCol  ? Math.abs(toNum(row[discCol])) : 0,
+  for (const k of sortedKeys) {
+    if (droppedDates.has(k)) continue;
+    const rec = byDate.get(k);
+    const dow = dayName(rec.date);
+    byDow[dow].push({
+      date: rec.date,
+      dateKey: k,
+      transactions: rec.transactions.size,
+      foodTx: rec.foodTx.size,
+      foodRev: rec.foodRev,
+      bevRev: rec.bevRev,
+      discFood: rec.discFood,
+      discBev: rec.discBev,
+      items: rec.items,
     });
   }
-}
 
-function processAgCSV(text, agByDay) {
-  const rows = parseCSV(text);
-  if (!rows.length) return;
-  const ks = Object.keys(rows[0]);
-  const dateCol = ks.find(k=>k==='interval_from');
-  const grpCol  = ks.find(k=>k==='accounting_group_name');
-  const totCol  = ks.find(k=>k==='total_aud');
-  if (!dateCol || !grpCol || !totCol) return;
-  const byDate = {};
-  for (const row of rows) {
-    const raw = row[dateCol];
-    const datePart = (raw||'').split('T')[0];
-    if (!datePart) continue;
-    const dayName = parseDayName(raw);
-    if (!dayName) continue;
-    if (!byDate[datePart]) byDate[datePart] = { day:dayName, food:0, bev:0, discFood:0, discBev:0 };
-    const amt = toNum(row[totCol]);
-    const type = classifyGroup(row[grpCol]||'');
-    if      (type==='food')      byDate[datePart].food     += amt;
-    else if (type==='bev')       byDate[datePart].bev      += amt;
-    else if (type==='disc_food') byDate[datePart].discFood += Math.abs(amt);
-    else if (type==='disc_bev')  byDate[datePart].discBev  += Math.abs(amt);
-  }
-  for (const { day, food, bev, discFood, discBev } of Object.values(byDate)) {
-    agByDay[day].push({ food, bev, discFood, discBev });
-  }
-}
-
-async function processAllFiles() {
-  const salesByDay = {}; DAYS.forEach(d=>salesByDay[d]=[]);
-  const agByDay    = {}; DAYS.forEach(d=>agByDay[d]=[]);
-  state.agCategoryMap = {};   // reset between runs
-  let foundSS = false;
-
-  // We process files in two passes:
-  // PASS 1 - extract all CSV text from ZIPs and direct uploads, classify by filename
-  // PASS 2 - process them in the right order (products CSV first to build the
-  //          category map, THEN accounting_groups so the classifier has the map)
-  const csvBuckets = { sales: [], ag: [], products: [] };
-
-  function bucketFor(filename) {
-    const base = filename.replace(/\.csv$/i,'').toLowerCase();
-    if (base.includes('sales_summary'))   return 'sales';
-    if (base.includes('accounting_group')) return 'ag';
-    // Product Mix exports have varied names: "products", "product_mix", "product mix"
-    if (base.includes('product'))         return 'products';
-    return null;
+  // Date range status
+  const startDate = sortedKeys.length ? byDate.get(sortedKeys[0]).date : null;
+  const endDate = sortedKeys.length ? byDate.get(sortedKeys[sortedKeys.length - 1]).date : null;
+  let weeks = 0, status = 'red';
+  if (startDate && endDate) {
+    const days = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    weeks = days / 7;
+    if (weeks < 8) status = 'red';
+    else if (weeks < 12) status = 'amber';
+    else if (weeks <= 16) status = 'green';
+    else status = 'amber-long';
   }
 
-  for (const f of state.files) {
-    if (f.name.toLowerCase().endsWith('.zip')) {
-      const zip = await JSZip.loadAsync(f);
-      for (const name of Object.keys(zip.files)) {
-        if (zip.files[name].dir || !name.toLowerCase().endsWith('.csv')) continue;
-        const shortName = name.split('/').pop();
-        const bucket = bucketFor(shortName);
-        if (!bucket) continue;
-        const text = await zip.files[name].async('string');
-        csvBuckets[bucket].push(text);
-      }
-    } else if (f.name.toLowerCase().endsWith('.csv')) {
-      const bucket = bucketFor(f.name);
-      if (!bucket) continue;
-      const text = await readText(f);
-      csvBuckets[bucket].push(text);
-    }
-  }
-
-  // PASS 2A - Products CSV first, to build the category map.
-  // This MUST run before accounting_groups so that classifyGroup() has the map.
-  for (const text of csvBuckets.products) {
-    processProductsCSV(text);
-  }
-  // PASS 2B - Sales summary
-  for (const text of csvBuckets.sales) {
-    processSalesCSV(text, salesByDay);
-    foundSS = true;
-  }
-  // PASS 2C - Accounting groups (uses the map populated by 2A, or falls back to keyword matching)
-  for (const text of csvBuckets.ag) {
-    processAgCSV(text, agByDay);
-  }
-
-  if (!foundSS) throw new Error('No sales_summary.csv found in your uploads. Make sure you exported the Sales Summary report from Lightspeed.');
-  state.salesByDay = salesByDay;
-  state.agByDay = agByDay;
-}
-
-function analyseSpecial(sp) {
-  const sales = state.salesByDay[sp.day];
-  const ag    = state.agByDay[sp.day];
-  const nights = sales.length;
-  if (!nights) return null;
-  const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
-  const avgNet    = avg(sales.map(s=>s.net));
-  const avgCovers = avg(sales.map(s=>s.covers));
-  const hasAG     = ag.length > 0;
-  const avgFood   = hasAG ? avg(ag.map(a=>a.food))     : avgNet * 0.45;
-  const avgBev    = hasAG ? avg(ag.map(a=>a.bev))      : avgNet * 0.55;
-  const avgDiscF  = hasAG ? avg(ag.map(a=>a.discFood))  : 0;
-  const avgDiscB  = hasAG ? avg(ag.map(a=>a.discBev))   : 0;
-  const totalDisc = avgDiscF + avgDiscB;
-  const perUnitDisc = sp.fp - sp.sp;
-  const units = (perUnitDisc > 0 && avgDiscF > 0) ? Math.round(avgDiscF / perUnitDisc) : null;
-  const discDepth = Math.round((sp.fp - sp.sp) / sp.fp * 100);
-  const spc       = avgCovers > 0 ? avgNet    / avgCovers : 0;
-  const bpc       = avgCovers > 0 ? avgBev    / avgCovers : 0;
-  const fpc       = avgCovers > 0 ? avgFood   / avgCovers : 0;
-  const discCover = avgCovers > 0 ? totalDisc / avgCovers : 0;
-  const isBevLed  = avgBev > avgFood;
   return {
-    ...sp, nights,
-    avgNet, avgCovers, avgFood, avgBev, avgDiscF, avgDiscB, totalDisc,
-    discDepth, spc, bpc, fpc, discCover, units, isBevLed,
+    dateRange: { start: startDate, end: endDate, weeks, status, droppedCount: droppedDates.size },
+    byDate,
+    byDow,
+    allItems,
+    stats: { totalRows: rows.length, skippedNoSale, skippedNoDate, datesCount: sortedKeys.length - droppedDates.size },
   };
 }
 
-function recommendBranch(a) {
-  // KEEP: strong performance
-  if (a.avgCovers >= 150 && a.avgNet >= 7500 && !a.isBevLed) return 'KEEP';
-  // KILL: poor demand despite deep discount
-  if (a.avgCovers < 40 && a.discDepth >= 35) return 'KILL';
-  // REPLACE: bev-led (special isn't doing the work) or low covers with reasonable discount
-  if (a.isBevLed) return 'REPLACE';
-  if (a.avgCovers < 80 && a.discDepth >= 30) return 'REPLACE';
-  // TWEAK: working but discounting too hard
-  if (a.discDepth >= 40) return 'TWEAK';
-  // Default to KEEP if no other rule fires (good performance without flags)
-  return 'KEEP';
+// ── Fuzzy SKU matching ─────────────────────────────────────────────
+// Given a special (day, name, sp price), find candidate POS items.
+// Returns top 6 sorted by qty sold on that day, with auto-tick flag.
+function findSkuCandidates(special, parsed) {
+  const day = special.day;
+  const searchWords = special.name.toLowerCase().split(/\s+/).filter(w => w.length >= 3);
+  if (!searchWords.length) return [];
+
+  const candidates = [];
+  parsed.allItems.forEach((data, itemName) => {
+    const lower = itemName.toLowerCase();
+    // Skip "modifier" items (asterisk suffix usually = discount line)
+    if (itemName.endsWith('*')) return;
+    const qtyOnDay = data.days[day] || 0;
+    if (qtyOnDay === 0) return;  // didn't sell on the special's day
+
+    // Score: count of word matches
+    let nameScore = 0;
+    for (const w of searchWords) {
+      if (lower.includes(w)) nameScore++;
+    }
+    if (nameScore === 0) return;
+
+    // Average price (median is more robust but mean OK)
+    const avgPrice = data.prices.length ? data.prices.reduce((a,b)=>a+b,0) / data.prices.length : 0;
+    const priceMatch = avgPrice > 0 && Math.abs(avgPrice - special.sp) <= 2;
+
+    // Auto-tick logic - conservative:
+    // - Always exclude "Kids" items (separate menu)
+    // - Require strong name match (all search words present) AND (close item-name fit OR price within $2)
+    // Single-word matches alone (even with price coincidence) do NOT auto-tick — too many false positives.
+    // False negatives are fine — MM can tick manually.
+    const isKids = /\bkids?\b/i.test(itemName);
+    const allWordsMatch = nameScore === searchWords.length;
+    // Item name length proxy for "is this item closely about my special vs an item that just mentions it"
+    // e.g. "Wagyu Rump" (2 words) is a closer fit than "Slow-roasted Wagyu Rump Salad with Greens"
+    const itemWordCount = itemName.split(/\s+/).filter(w => w.length).length;
+    const isCloseFit = itemWordCount <= searchWords.length + 2;
+    const autoTick = !isKids && allWordsMatch && (isCloseFit || priceMatch);
+
+    candidates.push({
+      itemName,
+      qtyOnDay,
+      qtyAllDays: data.qty,
+      avgPrice,
+      nameScore,
+      priceMatch,
+      autoTick,
+    });
+  });
+
+  // Sort: auto-tick first, then by qty on day desc
+  candidates.sort((a, b) => {
+    if (a.autoTick !== b.autoTick) return a.autoTick ? -1 : 1;
+    return b.qtyOnDay - a.qtyOnDay;
+  });
+
+  return candidates.slice(0, 6);
 }
 
-const BRANCH_INFO = {
-  KEEP:    { name: 'Keep',    desc: 'Special is working. Document why and protect it.', letter: 'A' },
-  TWEAK:   { name: 'Tweak',   desc: 'Small adjustment to price or mechanic. Lift margin without losing covers.', letter: 'B' },
-  REPLACE: { name: 'Replace', desc: 'Current special is not pulling its weight. Kill it and propose a new one.', letter: 'C' },
-  KILL:    { name: 'Kill',    desc: 'Remove the special entirely. Demand is not there.', letter: 'D' },
-};
+// ── Compute per-special results ────────────────────────────────────
+function avg(arr) { return arr.length ? arr.reduce((a,b) => a+b, 0) / arr.length : 0; }
 
-function branchReason(branch, a) {
-  if (branch === 'KEEP')    return `${fmtN(a.avgCovers)} covers, ${fmtD(a.avgNet)} net per night. Food beats bev. This is performing.`;
-  if (branch === 'TWEAK')   return `Discount depth is ${a.discDepth}% - higher than needed for the covers you are getting.`;
-  if (branch === 'REPLACE') return a.isBevLed
-    ? `Bev (${fmtD(a.avgBev)}) is beating food (${fmtD(a.avgFood)}) - guests are coming for drinks, not the special.`
-    : `Only ${fmtN(a.avgCovers)} covers per night at ${a.discDepth}% off. Not earning its keep.`;
-  if (branch === 'KILL')    return `${fmtN(a.avgCovers)} covers/night despite ${a.discDepth}% discount. No demand here.`;
-  return '';
+function computeResults() {
+  const parsed = state.parsedData;
+  const results = [];
+
+  for (let i = 0; i < state.specials.length; i++) {
+    const sp = state.specials[i];
+    const matched = state.skuMatches[i] || {};
+    const selectedItems = Object.keys(matched).filter(k => matched[k].selected);
+
+    const dayBuckets = parsed.byDow[sp.day] || [];
+    const nights = dayBuckets.length;
+
+    if (!nights) {
+      results.push({ ...sp, nights: 0, hasData: false });
+      continue;
+    }
+
+    // Per-night metrics
+    const avgTx = avg(dayBuckets.map(d => d.transactions));
+    const avgFoodTx = avg(dayBuckets.map(d => d.foodTx));
+    const avgFoodRev = avg(dayBuckets.map(d => d.foodRev));
+    const avgBevRev = avg(dayBuckets.map(d => d.bevRev));
+    const avgDiscFood = avg(dayBuckets.map(d => d.discFood));
+    const avgDiscBev = avg(dayBuckets.map(d => d.discBev));
+    const totalDisc = avgDiscFood + avgDiscBev;
+    const netRev = avgFoodRev + avgBevRev - totalDisc;
+
+    // Units of the special: sum selected items' qty on this day, divided by nights
+    let totalSpecialQty = 0;
+    let totalSpecialRev = 0;
+    for (const itemName of selectedItems) {
+      for (const bucket of dayBuckets) {
+        const it = bucket.items.get(itemName);
+        if (it) { totalSpecialQty += it.qty; totalSpecialRev += it.revenue; }
+      }
+    }
+    const unitsPerNight = nights > 0 ? totalSpecialQty / nights : 0;
+
+    // Take-up rate: units ÷ food-bearing transactions
+    const takeUp = avgFoodTx > 0 ? Math.min(unitsPerNight / avgFoodTx, 1) : 0;
+
+    // Discount %
+    const discPct = sp.fp > 0 ? Math.round((sp.fp - sp.sp) / sp.fp * 100) : 0;
+    // Per-transaction
+    const spendPerTx = avgTx > 0 ? avgFoodRev + avgBevRev - totalDisc : 0;
+    const spendPerTxVal = avgTx > 0 ? (avgFoodRev + avgBevRev - totalDisc) / avgTx : 0;
+    const bevPerTx = avgTx > 0 ? avgBevRev / avgTx : 0;
+    const discPerTx = avgTx > 0 ? totalDisc / avgTx : 0;
+    const foodAttach = avgTx > 0 ? avgFoodTx / avgTx : 0;
+    const isBevLed = avgBevRev > avgFoodRev;
+
+    results.push({
+      ...sp,
+      nights,
+      hasData: true,
+      selectedItems,
+      // Volumes
+      unitsPerNight: Math.round(unitsPerNight),
+      avgTx: Math.round(avgTx),
+      avgFoodTx: Math.round(avgFoodTx),
+      // Revenue
+      avgFoodRev: Math.round(avgFoodRev),
+      avgBevRev: Math.round(avgBevRev),
+      netRev: Math.round(netRev),
+      totalDisc: Math.round(totalDisc),
+      avgDiscFood: Math.round(avgDiscFood),
+      avgDiscBev: Math.round(avgDiscBev),
+      // Ratios
+      takeUp,
+      discPct,
+      spendPerTx: Math.round(spendPerTxVal),
+      bevPerTx: Math.round(bevPerTx),
+      discPerTx: Math.round(discPerTx),
+      foodAttach,
+      isBevLed,
+    });
+  }
+
+  // Determine "highest net rev day at venue" for Dominant verdict
+  // Look at all days of data, find highest avg net rev day-of-week
+  const dowNetRev = {};
+  for (const d of DAYS) {
+    const bucket = parsed.byDow[d];
+    if (!bucket.length) { dowNetRev[d] = 0; continue; }
+    const v = avg(bucket.map(b => b.foodRev + b.bevRev - b.discFood - b.discBev));
+    dowNetRev[d] = v;
+  }
+  const maxNetRevDow = Object.keys(dowNetRev).reduce((a, b) => dowNetRev[a] > dowNetRev[b] ? a : b);
+
+  // Assign verdicts
+  for (const r of results) {
+    if (!r.hasData) continue;
+    r.verdict = computeVerdict(r, maxNetRevDow, dowNetRev);
+  }
+
+  return { results, dowNetRev, maxNetRevDow };
+}
+
+// ── Verdict logic (hierarchical, first match wins) ────────────────
+function computeVerdict(r, maxNetRevDow, dowNetRev) {
+  // 1. Dominant: highest net rev day at venue AND ≥200 units/night
+  if (r.day === maxNetRevDow && r.unitsPerNight >= 200) {
+    return { key: 'dominant', label: '🏆 Dominant', pill: 'pill-green' };
+  }
+  // 2. Star: food > bev AND ≥80 units/night AND disc ≤45%
+  if (!r.isBevLed && r.unitsPerNight >= 80 && r.discPct <= 45) {
+    return { key: 'star', label: '⭐ Star', pill: 'pill-green' };
+  }
+  // 3. Working: food > bev AND ≥40 units/night
+  if (!r.isBevLed && r.unitsPerNight >= 40) {
+    return { key: 'working', label: '✓ Working', pill: 'pill-blue' };
+  }
+  // 4. Efficient: disc cost ≤ $400/night
+  if (r.totalDisc <= 400) {
+    return { key: 'efficient', label: '◐ Efficient', pill: 'pill-purple' };
+  }
+  // 5. Weak: bev > food AND disc ≥40%
+  if (r.isBevLed && r.discPct >= 40) {
+    return { key: 'weak', label: '⚠ Weak', pill: 'pill-amber' };
+  }
+  // Fallback - underperforming but not a clear pattern
+  return { key: 'review', label: '? Review', pill: 'pill-amber' };
+}
+
+// ── Insights generation ────────────────────────────────────────────
+function generateInsights(analysis) {
+  const { results, maxNetRevDow } = analysis;
+  const wd = results.filter(r => r.hasData);
+  const insights = [];
+
+  // 1. Best performer (dominant/star)
+  const dominant = wd.find(r => r.verdict.key === 'dominant');
+  if (dominant) {
+    insights.push({
+      color: DAY_COLORS[dominant.day],
+      html: `<strong>${dominant.day} ${escHtml(dominant.name)} - your anchor night.</strong> ${fmtN(dominant.unitsPerNight)} units sold per ${dominant.day.toLowerCase()}, ${fmtD(dominant.netRev)} net revenue. ${dominant.discPct}% off generates ${fmtD(dominant.totalDisc)} discount cost per night. A $2 price nudge would recover ~${fmtD(2 * dominant.unitsPerNight)}/night (~${fmtD(2 * dominant.unitsPerNight * 50)}/year).`,
+    });
+  }
+
+  // 2. Stars
+  const stars = wd.filter(r => r.verdict.key === 'star');
+  for (const s of stars.slice(0, 2)) {
+    insights.push({
+      color: DAY_COLORS[s.day],
+      html: `<strong>${s.day} ${escHtml(s.name)} - the special is doing the work.</strong> ${fmtN(s.unitsPerNight)} units across ${fmtN(s.avgFoodTx)} food transactions (${fmtPct(s.takeUp * 100)} take-up). Food (${fmtD(s.avgFoodRev)}) leads beverage (${fmtD(s.avgBevRev)}). ${fmtD(s.totalDisc)} discount cost is justified by the trade it drives.`,
+    });
+  }
+
+  // 3. Weak/Review specials
+  const weak = wd.filter(r => r.verdict.key === 'weak' || r.verdict.key === 'review');
+  for (const w of weak.slice(0, 2)) {
+    if (w.isBevLed) {
+      insights.push({
+        color: DAY_COLORS[w.day],
+        html: `<strong>${w.day} ${escHtml(w.name)} - the food special isn't the drawcard.</strong> Beverage (${fmtD(w.avgBevRev)}) outpaces food (${fmtD(w.avgFoodRev)}) - guests are coming to drink, not for the ${w.name.toLowerCase()}. ${w.discPct}% off is a deep markdown for the food volume it's generating (${fmtN(w.unitsPerNight)} units/night). Consider replacing with a lower-cost food hook or leaning into the drinks trade.`,
+      });
+    } else {
+      insights.push({
+        color: DAY_COLORS[w.day],
+        html: `<strong>${w.day} ${escHtml(w.name)} - underperforming.</strong> Only ${fmtN(w.unitsPerNight)} units/night. The food special isn't pulling the volume to justify ${fmtD(w.totalDisc)} discount cost. Worth reviewing the offer.`,
+      });
+    }
+  }
+
+  // 4. Efficient
+  const eff = wd.find(r => r.verdict.key === 'efficient');
+  if (eff && !insights.find(i => i.html.includes(eff.day))) {
+    insights.push({
+      color: DAY_COLORS[eff.day],
+      html: `<strong>${eff.day} ${escHtml(eff.name)} - most efficient markdown.</strong> Only ${eff.discPct}% off, ${fmtD(eff.discPerTx)} discount cost per transaction. ${!eff.isBevLed ? 'Food beats beverage - guests are eating, not just drinking.' : `Sits as a low-cost hook in a drinks-led night.`}`,
+    });
+  }
+
+  return insights;
 }
 
 // ── File handling ──────────────────────────────────────────────────
+function setupDropZone() {
+  const dz = document.getElementById('drop-zone');
+  const fi = document.getElementById('file-input');
+  if (!dz || !fi) return;
+  dz.ondragover = e => { e.preventDefault(); dz.classList.add('over'); };
+  dz.ondragleave = () => dz.classList.remove('over');
+  dz.ondrop = e => { e.preventDefault(); dz.classList.remove('over'); addFiles(e.dataTransfer.files); };
+  fi.onchange = () => { addFiles(fi.files); fi.value = ''; };
+  dz.onclick = () => fi.click();
+}
 function addFiles(list) {
-  for (const f of list) if (!state.files.find(x=>x.name===f.name)) state.files.push(f);
-  render();
+  for (const f of list) if (!state.files.find(x => x.name === f.name)) state.files.push(f);
+  renderFileList();
 }
-function removeFile(i) { state.files.splice(i,1); render(); }
+function removeFile(i) { state.files.splice(i, 1); renderFileList(); }
+function renderFileList() {
+  const el = document.getElementById('file-list');
+  if (!el) return;
+  el.innerHTML = state.files.map((f, i) => `
+    <div class="file-tag">
+      <div class="fn">
+        <span>📄</span>
+        <span>${escHtml(f.name)}</span>
+        <span class="fs">${(f.size / 1024 / 1024).toFixed(2)} MB</span>
+      </div>
+      <button onclick="removeFile(${i})">×</button>
+    </div>`).join('');
+}
 
-// ── Specials handling ──────────────────────────────────────────────
+// ── Specials management (Path A) ───────────────────────────────────
 function addSpecialRow(s = {}) {
-  state.specials.push({
-    day: s.day || 'Monday',
-    name: s.name || '',
-    sp: s.sp || '',
-    fp: s.fp || '',
-  });
-  render();
+  const tbody = document.getElementById('specials-body');
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><select>${DAYS.map(d => `<option${d === (s.day || 'Monday') ? ' selected' : ''}>${d}</option>`).join('')}</select></td>
+    <td><input type="text" placeholder="e.g. Fish & Chips" value="${escHtml(s.name || '')}"></td>
+    <td><input type="number" placeholder="19" value="${s.sp || ''}" step="0.5"></td>
+    <td><input type="number" placeholder="29" value="${s.fp || ''}" step="0.5"></td>
+    <td><button class="del-btn" onclick="this.closest('tr').remove()">×</button></td>`;
+  tbody.appendChild(tr);
 }
-function delSpecialRow(i) { state.specials.splice(i,1); render(); }
-function updateSpecial(i, field, val) { state.specials[i][field] = val; }
-
-function validSpecials() {
-  return state.specials.filter(s => s.name && +s.sp > 0 && +s.fp > 0);
+function readSpecialsFromForm() {
+  return Array.from(document.querySelectorAll('#specials-body tr')).map(tr => {
+    const e = tr.querySelectorAll('select, input');
+    return {
+      day: e[0].value,
+      name: e[1].value.trim(),
+      sp: parseFloat(e[2].value) || 0,
+      fp: parseFloat(e[3].value) || 0,
+    };
+  }).filter(s => s.name && s.sp > 0 && s.fp > 0);
 }
 
 // ── Render dispatcher ──────────────────────────────────────────────
 function render() {
-  updateProgress();
-  const wiz = $('#wizard');
-  const stepKey = STEPS[state.step];
-  const renderers = {
-    'welcome': renderWelcome,
-    'venue': renderVenue,
-    'export-instructions': renderExportInstructions,
-    'upload': renderUpload,
-    'specials': renderSpecials,
-    'pick-special': renderPickSpecial,
-    'dashboard': renderDashboard,
-    'recommend': renderRecommend,
-    'notes': renderNotes,
-    'ai-research': renderAIResearch,
-    'ai-review': renderAIReview,
-    'alternative': renderAlternative,
-    'projections': renderProjections,
-    'generate': renderGenerate,
-  };
-  wiz.innerHTML = renderers[stepKey]();
-  // Attach handlers
-  if (stepKey === 'upload') attachUploadHandlers();
-  if (stepKey === 'specials') attachSpecialsHandlers();
-  if (stepKey === 'ai-research') triggerAIResearch();
-  if (stepKey === 'projections') attachProjectionsHandlers();
+  const wizard = $('#wizard');
+  if (state.screen === 'home') { wizard.innerHTML = renderHome(); setProgress('Get started'); }
+  else if (state.screen === 'path-a-venue')     { wizard.innerHTML = renderVenue(); setProgress('Performance Review · Step 1 of 5'); }
+  else if (state.screen === 'path-a-upload')    { wizard.innerHTML = renderUpload(); setupDropZone(); setProgress('Performance Review · Step 2 of 5'); }
+  else if (state.screen === 'path-a-specials')  { wizard.innerHTML = renderSpecials(); setupSpecialsDefaults(); setProgress('Performance Review · Step 3 of 5'); }
+  else if (state.screen === 'path-a-sku')       { wizard.innerHTML = renderSkuMatch(); setProgress('Performance Review · Step 4 of 5'); }
+  else if (state.screen === 'path-a-dashboard') { wizard.innerHTML = renderDashboard(); setProgress('Performance Review · Complete'); }
+  else if (state.screen === 'path-b-stub')      { wizard.innerHTML = renderStrategicStub(); setProgress('Strategic Plan'); }
 }
 
-// ── Step renderers ─────────────────────────────────────────────────
+function setupSpecialsDefaults() {
+  // If no rows present, add 4 starter rows
+  const tbody = document.getElementById('specials-body');
+  if (!tbody || tbody.children.length > 0) return;
+  for (const d of ['Monday', 'Tuesday', 'Wednesday', 'Thursday']) {
+    addSpecialRow({ day: d });
+  }
+}
 
-function renderWelcome() {
+// ── Screen: Home ───────────────────────────────────────────────────
+function renderHome() {
   return `
-    <div class="page">
-      <div class="step-eyebrow">Begin here</div>
-      <div class="divider-sig"></div>
-      <h1 class="step-title"><span class="light">The</span><br>Weekday Review</h1>
-      <p class="step-lede">
-        Upload your Lightspeed data. Tell us the special. Get an executive-ready report in under thirty minutes - the kind that usually takes half a day. Real venue numbers plus live competitor and supply chain research.
-      </p>
+<div class="page">
+  <div class="step-eyebrow">Welcome</div>
+  <h1 class="step-title"><span class="light">What do you want to</span> do today?</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">Choose your starting point. Both options use the same Lightspeed Line Transactions export.</p>
 
-      <div class="card">
-        <div class="card-title">Before you start, have ready:</div>
-        <ul style="list-style:none; padding:0;">
-          <li style="padding:9px 0; border-bottom:1px solid var(--line); font-size:13.5px;">
-            <strong style="color:var(--deep-navy);">Lightspeed exports</strong> - at least 8 weeks of Sales Summary data for the days your specials run on
-          </li>
-          <li style="padding:9px 0; border-bottom:1px solid var(--line); font-size:13.5px;">
-            <strong style="color:var(--deep-navy);">Your specials</strong> - the special price and the normal menu price for each one
-          </li>
-          <li style="padding:9px 0; font-size:13.5px;">
-            <strong style="color:var(--deep-navy);">An Anthropic API key</strong> - this powers the research and report generation
-          </li>
-        </ul>
-      </div>
+  <div class="path-grid">
 
-      <div class="card">
-        <div class="card-title">What you will get out</div>
-        <p class="card-desc" style="margin-bottom:0;">
-          A Word document, ready to send to leadership. It includes: current performance data, competitive landscape research, supply chain or category context, a clear recommendation (keep, tweak, replace, or kill), and a financial case with assumptions you can defend.
-        </p>
-      </div>
-
-      <div class="btn-row">
-        <div class="spacer"></div>
-        <button class="btn btn-primary btn-lg" onclick="next()">Begin <span class="icon-arrow">→</span></button>
+    <div class="path-card" onclick="state.screen='path-a-venue'; render();">
+      <div class="path-eyebrow">Option 1</div>
+      <h2 class="path-title">Performance <span class="light">Review</span></h2>
+      <p class="path-q">"Which of my weekday specials need attention?"</p>
+      <p class="path-desc">Upload your data, enter every weekday special, and get a side-by-side comparison. Identifies which specials are working, which are weak, and which need investigating.</p>
+      <div class="path-meta">
+        <span><strong>Output:</strong> Cross-week dashboard</span>
+        <span><strong>Time:</strong> ~5 minutes</span>
       </div>
     </div>
-  `;
+
+    <div class="path-card path-stub" onclick="state.screen='path-b-stub'; render();">
+      <div class="stub-badge">Coming soon</div>
+      <div class="path-eyebrow">Option 2</div>
+      <h2 class="path-title">Strategic <span class="light">Plan</span></h2>
+      <p class="path-q">"I've identified a special that needs work. Build the case."</p>
+      <p class="path-desc">Deep-dive on one special with AI-researched competitor analysis, supply context, multi-scenario financial projections, and an action plan ready to send.</p>
+      <div class="path-meta">
+        <span><strong>Output:</strong> Branded HTML report</span>
+        <span><strong>Time:</strong> ~15 minutes</span>
+      </div>
+    </div>
+
+  </div>
+</div>`;
 }
 
+// ── Screen: Venue ──────────────────────────────────────────────────
 function renderVenue() {
   return `
-    <div class="page">
-      <div class="step-eyebrow">Step One · Venue</div>
-      <div class="divider-sig"></div>
-      <h1 class="step-title"><span class="light">Pick a</span> Venue</h1>
-      <p class="step-lede">
-        Pick the venue. This frames the local competitor research and shapes the report.
-      </p>
+<div class="page">
+  <div class="step-eyebrow">Performance Review · Step 1</div>
+  <h1 class="step-title"><span class="light">Which</span> venue?</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">Select the venue this performance review is for.</p>
 
-      <div class="venue-grid">
-        ${VENUES.map((v, i) => `
-          <div class="venue-card ${state.venue === i ? 'selected' : ''}" onclick="state.venue = ${i}; render();">
-            <div class="venue-region">${v.region}</div>
-            <div class="venue-name">${v.name}</div>
-            <div class="venue-addr">${v.addr}</div>
-          </div>
-        `).join('')}
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="back()">← Back</button>
-        <div class="spacer"></div>
-        <button class="btn btn-primary" onclick="next()" ${state.venue === null ? 'disabled' : ''}>Continue <span class="icon-arrow">→</span></button>
-      </div>
+  <div class="card">
+    <div class="field">
+      <label>Venue</label>
+      <select id="venue-select" onchange="state.venue = VENUES[this.value]; document.getElementById('continue-btn').disabled = (this.value === '');">
+        <option value="">— Choose a venue —</option>
+        ${VENUES.map((v, i) => `<option value="${i}"${state.venue && state.venue.name === v.name ? ' selected' : ''}>${escHtml(v.name)}</option>`).join('')}
+      </select>
     </div>
-  `;
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="goHome()">← Back to start</button>
+    <button class="btn btn-primary" id="continue-btn" ${state.venue ? '' : 'disabled'} onclick="state.screen='path-a-upload'; render();">Continue →</button>
+  </div>
+</div>`;
 }
 
-function renderExportInstructions() {
-  return `
-    <div class="page">
-      <div class="step-eyebrow">Step Two · Lightspeed Export</div>
-      <div class="divider-sig"></div>
-      <h1 class="step-title"><span class="light">Pull the</span><br>Sales Data</h1>
-      <p class="step-lede">
-        Two reports needed: <strong>Sales Summary</strong> (the day-by-day numbers) and <strong>Product Mix</strong> (which accounting groups are food vs beverage). Eight weeks of data minimum per weekday.
-      </p>
-
-      <div class="card">
-        <div class="card-title">Report 1 · Sales Summary</div>
-        <ol class="lightspeed-steps">
-          <li>Log into <strong>Lightspeed BackOffice</strong> and go to <strong>Reports → Sales Summary</strong>.</li>
-          <li>Set the date range. Aim for the <strong>last 8 to 12 weeks</strong>. More is fine, less means weaker averages.</li>
-          <li>Confirm the location filter is set to your venue and the grouping is <strong>By day</strong>.</li>
-          <li>Click <strong>Download</strong> → select <strong>CSV</strong> → <strong>Download</strong>. A ZIP downloads automatically.</li>
-        </ol>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Report 2 · Product Mix</div>
-        <ol class="lightspeed-steps">
-          <li>Go to <strong>Reports → All reports → Product Mix Report</strong>.</li>
-          <li>Use the same date range as above.</li>
-          <li>Click <strong>Export CSV</strong> → select your OS (Mac or PC) → <strong>Export</strong>. A single CSV downloads.</li>
-        </ol>
-        <div class="note-box">
-          <strong>Why both?</strong> The Sales Summary ZIP has the day-by-day revenue. The Product Mix CSV tells the tool which accounting groups are food versus beverage - without it, the analysis cannot tell whether your special is bev-led or food-led. Upload both files next.
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="back()">← Back</button>
-        <div class="spacer"></div>
-        <button class="btn btn-primary" onclick="next()">I have my exports <span class="icon-arrow">→</span></button>
-      </div>
-    </div>
-  `;
-}
-
+// ── Screen: Upload ─────────────────────────────────────────────────
 function renderUpload() {
   return `
-    <div class="page">
-      <div class="step-eyebrow">Step Three · Upload</div>
-      <div class="divider-sig"></div>
-      <h1 class="step-title"><span class="light">Drop your</span><br>Exports In</h1>
-      <p class="step-lede">
-        Upload the <strong>Sales Summary ZIP</strong> and the <strong>Product Mix CSV</strong>. Multiple ZIPs are fine if your specials span different date ranges.
+<div class="page">
+  <div class="step-eyebrow">Performance Review · Step 2</div>
+  <h1 class="step-title"><span class="light">Upload your</span> Lightspeed data</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">A single Line Transactions CSV from Lightspeed K-Series BackOffice. This is the only file you need.</p>
+
+  <div class="card">
+    <div class="card-head">How to export from Lightspeed</div>
+    <div class="card-desc" style="margin-bottom:0;">
+      <ol style="padding-left:1.3rem; line-height:1.85;">
+        <li>BackOffice → Reports → All reports → <strong>Line transactions</strong></li>
+        <li>Date range: <strong>the last 12 complete weeks</strong> (ending last Sunday)</li>
+        <li>Click <strong>Export Transactions CSV</strong> → select your OS → Export</li>
+        <li>Upload the file below</li>
+      </ol>
+      <p style="margin-top:1rem; padding:0.85rem 1rem; background:var(--off-white); border-radius:var(--r-md); font-size:12.5px;">
+        <strong style="color:var(--deep-navy);">Why 12 weeks?</strong> &nbsp; Less than 8 weeks = unreliable averages.
+        More than 16 = may include old menu prices.
+        <strong>12 is the sweet spot.</strong>
       </p>
-
-      <div class="card">
-        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-          <input type="file" id="file-input" multiple accept=".zip,.csv">
-          <div class="dz-icon">⬆</div>
-          <div class="dz-main">Click to choose files, or drag and drop</div>
-          <div class="dz-sub">ZIP exports preferred · individual CSVs also accepted</div>
-        </div>
-        <div class="file-list">
-          ${state.files.map((f, i) => `
-            <div class="file-tag">
-              <div class="fn">
-                <span>${f.name.endsWith('.zip') ? '📦' : '📄'}</span>
-                <span>${f.name}</span>
-                <span class="fs">${(f.size/1024).toFixed(0)} KB</span>
-              </div>
-              <button onclick="removeFile(${i})">×</button>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="back()">← Back</button>
-        <div class="spacer"></div>
-        <button class="btn btn-primary" onclick="next()" ${!state.files.length ? 'disabled' : ''}>Continue <span class="icon-arrow">→</span></button>
-      </div>
     </div>
-  `;
-}
+  </div>
 
-function attachUploadHandlers() {
-  const dz = $('#drop-zone');
-  const fi = $('#file-input');
-  dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('over'); });
-  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
-  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); addFiles(e.dataTransfer.files); });
-  fi.addEventListener('change', () => { addFiles(fi.files); fi.value=''; });
-}
-
-function renderSpecials() {
-  if (state.specials.length === 0) {
-    state.specials = [
-      { day: 'Monday', name: '', sp: '', fp: '' },
-    ];
-  }
-  return `
-    <div class="page">
-      <div class="step-eyebrow">Step Four · Your Specials</div>
-      <div class="divider-sig"></div>
-      <h1 class="step-title"><span class="light">Your</span><br>Weekday Offers</h1>
-      <p class="step-lede">
-        One row per special. <strong>Special $</strong> is what you charge. <strong>Full price $</strong> is the regular menu price - used to calculate discount depth and units sold.
-      </p>
-
-      <div class="card">
-        <table class="config-table">
-          <thead>
-            <tr>
-              <th style="width:120px">Day</th>
-              <th>Item name</th>
-              <th style="width:110px">Special $</th>
-              <th style="width:110px">Full price $</th>
-              <th style="width:32px"></th>
-            </tr>
-          </thead>
-          <tbody>
-            ${state.specials.map((s, i) => `
-              <tr data-i="${i}">
-                <td>
-                  <select data-field="day">
-                    ${DAYS.map(d => `<option ${d===s.day?'selected':''}>${d}</option>`).join('')}
-                  </select>
-                </td>
-                <td><input type="text" data-field="name" placeholder="e.g. Rump Steak" value="${s.name || ''}"></td>
-                <td><input type="number" data-field="sp" placeholder="17" value="${s.sp || ''}"></td>
-                <td><input type="number" data-field="fp" placeholder="39" value="${s.fp || ''}"></td>
-                <td><button class="del-btn" onclick="delSpecialRow(${i})">×</button></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-        <button class="add-row-btn" onclick="addSpecialRow()">+ Add another special</button>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="back()">← Back</button>
-        <div class="spacer"></div>
-        <button class="btn btn-primary" onclick="onSpecialsContinue()" ${!validSpecials().length ? 'disabled' : ''}>Continue <span class="icon-arrow">→</span></button>
-      </div>
+  <div class="card">
+    <div class="card-head">Upload</div>
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept=".csv">
+      <div class="dz-icon">📁</div>
+      <div class="dz-main">Click to choose your CSV, or drag and drop</div>
+      <div class="dz-sub">Single file · Lightspeed Line Transactions export</div>
     </div>
-  `;
+    <div class="file-list" id="file-list"></div>
+    <div class="err" id="upload-err"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='path-a-venue'; render();">← Back</button>
+    <button class="btn btn-primary" onclick="processUpload()">Parse data →</button>
+  </div>
+</div>`;
 }
 
-function attachSpecialsHandlers() {
-  document.querySelectorAll('.config-table tbody tr').forEach(tr => {
-    const i = +tr.dataset.i;
-    tr.querySelectorAll('[data-field]').forEach(el => {
-      el.addEventListener('input', () => updateSpecial(i, el.dataset.field, el.value));
-      el.addEventListener('change', () => updateSpecial(i, el.dataset.field, el.value));
-    });
-  });
-}
+async function processUpload() {
+  if (!state.files.length) { showErr('upload-err', 'Please choose a CSV file first.'); return; }
+  const file = state.files[state.files.length - 1];  // most recent
+  if (!file.name.toLowerCase().endsWith('.csv')) { showErr('upload-err', 'File must be a .csv (Lightspeed Line Transactions export).'); return; }
 
-async function onSpecialsContinue() {
-  state.specials = validSpecials();
-  const btn = event.target;
-  btn.disabled = true; btn.textContent = 'Processing data...';
+  showErr('upload-err', null);
+  // Show loading
+  $('#wizard').innerHTML = `<div class="page"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Parsing line transactions…</div></div></div>`;
+
   try {
-    await processAllFiles();
-    next();
+    const text = await readText(file);
+    const rows = parseCSV(text);
+    if (!rows.length) throw new Error('No data rows found in CSV.');
+
+    // Check expected columns
+    const expectedCols = ['Date', 'Type', 'Account', 'Item', 'Qty', 'UnitPrice', 'FinalPrice', 'StatGroup'];
+    const missing = expectedCols.filter(c => !(c in rows[0]));
+    if (missing.length) {
+      throw new Error(`This doesn't look like a Line Transactions export. Missing columns: ${missing.join(', ')}. Please re-export from Reports → All reports → Line transactions.`);
+    }
+
+    const parsed = parseLineTransactions(rows);
+    if (parsed.stats.datesCount === 0) throw new Error('No SALE rows found with valid dates. Check your export.');
+
+    state.parsedData = parsed;
+    state.screen = 'path-a-specials';
+    render();
   } catch (e) {
-    alert('Error processing files: ' + e.message);
-    btn.disabled = false; btn.textContent = 'Continue';
+    state.screen = 'path-a-upload';
+    render();
+    setTimeout(() => showErr('upload-err', e.message), 50);
   }
 }
 
-function renderPickSpecial() {
+// ── Screen: Specials ───────────────────────────────────────────────
+function renderSpecials() {
+  const parsed = state.parsedData;
+  const range = parsed.dateRange;
+  const fmtDate = d => d ? `${d.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]} ${d.getFullYear()}` : '?';
+  const weeks = range.weeks.toFixed(1);
+
+  let bannerClass = 'range-green', bannerMsg = '';
+  if (range.status === 'red') {
+    bannerClass = 'range-red';
+    bannerMsg = `<strong>⚠ Insufficient data.</strong> Your file covers only ${weeks} weeks. The tool needs at least 8 weeks of trading per weekday to produce reliable averages. Please re-export with a longer date range.`;
+  } else if (range.status === 'amber') {
+    bannerClass = 'range-amber';
+    bannerMsg = `<strong>${weeks} weeks of data.</strong> Workable, but 12 weeks gives more reliable averages. Consider re-exporting for better results.`;
+  } else if (range.status === 'green') {
+    bannerClass = 'range-green';
+    bannerMsg = `<strong>✓ ${weeks} weeks of data.</strong> Ideal range for reliable averages.`;
+  } else if (range.status === 'amber-long') {
+    bannerClass = 'range-amber';
+    bannerMsg = `<strong>${weeks} weeks of data.</strong> This may include old menu prices or pre-change specials. For accuracy, we recommend exporting the most recent 12 weeks only - but you can proceed if your menu hasn't changed in that period.`;
+  }
+
+  const blockContinue = range.status === 'red';
+
   return `
-    <div class="page">
-      <div class="step-eyebrow">Step Five · Pick One</div>
-      <div class="divider-sig"></div>
-      <h1 class="step-title"><span class="light">Pick a</span> Special</h1>
-      <p class="step-lede">
-        One review at a time. Pick the special you want to focus on now.
-      </p>
+<div class="page">
+  <div class="step-eyebrow">Performance Review · Step 3</div>
+  <h1 class="step-title"><span class="light">Enter your</span> weekday specials</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">${escHtml(state.venue.name)} · Data: ${fmtDate(range.start)} to ${fmtDate(range.end)}${range.droppedCount ? ` · ${range.droppedCount} partial day(s) auto-excluded` : ''}</p>
 
-      <div class="special-pick-list">
-        ${state.specials.map((s, i) => `
-          <div class="special-pick-card ${state.pickedSpecialIdx === i ? 'selected' : ''}" onclick="state.pickedSpecialIdx = ${i}; render();">
-            <div class="spc-left">
-              <div class="spc-day">${s.day}</div>
-              <div class="spc-name">${s.name}</div>
-            </div>
-            <div>
-              <span class="spc-price">${fmtD(+s.sp)}</span>
-              <span class="spc-price-rrp">${fmtD(+s.fp)}</span>
-            </div>
-          </div>
-        `).join('')}
-      </div>
+  <div class="range-banner ${bannerClass}">
+    <span style="flex:1;">${bannerMsg}</span>
+  </div>
 
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="back()">← Back</button>
-        <div class="spacer"></div>
-        <button class="btn btn-primary" onclick="onPickContinue()">Analyse this special <span class="icon-arrow">→</span></button>
-      </div>
+  ${blockContinue ? '' : `
+  <div class="card" style="margin-top:1.5rem;">
+    <div class="card-head">Your specials</div>
+    <div class="card-desc">
+      One row per special day. <strong>Special $</strong> is what you charge. <strong>Full price $</strong> is the normal menu price (used to calculate discount depth).
     </div>
-  `;
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th style="width:130px">Day</th>
+          <th>Item name</th>
+          <th style="width:115px">Special $</th>
+          <th style="width:115px">Full price $</th>
+          <th style="width:36px"></th>
+        </tr>
+      </thead>
+      <tbody id="specials-body"></tbody>
+    </table>
+    <button class="add-btn" onclick="addSpecialRow()">+ Add another special</button>
+    <div class="err" id="specials-err"></div>
+  </div>
+  `}
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='path-a-upload'; render();">← Back</button>
+    ${blockContinue
+      ? `<button class="btn btn-primary" disabled>Cannot continue</button>`
+      : `<button class="btn btn-primary" onclick="confirmSpecials()">Continue →</button>`
+    }
+  </div>
+</div>`;
 }
 
-function onPickContinue() {
-  const sp = state.specials[state.pickedSpecialIdx];
-  state.analysis = analyseSpecial({
-    day: sp.day, name: sp.name,
-    sp: +sp.sp, fp: +sp.fp,
-  });
-  if (!state.analysis) {
-    alert('No data found for ' + sp.day + '. Check your exports include that day of the week.');
+function confirmSpecials() {
+  const specs = readSpecialsFromForm();
+  if (!specs.length) { showErr('specials-err', 'Please add at least one special with day, name, and both prices filled in.'); return; }
+  // Validate that each special has data on its day
+  const noData = specs.filter(s => !state.parsedData.byDow[s.day].length);
+  if (noData.length === specs.length) {
+    showErr('specials-err', `None of your specials have trading data on their day. Check your date range covers the days your specials run.`);
     return;
   }
-  state.recommendedBranch = recommendBranch(state.analysis);
-  state.branch = state.recommendedBranch;
-  // Init projection defaults
-  state.projection.newPrice = +sp.sp;
-  state.projection.bevPerCover = Math.round(state.analysis.bpc);
-  next();
+  showErr('specials-err', null);
+  state.specials = specs;
+  // Build initial SKU matches via fuzzy search
+  state.skuMatches = {};
+  for (let i = 0; i < specs.length; i++) {
+    const candidates = findSkuCandidates(specs[i], state.parsedData);
+    state.skuMatches[i] = {};
+    for (const c of candidates) {
+      state.skuMatches[i][c.itemName] = { selected: c.autoTick, qtyOnDay: c.qtyOnDay, avgPrice: c.avgPrice, priceMatch: c.priceMatch };
+    }
+  }
+  state.screen = 'path-a-sku';
+  render();
 }
 
+// ── Screen: SKU Match ──────────────────────────────────────────────
+function renderSkuMatch() {
+  return `
+<div class="page">
+  <div class="step-eyebrow">Performance Review · Step 4</div>
+  <h1 class="step-title"><span class="light">Confirm the</span> matching items</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">For each special, we've searched your data for matching POS items. Tick the items that ARE the special. Untick anything that's actually a different menu item.</p>
+
+  ${state.specials.map((sp, idx) => renderSkuPanel(sp, idx)).join('')}
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='path-a-specials'; render();">← Back</button>
+    <button class="btn btn-primary" onclick="runAnalysis()">Analyse →</button>
+  </div>
+</div>`;
+}
+
+function renderSkuPanel(sp, idx) {
+  const matches = state.skuMatches[idx] || {};
+  const items = Object.keys(matches);
+  const nights = state.parsedData.byDow[sp.day].length;
+
+  let totalQty = 0;
+  for (const itemName of items) {
+    if (matches[itemName].selected) totalQty += matches[itemName].qtyOnDay;
+  }
+  const avgPerDay = nights ? Math.round(totalQty / nights) : 0;
+
+  return `
+<div class="sku-panel" id="sku-panel-${idx}">
+  <div class="sku-panel-head">
+    <span class="day-pill">${sp.day}</span>
+    ${escHtml(sp.name)} · ${fmtD(sp.sp)} (RRP ${fmtD(sp.fp)})
+  </div>
+  ${items.length === 0 ? `
+    <p style="font-size:12.5px; color:var(--support-grey); font-style:italic;">No items containing "${escHtml(sp.name)}" found in your data on ${sp.day}s. The unit count for this special will be zero - you may want to check the item name matches what shows on your POS.</p>
+  ` : items.map(itemName => {
+    const m = matches[itemName];
+    return `
+    <div class="sku-row">
+      <input type="checkbox" id="sku-${idx}-${escHtml(itemName)}" ${m.selected ? 'checked' : ''} onchange="toggleSku(${idx}, '${escHtml(itemName).replace(/'/g, "\\'")}', this.checked)">
+      <label for="sku-${idx}-${escHtml(itemName)}" class="sku-name" style="cursor:pointer;">${escHtml(itemName)}${m.priceMatch ? ' <span style="color:var(--green); font-size:10px; font-weight:600;">PRICE MATCH</span>' : ''}</label>
+      <span class="sku-stats">${m.qtyOnDay} sold · avg ${fmtD(m.avgPrice)}</span>
+    </div>`;
+  }).join('')}
+  ${items.length > 0 ? `<div class="sku-total" id="sku-total-${idx}">Selected: <strong>${totalQty}</strong> units across ${nights} ${sp.day}s = <strong>${avgPerDay} units/${sp.day.toLowerCase()}</strong> avg</div>` : ''}
+</div>`;
+}
+
+function toggleSku(idx, itemName, checked) {
+  if (!state.skuMatches[idx] || !state.skuMatches[idx][itemName]) return;
+  state.skuMatches[idx][itemName].selected = checked;
+  // Recalculate total for this panel
+  const sp = state.specials[idx];
+  const matches = state.skuMatches[idx];
+  const nights = state.parsedData.byDow[sp.day].length;
+  let totalQty = 0;
+  for (const k of Object.keys(matches)) {
+    if (matches[k].selected) totalQty += matches[k].qtyOnDay;
+  }
+  const avgPerDay = nights ? Math.round(totalQty / nights) : 0;
+  const totalEl = document.getElementById(`sku-total-${idx}`);
+  if (totalEl) totalEl.innerHTML = `Selected: <strong>${totalQty}</strong> units across ${nights} ${sp.day}s = <strong>${avgPerDay} units/${sp.day.toLowerCase()}</strong> avg`;
+}
+
+// ── Run analysis & render dashboard ────────────────────────────────
+function runAnalysis() {
+  state.results = computeResults();
+  state.screen = 'path-a-dashboard';
+  render();
+}
+
+// ── Screen: Dashboard (Path A output) ──────────────────────────────
 function renderDashboard() {
-  const a = state.analysis;
-  const v = VENUES[state.venue];
-  const dayColor = DAY_COLORS[a.day];
-  const maxBar = Math.max(a.avgFood, a.avgBev, 1);
-  const foodPct = (a.avgFood / maxBar) * 100;
-  const bevPct  = (a.avgBev  / maxBar) * 100;
+  const analysis = state.results;
+  const results = analysis.results.slice().sort((a, b) => DAYS.indexOf(a.day) - DAYS.indexOf(b.day));
+  const wd = results.filter(r => r.hasData);
+  const insights = generateInsights(analysis);
+  const venue = state.venue;
+  const range = state.parsedData.dateRange;
+  const fmtDate = d => d ? `${d.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]}` : '?';
+  const meta = `${escHtml(venue.name)} · ${fmtDate(range.start)} - ${fmtDate(range.end)} ${range.end ? range.end.getFullYear() : ''} · ${range.weeks.toFixed(0)} weeks`;
+
+  const maxFood = Math.max(...wd.map(r => r.avgFoodRev), 1);
+  const maxBev  = Math.max(...wd.map(r => r.avgBevRev), 1);
+  const maxDisc = Math.max(...wd.map(r => r.totalDisc), 1);
+  const maxBpt  = Math.max(...wd.map(r => r.bevPerTx), 1);
 
   return `
-    <div class="page wider">
-      <div class="step-eyebrow">Step Six · The Numbers</div>
-      <div class="divider-sig"></div>
-      <h1 class="step-title"><span class="light">The</span><br>Numbers</h1>
-      <p class="step-lede">
-        Averaged across <strong>${a.nights} nights</strong> of trading. The recommendation on the next screen is built off these numbers.
-      </p>
+<div class="page-wide">
+  <div class="dash-header">
+    <h2>Weekday Specials · <span class="light">True Performance Review</span></h2>
+    <div class="dash-header-sub">${meta}</div>
+  </div>
+  <div class="dash-divider"></div>
 
-      <div class="dashboard-hero">
-        <div class="dh-top">
-          <div>
-            <div class="dh-eyebrow">${v.name} · ${a.day}</div>
-            <div class="dh-divider"></div>
-            <div class="dh-name">${a.name}</div>
-            <div class="dh-meta">${a.nights} nights of data</div>
-          </div>
-          <div class="dh-price-block">
-            <div class="dh-rrp">${fmtD(a.fp)} full price</div>
-            <span class="dh-price">${fmtD(a.sp)}</span>
-            <div class="dh-disc">${a.discDepth}% off</div>
-          </div>
-        </div>
+  <div class="section-label">Special by special breakdown</div>
+  <div class="specials-grid" style="grid-template-columns: repeat(${Math.min(results.length, 5)}, 1fr);">
+    ${results.map(r => renderSpecCard(r, maxFood, maxBev, maxDisc, maxBpt)).join('')}
+  </div>
 
-        <div class="kpi-row">
-          <div class="kpi"><div class="kpi-num">${a.units !== null ? fmtN(a.units) : '—'}</div><div class="kpi-lbl">Units / night</div></div>
-          <div class="kpi"><div class="kpi-num">${fmtN(a.avgCovers)}</div><div class="kpi-lbl">Covers / night</div></div>
-          <div class="kpi"><div class="kpi-num">${fmtD(a.spc)}</div><div class="kpi-lbl">Spend / cover</div></div>
-          <div class="kpi"><div class="kpi-num">${fmtD(a.avgNet)}</div><div class="kpi-lbl">Net rev / night</div></div>
-        </div>
-      </div>
+  <div class="section-label">Side-by-side comparison</div>
+  <table class="sum-table">
+    <thead>
+      <tr>
+        <th>Day · Special</th>
+        <th class="r">Disc %</th>
+        <th class="r">Units/night</th>
+        <th class="r">Food tx</th>
+        <th class="r">Take-up</th>
+        <th class="r">$/tx</th>
+        <th class="r">Bev/tx</th>
+        <th class="r">Disc cost</th>
+        <th class="r">Food rev</th>
+        <th class="r">Bev rev</th>
+        <th class="r">Net rev</th>
+        <th>Verdict</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${results.map(r => renderSumRow(r)).join('')}
+    </tbody>
+  </table>
 
-      <div class="bar-row">
-        <div class="bar-block">
-          <div class="bb-title">Revenue split</div>
-          <div class="mini-bar">
-            <div class="mb-lbl"><span class="mb-lbl-l">Food</span><span class="mb-lbl-r">${fmtD(a.avgFood)}</span></div>
-            <div class="mb-bg"><div class="mb-fill" style="width:${foodPct}%; background:${dayColor};"></div></div>
-          </div>
-          <div class="mini-bar">
-            <div class="mb-lbl"><span class="mb-lbl-l">Beverage</span><span class="mb-lbl-r">${fmtD(a.avgBev)}</span></div>
-            <div class="mb-bg"><div class="mb-fill" style="width:${bevPct}%; background:${dayColor}; opacity:0.55;"></div></div>
-          </div>
-          <div style="font-size:11.5px; color:var(--support-grey); margin-top:10px; padding-top:10px; border-top:1px solid var(--line); line-height:1.5;">
-            ${a.isBevLed
-              ? `Bev is leading. Guests are coming for drinks, not the ${a.name.toLowerCase()}.`
-              : `Food is leading. The special is doing the work it is meant to.`}
-          </div>
-        </div>
+  <div class="section-label">What the data is telling you</div>
+  <div class="ibox">
+    ${insights.length ? insights.map(i => `
+      <div class="ir">
+        <div class="idot" style="background:${i.color};"></div>
+        <div class="it">${i.html}</div>
+      </div>`).join('') : '<div style="color:var(--support-grey); font-style:italic;">No clear patterns yet. Try adding more specials or extending your date range.</div>'}
+  </div>
 
-        <div class="bar-block">
-          <div class="bb-title">Discount cost</div>
-          <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
-            <div style="display:flex; justify-content:space-between; font-size:12.5px;">
-              <span style="color:var(--body-text);">Total disc / night</span>
-              <span style="font-weight:600; color:var(--red);">-${fmtD(a.totalDisc)}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:12.5px;">
-              <span style="color:var(--body-text);">Disc / cover</span>
-              <span style="font-weight:600;">${fmtD(a.discCover)}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:12.5px;">
-              <span style="color:var(--body-text);">Bev / cover</span>
-              <span style="font-weight:600;">${fmtD(a.bpc)}</span>
-            </div>
-          </div>
-          <div style="font-size:11.5px; color:var(--support-grey); padding-top:10px; border-top:1px solid var(--line); line-height:1.5;">
-            ${a.units ? `Working out to ${a.units} units sold per night.` : 'Unit count not available - check accounting group naming.'}
-          </div>
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="back()">← Back</button>
-        <div class="spacer"></div>
-        <button class="btn btn-primary" onclick="next()">See the recommendation <span class="icon-arrow">→</span></button>
-      </div>
+  <div class="action-bar">
+    <div class="action-bar-text">
+      <strong>Want to dive deeper?</strong> Click any special above to investigate further with a full strategic plan.
+      <br>
+      <span style="color:var(--support-grey);">Note: Strategic Plan is coming in the next release.</span>
     </div>
-  `;
-}
-
-function renderRecommend() {
-  const a = state.analysis;
-  const branches = ['KEEP', 'TWEAK', 'REPLACE', 'KILL'];
-  return `
-    <div class="page">
-      <div class="step-eyebrow">Step Seven · The Recommendation</div>
-      <div class="divider-sig"></div>
-      <h1 class="step-title"><span class="light">The</span><br>Recommendation</h1>
-      <p class="step-lede">
-        The data tells the story. But it does not see everything. If you know context the numbers do not - kitchen issues, loyalty drivers, upcoming changes - override the suggestion.
-      </p>
-
-      <div class="rec-grid">
-        ${branches.map(b => {
-          const info = BRANCH_INFO[b];
-          const isRec = b === state.recommendedBranch;
-          const isSel = b === state.branch;
-          return `
-            <div class="rec-card ${isRec ? 'recommended' : ''} ${isSel ? 'selected' : ''}" onclick="state.branch = '${b}'; render();">
-              ${isRec ? '<div class="rec-badge">Suggested</div>' : ''}
-              <div class="rec-letter">${info.letter}</div>
-              <div class="rec-name">${info.name}</div>
-              <div class="rec-desc">${info.desc}</div>
-              ${isRec ? `<div class="rec-because">${branchReason(b, a)}</div>` : ''}
-            </div>
-          `;
-        }).join('')}
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="back()">← Back</button>
-        <div class="spacer"></div>
-        <button class="btn btn-primary" onclick="next()">Continue with <strong style="margin-left:5px;">${BRANCH_INFO[state.branch].name}</strong> <span class="icon-arrow">→</span></button>
-      </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="btn btn-ghost" onclick="downloadReport()">↓ Download report</button>
+      <button class="btn btn-primary" onclick="goHome()">Start over</button>
     </div>
-  `;
+  </div>
+</div>`;
 }
 
-function renderNotes() {
-  const a = state.analysis;
-  const branch = state.branch;
-  const exampleChips = {
-    KEEP:    ['Loyalty driver for regulars', 'Anchors the slow night', 'Builds bev volume after dinner'],
-    TWEAK:   ['Margin is too tight', 'Could go up $2 without losing covers', 'Drinks side is the problem'],
-    REPLACE: ['Kitchen finds it hard to execute', 'Too similar to other nights', 'Demographics shifted'],
-    KILL:    ['Tried for too long', 'Cannibalising other nights', 'Costs more in disc than it earns in covers'],
-  };
-  return `
-    <div class="page">
-      <div class="step-eyebrow">Step Eight · Your Context</div>
-      <div class="divider-sig"></div>
-      <h1 class="step-title"><span class="light">Add your</span><br>Context</h1>
-      <p class="step-lede">
-        Optional. Add venue context the data cannot see - operational issues, customer mix, history. Feeds straight into the report.
-      </p>
+function renderSpecCard(r, maxFood, maxBev, maxDisc, maxBpt) {
+  const color = DAY_COLORS[r.day] || '#666';
+  if (!r.hasData) return `
+    <div class="spec-card">
+      <div class="spec-card-top"><div class="spec-dot" style="background:${color};"></div><div class="spec-day">${r.day}</div></div>
+      <div class="spec-item">${escHtml(r.name)}</div>
+      <p style="font-size:12px; color:var(--support-grey); font-style:italic;">No data found for ${r.day}.</p>
+    </div>`;
 
-      <div class="card notes-card">
-        <div class="notes-chips">
-          ${exampleChips[branch].map(c => `<button class="note-chip" onclick="appendNote(this.textContent)">${c}</button>`).join('')}
-        </div>
-        <textarea id="notes-input" placeholder="e.g. 'Kitchen is short-staffed on Mondays, so anything complex is hard to execute. Bar trade is strong but food side needs work.'">${state.notes}</textarea>
-        <div class="field-hint">Optional - skip if there is no extra context to add.</div>
-      </div>
+  const v = r.verdict;
+  const fw   = Math.round(r.avgFoodRev  / maxFood * 100);
+  const bw   = Math.round(r.avgBevRev   / maxBev  * 100);
+  const dw   = Math.round(r.totalDisc   / maxDisc * 100);
+  const bptw = Math.round(r.bevPerTx    / maxBpt  * 100);
 
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="back()">← Back</button>
-        <div class="spacer"></div>
-        <button class="btn btn-primary" onclick="onNotesContinue()">Send to AI research <span class="icon-arrow">→</span></button>
-      </div>
-    </div>
-  `;
-}
+  const discBadgeStyle = (() => {
+    if (r.discPct <= 30) return 'background:var(--green-bg); color:var(--green);';
+    if (r.discPct <= 42) return 'background:var(--blue-bg); color:var(--blue-tag);';
+    if (r.discPct <= 50) return 'background:var(--amber-bg); color:var(--amber);';
+    return 'background:var(--red-bg); color:var(--red);';
+  })();
 
-function appendNote(text) {
-  const t = $('#notes-input');
-  const cur = t.value.trim();
-  t.value = cur ? cur + (cur.endsWith('.') ? ' ' : '. ') + text + '.' : text + '.';
-  t.focus();
-}
-
-function onNotesContinue() {
-  state.notes = $('#notes-input').value.trim();
-  next();
-}
-
-function renderAIResearch() {
-  return `
-    <div class="page">
-      <div class="ai-loading">
-        <div class="ai-loading-pulse"></div>
-        <div class="ai-loading-title">Researching your local market...</div>
-        <div class="ai-loading-sub">This takes about 30 to 60 seconds. The AI is searching for competitors, supply context, and building the case for your recommendation.</div>
-        <div class="ai-loading-steps" id="ai-steps">
-          <div class="ai-step active" data-step="0">Identifying competitors near ${VENUES[state.venue].area}</div>
-          <div class="ai-step" data-step="1">Researching ${state.analysis.name} category context</div>
-          <div class="ai-step" data-step="2">Building the case for ${BRANCH_INFO[state.branch].name.toLowerCase()}</div>
-          ${state.branch === 'REPLACE' ? '<div class="ai-step" data-step="3">Generating alternative special concepts</div>' : ''}
-        </div>
-        <div id="ai-error" class="alert hidden" style="margin-top:1.5rem; max-width:520px; margin-left:auto; margin-right:auto;"></div>
-      </div>
-    </div>
-  `;
-}
-
-// AI research handled in second script section
-
-
-// ── AI Research ────────────────────────────────────────────────────
-
-// API key is injected at deploy time by GitHub Actions from a repository secret.
-// During local development (or before first deploy), the placeholder remains
-// in place and the tool falls back to prompting the user for a key.
-const BAKED_API_KEY = '__ANTHROPIC_API_KEY__';
-let API_KEY = null;
-
-function getApiKey() {
-  // If the placeholder was replaced at deploy time, use that
-  if (BAKED_API_KEY && !BAKED_API_KEY.startsWith('__') && BAKED_API_KEY.startsWith('sk-ant-')) {
-    return BAKED_API_KEY;
-  }
-  // Otherwise check cached key from previous prompt
-  if (API_KEY) return API_KEY;
-  const stored = localStorage.getItem('kg_anthropic_key');
-  if (stored) { API_KEY = stored; return API_KEY; }
-  return null;
-}
-
-function setStep(idx, status) {
-  const steps = document.querySelectorAll('#ai-steps .ai-step');
-  steps.forEach((el, i) => {
-    el.classList.remove('active', 'done');
-    if (i < idx) el.classList.add('done');
-    else if (i === idx) el.classList.add(status === 'active' ? 'active' : 'done');
-  });
-}
-
-async function triggerAIResearch() {
-  // If we already have AI data, skip
-  if (state.aiData) { setTimeout(() => go('ai-review'), 500); return; }
-
-  // Need an API key - check baked-in first, then localStorage, then prompt
-  let key = getApiKey();
-  if (!key) {
-    const entered = prompt('Enter your Anthropic API key (starts with sk-ant-). Stored locally in your browser only.\n\nNote: in the production version this is baked in at deploy time.');
-    if (!entered) {
-      $('#ai-error').classList.remove('hidden');
-      $('#ai-error').innerHTML = 'API key needed to continue. <a href="#" onclick="state.aiData=null; back(); return false;">Go back</a>';
-      return;
-    }
-    API_KEY = entered.trim();
-    localStorage.setItem('kg_anthropic_key', API_KEY);
-    key = API_KEY;
-  }
-
-  try {
-    setStep(0, 'active');
-    state.aiData = await callAIResearch(key);
-    setStep(99, 'done');
-    setTimeout(() => go('ai-review'), 700);
-  } catch (e) {
-    console.error(e);
-    $('#ai-error').classList.remove('hidden');
-    $('#ai-error').innerHTML = `Research failed: ${e.message}<br><br>
-      <button class="btn btn-ghost" onclick="state.aiData=null; render();" style="margin-right:8px;">Try again</button>
-      <button class="btn btn-ghost" onclick="API_KEY=null; localStorage.removeItem('kg_anthropic_key'); state.aiData=null; render();">Reset API key</button>`;
-  }
-}
-
-async function callAIResearch(apiKey) {
-  const v = VENUES[state.venue];
-  const a = state.analysis;
-  const branch = state.branch;
-  const notes = state.notes;
-
-  const sys = `You are a hospitality industry analyst writing research for a venue marketing manager at Kickon Group, an Australian hospitality group. Your output is used to draft an executive report. Be specific, factual, and use the web_search tool to find real, current information about competitors and supply chain context. Never fabricate venue names or offers. If you cannot verify a fact, omit it. Output only valid JSON.`;
-
-  const userPrompt = `
-VENUE: ${v.name}, ${v.addr}
-AREA: ${v.area}, ${v.region}
-
-CURRENT SPECIAL UNDER REVIEW:
-- Day: ${a.day}
-- Item: ${a.name}
-- Special price: $${a.sp}
-- Full menu price: $${a.fp}
-- Discount depth: ${a.discDepth}%
-
-PERFORMANCE DATA (averaged across ${a.nights} nights):
-- Covers per night: ${Math.round(a.avgCovers)}
-- Net revenue per night: $${Math.round(a.avgNet)}
-- Food revenue per night: $${Math.round(a.avgFood)}
-- Beverage revenue per night: $${Math.round(a.avgBev)}
-- Discount cost per night: $${Math.round(a.totalDisc)}
-- Spend per cover: $${Math.round(a.spc)}
-- Bev per cover: $${Math.round(a.bpc)}
-- Food vs bev split: ${a.isBevLed ? 'bev is winning - guests come for drinks' : 'food is winning - the special is doing the work'}
-- Units of special sold per night (estimated): ${a.units || 'unknown'}
-
-RECOMMENDATION BRANCH: ${branch}
-RATIONALE: ${branchReason(branch, a)}
-
-MARKETING MANAGER NOTES: ${notes || '(none provided)'}
-
-TASKS:
-
-1. COMPETITOR RESEARCH:
-Search the web for 3-5 venues near ${v.area} that run a ${a.day} food special. Use specific queries combining venue location with "${a.day} special", "${a.day} night", or specific category terms relevant to ${a.name}. Focus on direct competitors (pubs, bars, casual dining) in the same area or within reasonable drive. Look at:
-- Eat Drink Cheap (eatdrinkcheap.com.au) - searches like "eatdrinkcheap ${v.area} ${a.day}"
-- The Happiest Hour (thehappiesthour.com)
-- Individual venue websites and Instagram
-
-For each competitor found, capture: venue name, what they offer on ${a.day} (be specific - item, price, mechanics), and a source URL. Only include if you can verify the offer is current (within the last 12 months).
-
-2. CATEGORY / SUPPLY CONTEXT:
-Research the current cost/supply landscape for the main ingredient or category of "${a.name}". For example: if barramundi, look at fishing quotas and wholesale prices; if steak, look at beef cattle prices and processing capacity; if pizza, look at cheese/flour costs. Find 2-3 specific data points (prices, trends, supply pressures) from credible sources (industry bodies, ABARES, MLA, Seafood Industry Australia, news articles from last 12 months). This frames why the current price point may or may not be sustainable.
-
-3. STRATEGIC CASE FOR ${branch}:
-Write a 2-3 paragraph case for why ${branch} is the right call here. Be specific about:
-- What the data is telling us
-- Why this branch over the alternatives
-- What success looks like
-- Risks to flag
-
-${branch === 'REPLACE' ? `
-4. ALTERNATIVE SPECIAL CONCEPTS:
-Propose 3 alternative specials that could replace the current ${a.name} on ${a.day}. Each should:
-- Be operationally viable for a pub kitchen
-- Have a clear hook (price point, value perception, social media potential)
-- Suit the ${v.area} customer mix
-- Be differentiated from competitors you found in task 1
-
-For each: item name, suggested price, 2-sentence rationale.
-` : ''}
-
-OUTPUT FORMAT (valid JSON, no markdown, no preamble):
-{
-  "competitors": [
-    {
-      "venue": "Venue name",
-      "offer": "Specific offer details with price",
-      "source": "URL or source name",
-      "note": "Why this is relevant (1 sentence)"
-    }
-  ],
-  "competitorInsight": "One paragraph summarising what the competitive landscape tells us",
-  "supplyContext": [
-    {
-      "point": "Headline fact",
-      "detail": "Supporting detail with numbers if available",
-      "source": "Source name or URL"
-    }
-  ],
-  "supplyInsight": "One paragraph on what the supply/category landscape means for this special",
-  "case": "2-3 paragraph strategic case for the ${branch} recommendation",
-  ${branch === 'REPLACE' ? `"alternatives": [
-    { "name": "Item name", "price": 25, "rationale": "Why this works in 2 sentences" }
-  ],` : ''}
-  "risks": ["Risk 1 to flag", "Risk 2 to flag"]
-}
-`;
-
-  const body = {
-    model: 'claude-sonnet-4-6',
-    max_tokens: 4000,
-    system: sys,
-    messages: [{ role: 'user', content: userPrompt }],
-    tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-  };
-
-  // Indicate research stages while the API call runs
-  const stagesTimer = setInterval(() => {
-    const cur = document.querySelectorAll('#ai-steps .ai-step.active');
-    if (!cur.length) return;
-    const idx = +cur[0].dataset.step;
-    if (idx < 3) setStep(idx + 1, 'active');
-  }, 12000);
-
-  let resp;
-  try {
-    resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify(body),
-    });
-  } finally {
-    clearInterval(stagesTimer);
-  }
-
-  if (!resp.ok) {
-    const txt = await resp.text();
-    throw new Error(`API ${resp.status}: ${txt.slice(0, 200)}`);
-  }
-  const data = await resp.json();
-
-  // Concatenate text content blocks
-  const text = data.content
-    .filter(c => c.type === 'text')
-    .map(c => c.text)
-    .join('\n')
-    .trim();
-
-  // Try to parse JSON - strip code fences if present
-  let cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-  // Find first { and last }
-  const firstBrace = cleaned.indexOf('{');
-  const lastBrace = cleaned.lastIndexOf('}');
-  if (firstBrace >= 0 && lastBrace > firstBrace) {
-    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
-  }
-
-  try {
-    return JSON.parse(cleaned);
-  } catch (e) {
-    console.error('Failed to parse AI response:', text);
-    throw new Error('AI response was not valid JSON. Try again.');
-  }
-}
-
-// ── AI Review ──────────────────────────────────────────────────────
-
-function toggleVerify(key) {
-  state.verified[key] = !state.verified[key];
-  render();
-}
-
-function renderAIReview() {
-  const d = state.aiData;
-  if (!d) { go('ai-research'); return ''; }
-
-  const compVerifiedCount = (d.competitors || []).filter((_, i) => state.verified[`comp-${i}`]).length;
-  const totalComps = (d.competitors || []).length;
-  const allVerified = compVerifiedCount === totalComps;
+  const note = (() => {
+    if (v.key === 'dominant') return `Anchor night. ${fmtN(r.unitsPerNight)} units · ${fmtD(r.netRev)} net rev.`;
+    if (v.key === 'star') return `${fmtPct(r.takeUp * 100)} take-up across food tx. Food beats bev.`;
+    if (v.key === 'working') return `${fmtN(r.unitsPerNight)} units, food-led. Pulling weight.`;
+    if (v.key === 'efficient') return `${fmtD(r.totalDisc)} disc cost - low-overhead hook.`;
+    if (v.key === 'weak') return r.isBevLed ? `Bev (${fmtD(r.avgBevRev)}) outpaces food (${fmtD(r.avgFoodRev)}). Drinks night.` : `Underperforming - food isn't doing the work.`;
+    return `Review the offer.`;
+  })();
 
   return `
-    <div class="page wider">
-      <div class="step-eyebrow">Step Nine · Verify Research</div>
-      <div class="divider-sig"></div>
-      <h1 class="step-title"><span class="light">Verify the</span><br>Research</h1>
-      <p class="step-lede">
-        The AI found these competitors via web search. <strong>Click "Verify" on each</strong> once you have checked the source. The report does not generate until every claim is verified.
-      </p>
-
-      <div class="findings-section">
-        <div class="findings-section-title">
-          <span>Competitive landscape</span>
-          <span class="badge">${compVerifiedCount} of ${totalComps} verified</span>
-        </div>
-        ${(d.competitors || []).map((c, i) => `
-          <div class="finding-card">
-            <div class="finding-top">
-              <div style="flex:1;">
-                <div class="finding-title">${c.venue}</div>
-                <div class="finding-detail" style="margin-top:4px;">${c.offer}</div>
-              </div>
-              <button class="verify-btn ${state.verified[`comp-${i}`] ? 'verified' : ''}" onclick="toggleVerify('comp-${i}')">
-                ${state.verified[`comp-${i}`] ? 'Verified' : 'Verify'}
-              </button>
-            </div>
-            <div class="finding-detail" style="margin-top:6px; color:var(--support-grey); font-size:11.5px;">${c.note || ''}</div>
-            <div class="finding-source">
-              Source: ${c.source && c.source.startsWith('http') ? `<a href="${c.source}" target="_blank">${c.source}</a>` : c.source}
-            </div>
-          </div>
-        `).join('')}
-        ${totalComps === 0 ? '<div style="color:var(--support-grey); font-style:italic; padding:0.5rem 0;">No direct competitors found in the search. This itself is useful context.</div>' : ''}
-        ${d.competitorInsight ? `<div class="context-block" style="margin-top:1rem;"><strong>What this tells us:</strong> ${d.competitorInsight}</div>` : ''}
+    <div class="spec-card">
+      <div class="spec-card-top"><div class="spec-dot" style="background:${color};"></div><div class="spec-day">${r.day}</div></div>
+      <div class="spec-item">${escHtml(r.name)}</div>
+      <div class="price-badge">
+        <div class="price-special">${fmtD(r.sp)}</div>
+        <div class="price-rrp">${fmtD(r.fp)}</div>
+        <div class="disc-badge" style="${discBadgeStyle}">-${r.discPct}%</div>
       </div>
-
-      <div class="findings-section">
-        <div class="findings-section-title">
-          <span>Supply &amp; category context</span>
-        </div>
-        ${(d.supplyContext || []).map(s => `
-          <div class="finding-card">
-            <div class="finding-title">${s.point}</div>
-            <div class="finding-detail" style="margin-top:4px;">${s.detail}</div>
-            <div class="finding-source">${s.source && s.source.startsWith('http') ? `<a href="${s.source}" target="_blank">${s.source}</a>` : s.source || ''}</div>
-          </div>
-        `).join('')}
-        ${d.supplyInsight ? `<div class="context-block" style="margin-top:1rem;"><strong>What this means:</strong> ${d.supplyInsight}</div>` : ''}
+      <div class="kpi-grid">
+        <div><div class="kpi-val">${fmtN(r.unitsPerNight)}</div><div class="kpi-label">Units/${r.day.slice(0,3).toLowerCase()}</div></div>
+        <div><div class="kpi-val">${fmtN(r.avgFoodTx)}</div><div class="kpi-label">Food tx</div></div>
+        <div><div class="kpi-val">${fmtPct(r.takeUp * 100)}</div><div class="kpi-label">Take-up</div></div>
+        <div><div class="kpi-val">${fmtD(r.spendPerTx)}</div><div class="kpi-label">$/tx</div></div>
       </div>
-
-      <div class="findings-section">
-        <div class="findings-section-title">
-          <span>The case for ${BRANCH_INFO[state.branch].name.toLowerCase()}</span>
-        </div>
-        <div class="card" style="margin-bottom:0; white-space:pre-wrap; font-size:13.5px; line-height:1.7;">${d.case || ''}</div>
-        ${d.risks && d.risks.length ? `
-          <div style="margin-top:1rem;">
-            <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--support-grey); margin-bottom:0.5rem;">Risks to flag</div>
-            <ul style="padding-left:1.2rem; font-size:13px; color:var(--body-text); line-height:1.6;">
-              ${d.risks.map(r => `<li>${r}</li>`).join('')}
-            </ul>
-          </div>
-        ` : ''}
+      <div class="divider-line"></div>
+      <div class="mini-bar-wrap">
+        <div class="mini-bar-label"><span>Food rev</span><span>${fmtD(r.avgFoodRev)}</span></div>
+        <div class="mini-bg"><div class="mini-fill" style="width:${fw}%; background:${color};"></div></div>
       </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="back()">← Back</button>
-        <button class="btn btn-ghost" onclick="state.aiData=null; go('ai-research');">Re-run research</button>
-        <div class="spacer"></div>
-        <button class="btn btn-primary" onclick="onAIReviewContinue()" ${!allVerified && totalComps > 0 ? 'disabled' : ''}>
-          ${state.branch === 'REPLACE' ? 'Pick alternative' : 'Set projections'} <span class="icon-arrow">→</span>
-        </button>
+      <div class="mini-bar-wrap">
+        <div class="mini-bar-label"><span>Bev rev</span><span>${fmtD(r.avgBevRev)}</span></div>
+        <div class="mini-bg"><div class="mini-fill" style="width:${bw}%; background:${color}; opacity:0.6;"></div></div>
       </div>
-    </div>
-  `;
+      <div class="mini-bar-wrap">
+        <div class="mini-bar-label"><span style="color:var(--red);">Disc cost</span><span style="color:var(--red);">-${fmtD(r.totalDisc)}</span></div>
+        <div class="mini-bg"><div class="mini-fill" style="width:${dw}%; background:#e8a8a8;"></div></div>
+      </div>
+      <div class="mini-bar-wrap">
+        <div class="mini-bar-label"><span>Bev/tx</span><span>${fmtD(r.bevPerTx)}</span></div>
+        <div class="mini-bg"><div class="mini-fill" style="width:${bptw}%; background:${color}; opacity:0.35;"></div></div>
+      </div>
+      <div class="verdict-wrap">
+        <span class="pill ${v.pill}">${v.label}</span>
+        <div class="spec-note">${note}</div>
+      </div>
+    </div>`;
 }
 
-function onAIReviewContinue() {
-  if (state.branch === 'REPLACE') {
-    go('alternative');
-  } else {
-    go('projections');
-  }
+function renderSumRow(r) {
+  if (!r.hasData) return `<tr><td><strong>${r.day} · ${escHtml(r.name)}</strong></td><td colspan="11" style="color:var(--support-grey); font-style:italic;">No data</td></tr>`;
+  const v = r.verdict;
+  return `<tr>
+    <td><strong>${r.day} · ${fmtD(r.sp)} ${escHtml(r.name)}</strong></td>
+    <td class="r ${r.discPct >= 50 ? 'c-red' : r.discPct <= 30 ? 'c-green' : ''}">${r.discPct}%</td>
+    <td class="r">${fmtN(r.unitsPerNight)}</td>
+    <td class="r">${fmtN(r.avgFoodTx)}</td>
+    <td class="r ${r.takeUp >= 0.5 ? 'c-green' : r.takeUp <= 0.15 ? 'c-red' : ''}">${fmtPct(r.takeUp * 100)}</td>
+    <td class="r">${fmtD(r.spendPerTx)}</td>
+    <td class="r ${r.bevPerTx >= 30 ? 'c-green' : ''}">${fmtD(r.bevPerTx)}</td>
+    <td class="r ${r.totalDisc >= 3000 ? 'c-red' : r.totalDisc <= 400 ? 'c-green' : ''}">-${fmtD(r.totalDisc)}</td>
+    <td class="r ${!r.isBevLed ? 'c-green' : ''}">${fmtD(r.avgFoodRev)}</td>
+    <td class="r ${r.isBevLed ? 'c-green' : ''}">${fmtD(r.avgBevRev)}</td>
+    <td class="r ${r.netRev >= 10000 ? 'c-green' : ''}">${fmtD(r.netRev)}</td>
+    <td><span class="pill ${v.pill}">${v.label}</span></td>
+  </tr>`;
 }
 
-// ── Alternative picker (REPLACE only) ──────────────────────────────
+// ── Download report (standalone HTML file) ─────────────────────────
+function downloadReport() {
+  const dashHtml = $('#wizard').innerHTML;
+  // Get all inline styles from current page <style> tag
+  const styleTag = document.querySelector('style');
+  const cssContent = styleTag ? styleTag.textContent : '';
 
-function renderAlternative() {
-  const d = state.aiData;
-  const alts = d.alternatives || [];
+  const venue = state.venue;
+  const range = state.parsedData.dateRange;
+  const fmtDate = d => d ? `${d.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]} ${d.getFullYear()}` : '?';
+  const title = `${venue.name} - Weekday Specials Performance Review`;
+  const dateStr = `${fmtDate(range.start)} to ${fmtDate(range.end)}`;
+
+  // Strip the action bar from the output
+  const cleanedHtml = dashHtml.replace(/<div class="action-bar">[\s\S]*?<\/div>\s*<\/div>\s*$/, '</div>');
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${escHtml(title)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>${cssContent}
+body { background: #fff; padding: 2rem 0; }
+@media print { body { padding: 0; } .page-wide { padding: 0; } }
+</style>
+</head>
+<body>
+${cleanedHtml}
+<div class="page-wide" style="padding-top:0;">
+  <p style="font-size:11px; color:var(--support-grey); text-align:center; margin-top:2rem;">
+    Generated ${new Date().toLocaleDateString('en-AU', { day:'numeric', month:'long', year:'numeric' })} · Weekday Offer Review · Kickon Group
+  </p>
+</div>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${venue.name.replace(/\s+/g, '-').toLowerCase()}-weekday-review-${range.end ? range.end.toISOString().slice(0,10) : 'report'}.html`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Screen: Strategic Plan stub ────────────────────────────────────
+function renderStrategicStub() {
   return `
-    <div class="page">
-      <div class="step-eyebrow">Step Ten · Alternative</div>
-      <div class="divider-sig"></div>
-      <h1 class="step-title"><span class="light">Pick the</span><br>Replacement</h1>
-      <p class="step-lede">
-        Three concepts based on the competitive gap and your venue mix. Pick one or write your own.
-      </p>
+<div class="page">
+  <div class="step-eyebrow">Strategic Plan</div>
+  <h1 class="step-title">Coming <span class="light">soon</span></h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">The deep-dive strategic plan flow is being rebuilt to use the new Line Transactions data source. It will be back in the next release.</p>
 
-      <div class="alt-grid">
-        ${alts.map((alt, i) => `
-          <div class="alt-card ${state.alternative === `ai-${i}` ? 'selected' : ''}" onclick="selectAlt('ai-${i}', ${JSON.stringify(alt).replace(/"/g,'&quot;')})">
-            <div class="alt-top">
-              <div class="alt-name">${alt.name}</div>
-              <div class="alt-price">${fmtD(alt.price)}</div>
-            </div>
-            <div class="alt-rationale">${alt.rationale}</div>
-          </div>
-        `).join('')}
-      </div>
+  <div class="card">
+    <div class="card-head">In the meantime</div>
+    <div class="card-desc">Use <strong>Option 1 (Performance Review)</strong> to identify which specials need attention. The strategic plan will follow.</div>
+  </div>
 
-      <div class="alt-custom">
-        <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--support-grey); margin-bottom:6px;">Or describe your own</div>
-        <input type="text" id="custom-alt-name" placeholder="e.g. 2-for-1 burgers at the Conti price point" value="${state.alternative === 'custom' ? state.altCustomName || '' : ''}">
-        <div class="alt-custom-row">
-          <textarea id="custom-alt-rationale" placeholder="Why this works (2 sentences)">${state.alternative === 'custom' ? state.altCustomRationale || '' : ''}</textarea>
-          <input type="number" id="custom-alt-price" placeholder="Price ($)" value="${state.alternative === 'custom' ? state.altCustomPrice || '' : ''}">
-        </div>
-        <button class="btn btn-ghost" style="margin-top:10px;" onclick="useCustomAlt()">Use my concept</button>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="back()">← Back</button>
-        <div class="spacer"></div>
-        <button class="btn btn-primary" onclick="onAltContinue()" ${!state.alternative ? 'disabled' : ''}>Set projections <span class="icon-arrow">→</span></button>
-      </div>
-    </div>
-  `;
-}
-
-function selectAlt(key, alt) {
-  state.alternative = key;
-  state.altSelected = alt;
-  state.projection.newPrice = alt.price;
-  render();
-}
-
-function useCustomAlt() {
-  const name = $('#custom-alt-name').value.trim();
-  const rat  = $('#custom-alt-rationale').value.trim();
-  const price = +$('#custom-alt-price').value;
-  if (!name || !price) { alert('Need at least a name and a price.'); return; }
-  state.altCustomName = name;
-  state.altCustomRationale = rat;
-  state.altCustomPrice = price;
-  state.alternative = 'custom';
-  state.altSelected = { name, rationale: rat, price };
-  state.projection.newPrice = price;
-  render();
-}
-
-function onAltContinue() { next(); }
-
-// ── Projections ────────────────────────────────────────────────────
-
-function renderProjections() {
-  const a = state.analysis;
-  const p = state.projection;
-
-  // Current state baseline (per night)
-  const currentRev      = a.avgNet;
-  const currentDiscCost = a.totalDisc;
-  const currentCovers   = a.avgCovers;
-
-  // Projected state (per night)
-  const newCovers = state.branch === 'KILL'
-    ? Math.round(currentCovers * 0.7) // assume 30% softening if killed
-    : Math.round(currentCovers * (1 + p.coversChange / 100));
-
-  let newRevPerCover, newDiscCost, label;
-  if (state.branch === 'KEEP' || state.branch === 'TWEAK') {
-    // Same special structure, possibly different price
-    const newPriceUsed = state.branch === 'TWEAK' ? p.newPrice : a.sp;
-    // Units sold ~ proportion of covers; rough model
-    const unitsProj = Math.round((a.units || newCovers * 0.5) * (1 + p.coversChange / 100));
-    newDiscCost = unitsProj * (a.fp - newPriceUsed);
-    newRevPerCover = a.spc + ((newPriceUsed - a.sp) * (unitsProj / Math.max(newCovers,1))) + p.bevPerCover - a.bpc;
-    label = state.branch === 'KEEP' ? 'Current state, sustained' : `Repriced to ${fmtD(newPriceUsed)}`;
-  } else if (state.branch === 'REPLACE') {
-    // New item at new price, take-up rate
-    const newItem = state.altSelected || { name: 'New special', price: p.newPrice };
-    const newUnits = Math.round(newCovers * (p.takeUpRate / 100));
-    // Assume original menu price equivalence is the new price + 50% (rough — MM can adjust later)
-    const assumedRRP = newItem.price * 1.5;
-    newDiscCost = newUnits * (assumedRRP - newItem.price);
-    newRevPerCover = a.spc + (newItem.price - a.sp) * (newUnits / Math.max(newCovers, 1)) + (p.bevPerCover - a.bpc);
-    label = `Replaced with ${newItem.name}`;
-  } else {
-    // KILL: no special at all
-    newDiscCost = 0;
-    newRevPerCover = a.spc * 0.9; // assume 10% drop in $/cover without the anchor
-    label = 'Special removed';
-  }
-
-  const newRev = Math.max(0, newCovers * newRevPerCover);
-  // Margin on revenue: assume food cost % only applies to food rev
-  const oldFoodMargin = a.avgFood * (1 - p.foodCostPct / 100);
-  const newFoodRev = newRev * (a.avgFood / Math.max(a.avgNet, 1));
-  const newFoodMargin = newFoodRev * (1 - p.foodCostPct / 100);
-
-  // Bev margin assumed 65% across the board
-  const oldBevMargin = a.avgBev * 0.65;
-  const newBevRev = newRev * (a.avgBev / Math.max(a.avgNet, 1));
-  const newBevMargin = newBevRev * 0.65;
-
-  // Net contribution (margin minus disc cost)
-  const oldNet = oldFoodMargin + oldBevMargin - currentDiscCost;
-  const newNet = newFoodMargin + newBevMargin - newDiscCost;
-  const delta = newNet - oldNet;
-  const annualDelta = delta * 52; // weekly run rate annualised
-
-  return `
-    <div class="page wider">
-      <div class="step-eyebrow">Step ${state.branch === 'REPLACE' ? 'Eleven' : 'Ten'} · Financial Case</div>
-      <div class="divider-sig"></div>
-      <h1 class="step-title"><span class="light">Stress-test the</span><br>Numbers</h1>
-      <p class="step-lede">
-        Defaults are sensible. Move the sliders to test scenarios. Figures update live. <strong>You own these numbers</strong> - the report reflects whatever you lock in here.
-      </p>
-
-      <div class="proj-grid">
-        <div class="proj-controls">
-          <div class="card-title" style="margin-bottom:1rem;">Your assumptions</div>
-
-          ${state.branch !== 'KILL' ? `
-          <div class="slider-row">
-            <div class="slider-top">
-              <span class="slider-label">Cover volume change</span>
-              <span class="slider-val">${p.coversChange > 0 ? '+' : ''}${p.coversChange}%</span>
-            </div>
-            <input type="range" id="slider-covers" min="-30" max="50" step="5" value="${p.coversChange}">
-            <div class="slider-bounds"><span>-30%</span><span>baseline</span><span>+50%</span></div>
-          </div>` : ''}
-
-          ${state.branch === 'TWEAK' ? `
-          <div class="slider-row">
-            <div class="slider-top">
-              <span class="slider-label">New price point</span>
-              <span class="slider-val">${fmtD(p.newPrice)}</span>
-            </div>
-            <input type="range" id="slider-price" min="${Math.round(a.sp * 0.7)}" max="${Math.round(a.fp)}" step="1" value="${p.newPrice}">
-            <div class="slider-bounds"><span>${fmtD(Math.round(a.sp * 0.7))}</span><span>current ${fmtD(a.sp)}</span><span>${fmtD(a.fp)}</span></div>
-          </div>` : ''}
-
-          ${state.branch === 'REPLACE' ? `
-          <div class="slider-row">
-            <div class="slider-top">
-              <span class="slider-label">Take-up rate of new special</span>
-              <span class="slider-val">${p.takeUpRate}%</span>
-            </div>
-            <input type="range" id="slider-takeup" min="20" max="90" step="5" value="${p.takeUpRate}">
-            <div class="slider-bounds"><span>20%</span><span>moderate</span><span>90%</span></div>
-            <div class="field-hint">% of covers that buy the special. Original ran at ~${Math.round((a.units || 50) / a.avgCovers * 100)}%.</div>
-          </div>` : ''}
-
-          <div class="slider-row">
-            <div class="slider-top">
-              <span class="slider-label">Beverage spend per cover</span>
-              <span class="slider-val">${fmtD(p.bevPerCover)}</span>
-            </div>
-            <input type="range" id="slider-bev" min="${Math.max(0, Math.round(a.bpc * 0.5))}" max="${Math.round(a.bpc * 1.5)}" step="1" value="${p.bevPerCover}">
-            <div class="slider-bounds"><span>${fmtD(Math.round(a.bpc * 0.5))}</span><span>current ${fmtD(a.bpc)}</span><span>${fmtD(Math.round(a.bpc * 1.5))}</span></div>
-          </div>
-
-          <div class="slider-row">
-            <div class="slider-top">
-              <span class="slider-label">Food cost percentage</span>
-              <span class="slider-val">${p.foodCostPct}%</span>
-            </div>
-            <input type="range" id="slider-foodcost" min="20" max="50" step="1" value="${p.foodCostPct}">
-            <div class="slider-bounds"><span>20%</span><span>30% standard</span><span>50%</span></div>
-            <div class="field-hint">Applied to projected food revenue to calculate margin.</div>
-          </div>
-        </div>
-
-        <div class="proj-output">
-          <div class="proj-output-eyebrow">Projected weekly impact</div>
-          <div class="proj-output-divider"></div>
-          <div style="font-size:11.5px; color:rgba(255,255,255,0.5); margin-bottom:0.85rem; font-style:italic;">${label}</div>
-          <div class="proj-line"><span class="proj-line-label">Current covers / night</span><span class="proj-line-val">${fmtN(currentCovers)}</span></div>
-          <div class="proj-line"><span class="proj-line-label">Projected covers / night</span><span class="proj-line-val">${fmtN(newCovers)}</span></div>
-          <div class="proj-line"><span class="proj-line-label">Current net rev / night</span><span class="proj-line-val">${fmtD(currentRev)}</span></div>
-          <div class="proj-line"><span class="proj-line-label">Projected net rev / night</span><span class="proj-line-val">${fmtD(newRev)}</span></div>
-          <div class="proj-line"><span class="proj-line-label">Current discount cost</span><span class="proj-line-val" style="color:#f0c8c8;">-${fmtD(currentDiscCost)}</span></div>
-          <div class="proj-line"><span class="proj-line-label">Projected discount cost</span><span class="proj-line-val" style="color:#f0c8c8;">-${fmtD(newDiscCost)}</span></div>
-          <div class="proj-line"><span class="proj-line-label">Current contribution</span><span class="proj-line-val">${fmtD(oldNet)}</span></div>
-          <div class="proj-line"><span class="proj-line-label">Projected contribution</span><span class="proj-line-val">${fmtD(newNet)}</span></div>
-
-          <div class="proj-net">
-            <div class="proj-net-lbl">Net change per ${a.day}</div>
-            <div class="proj-net-val">${delta >= 0 ? '+' : ''}${fmtD(delta)}</div>
-            <div class="proj-net-sub">~${annualDelta >= 0 ? '+' : ''}${fmtD(annualDelta)} per year at 52 weeks</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="back()">← Back</button>
-        <div class="spacer"></div>
-        <button class="btn btn-primary" onclick="next()">Lock in &amp; generate report <span class="icon-arrow">→</span></button>
-      </div>
-    </div>
-  `;
-}
-
-function attachProjectionsHandlers() {
-  const map = {
-    'slider-covers': 'coversChange',
-    'slider-price': 'newPrice',
-    'slider-takeup': 'takeUpRate',
-    'slider-bev': 'bevPerCover',
-    'slider-foodcost': 'foodCostPct',
-  };
-  for (const [id, key] of Object.entries(map)) {
-    const el = document.getElementById(id);
-    if (!el) continue;
-    el.addEventListener('input', () => { state.projection[key] = +el.value; render(); });
-  }
-}
-
-// ── Generate / Done ────────────────────────────────────────────────
-
-function renderGenerate() {
-  return `
-    <div class="page">
-      <div class="done-hero">
-        <div class="done-icon">✓</div>
-        <div class="done-title"><span style="font-weight:300;">Ready to</span><br>Generate</div>
-        <div class="done-sub">Pulls everything together into a Word document you can send to leadership.</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">What is in the report</div>
-        <ul style="list-style:none; padding:0;">
-          <li style="padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;">Executive summary with the recommendation</li>
-          <li style="padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;">Current performance data (the dashboard, as text)</li>
-          <li style="padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;">Competitive landscape, with verified sources</li>
-          <li style="padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;">Supply &amp; category context</li>
-          <li style="padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;">The strategic case for ${BRANCH_INFO[state.branch].name.toLowerCase()}</li>
-          ${state.branch === 'REPLACE' ? '<li style="padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;">Proposed alternative special with rationale</li>' : ''}
-          <li style="padding:8px 0; font-size:13px;">Financial projections with stated assumptions</li>
-        </ul>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="back()">← Back to projections</button>
-        <div class="spacer"></div>
-        <button class="btn btn-gold btn-lg" onclick="generateReport()">Generate report <span class="icon-arrow">↓</span></button>
-      </div>
-    </div>
-  `;
-}
-
-// ── Report generation (Word doc) ───────────────────────────────────
-
-function escXml(s) {
-  return String(s || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-}
-
-async function generateReport() {
-  const btn = event.target;
-  btn.disabled = true; btn.textContent = 'Building report...';
-  try {
-    const blob = await buildDocx();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    const v = VENUES[state.venue];
-    const fname = `${v.name.replace(/[^a-z0-9]/gi, '_')}_${state.analysis.day}_${state.analysis.name.replace(/[^a-z0-9]/gi, '_')}_Review.docx`;
-    a.download = fname;
-    a.click();
-    URL.revokeObjectURL(url);
-    btn.textContent = '✓ Downloaded';
-  } catch (e) {
-    console.error(e);
-    alert('Could not generate report: ' + e.message);
-    btn.disabled = false; btn.textContent = 'Generate report';
-  }
-}
-
-function buildReportContent() {
-  const v = VENUES[state.venue];
-  const a = state.analysis;
-  const p = state.projection;
-  const d = state.aiData;
-  const branch = state.branch;
-  const branchName = BRANCH_INFO[branch].name;
-
-  // Recalculate projections (same formula as renderProjections)
-  const newCovers = branch === 'KILL'
-    ? Math.round(a.avgCovers * 0.7)
-    : Math.round(a.avgCovers * (1 + p.coversChange / 100));
-
-  let newRevPerCover, newDiscCost, scenarioLabel, newPriceUsed;
-  if (branch === 'KEEP' || branch === 'TWEAK') {
-    newPriceUsed = branch === 'TWEAK' ? p.newPrice : a.sp;
-    const unitsProj = Math.round((a.units || a.avgCovers * 0.5) * (1 + p.coversChange / 100));
-    newDiscCost = unitsProj * (a.fp - newPriceUsed);
-    newRevPerCover = a.spc + ((newPriceUsed - a.sp) * (unitsProj / Math.max(newCovers,1))) + p.bevPerCover - a.bpc;
-    scenarioLabel = branch === 'KEEP' ? `Maintain current ${a.name} special at ${fmtD(a.sp)}` : `Reprice ${a.name} from ${fmtD(a.sp)} to ${fmtD(newPriceUsed)}`;
-  } else if (branch === 'REPLACE') {
-    const newItem = state.altSelected || { name: 'New special', price: p.newPrice };
-    newPriceUsed = newItem.price;
-    const newUnits = Math.round(newCovers * (p.takeUpRate / 100));
-    const assumedRRP = newItem.price * 1.5;
-    newDiscCost = newUnits * (assumedRRP - newItem.price);
-    newRevPerCover = a.spc + (newItem.price - a.sp) * (newUnits / Math.max(newCovers, 1)) + (p.bevPerCover - a.bpc);
-    scenarioLabel = `Replace ${a.name} with ${newItem.name} at ${fmtD(newItem.price)}`;
-  } else {
-    newDiscCost = 0;
-    newRevPerCover = a.spc * 0.9;
-    scenarioLabel = `Remove ${a.day} ${a.name} special entirely`;
-    newPriceUsed = 0;
-  }
-
-  const newRev = Math.max(0, newCovers * newRevPerCover);
-  const oldFoodMargin = a.avgFood * (1 - p.foodCostPct / 100);
-  const newFoodRev = newRev * (a.avgFood / Math.max(a.avgNet, 1));
-  const newFoodMargin = newFoodRev * (1 - p.foodCostPct / 100);
-  const oldBevMargin = a.avgBev * 0.65;
-  const newBevRev = newRev * (a.avgBev / Math.max(a.avgNet, 1));
-  const newBevMargin = newBevRev * 0.65;
-  const oldNet = oldFoodMargin + oldBevMargin - a.totalDisc;
-  const newNet = newFoodMargin + newBevMargin - newDiscCost;
-  const delta = newNet - oldNet;
-  const annualDelta = delta * 52;
-
-  return {
-    title: `${a.day} ${a.name} Special - Performance Review`,
-    venue: v.name,
-    venueAddr: v.addr,
-    date: new Date().toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' }),
-    branchName, branch, scenarioLabel,
-    a, p, d,
-    altSelected: state.altSelected,
-    newCovers, newRev, newDiscCost, newPriceUsed,
-    oldNet, newNet, delta, annualDelta,
-    notes: state.notes,
-  };
-}
-
-// Build a proper .docx (zipped XML) using JSZip
-async function buildDocx() {
-  const r = buildReportContent();
-
-  // Helper to make XML paragraphs
-  const para = (text, opts = {}) => {
-    const { bold = false, size = 22, color = '1A1814', heading = null, align = 'left', italic = false } = opts;
-    const styleRef = heading ? `<w:pStyle w:val="${heading}"/>` : '';
-    const sz = size;
-    const runProps = `<w:rPr>${bold ? '<w:b/>' : ''}${italic ? '<w:i/>' : ''}<w:color w:val="${color}"/><w:sz w:val="${sz}"/><w:szCs w:val="${sz}"/><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/></w:rPr>`;
-    return `<w:p><w:pPr>${styleRef}<w:jc w:val="${align}"/><w:spacing w:after="120"/></w:pPr><w:r>${runProps}<w:t xml:space="preserve">${escXml(text)}</w:t></w:r></w:p>`;
-  };
-
-  const heading1 = (text) => `<w:p><w:pPr><w:pStyle w:val="Heading1"/><w:spacing w:before="360" w:after="160"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="0E1D4A"/><w:sz w:val="32"/><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/></w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r></w:p>`;
-
-  const heading2 = (text) => `<w:p><w:pPr><w:spacing w:before="240" w:after="120"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="0E1D4A"/><w:sz w:val="26"/><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/></w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r></w:p>`;
-
-  const bullet = (text) => `<w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr><w:spacing w:after="80"/></w:pPr><w:r><w:rPr><w:color w:val="1A1814"/><w:sz w:val="22"/><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/></w:rPr><w:t xml:space="preserve">${escXml(text)}</w:t></w:r></w:p>`;
-
-  // Table builder
-  const table = (rows) => {
-    const tblRows = rows.map((row, ri) => {
-      const cells = row.map(c => {
-        const isHeader = ri === 0;
-        const shading = isHeader ? '<w:shd w:val="clear" w:color="auto" w:fill="0E1D4A"/>' : '';
-        const txtColor = isHeader ? 'FFFFFF' : '1A1814';
-        const bold = isHeader ? '<w:b/>' : '';
-        return `<w:tc><w:tcPr><w:tcW w:w="${Math.floor(9000 / row.length)}" w:type="dxa"/>${shading}</w:tcPr><w:p><w:pPr><w:spacing w:after="60"/></w:pPr><w:r><w:rPr>${bold}<w:color w:val="${txtColor}"/><w:sz w:val="20"/><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/></w:rPr><w:t xml:space="preserve">${escXml(c)}</w:t></w:r></w:p></w:tc>`;
-      }).join('');
-      return `<w:tr>${cells}</w:tr>`;
-    }).join('');
-    return `<w:tbl><w:tblPr><w:tblW w:w="9000" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4" w:color="D8D2C4"/><w:left w:val="single" w:sz="4" w:color="D8D2C4"/><w:bottom w:val="single" w:sz="4" w:color="D8D2C4"/><w:right w:val="single" w:sz="4" w:color="D8D2C4"/><w:insideH w:val="single" w:sz="4" w:color="D8D2C4"/><w:insideV w:val="single" w:sz="4" w:color="D8D2C4"/></w:tblBorders></w:tblPr>${tblRows}</w:tbl>`;
-  };
-
-  // Body content
-  const verdictText = {
-    KEEP: 'Maintain the current special. The data supports it.',
-    TWEAK: 'Adjust the price point. The structure is working, the margin is not.',
-    REPLACE: 'Replace the current special. It is not earning its keep.',
-    KILL: 'Remove the special entirely. Demand is not there.',
-  }[r.branch];
-
-  let body = '';
-
-  // Title block
-  body += `<w:p><w:pPr><w:spacing w:after="60"/></w:pPr><w:r><w:rPr><w:color w:val="B8954A"/><w:sz w:val="20"/><w:b/><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/></w:rPr><w:t xml:space="preserve">${escXml(r.venue.toUpperCase())} · WEEKDAY OFFER REVIEW</w:t></w:r></w:p>`;
-  body += `<w:p><w:pPr><w:spacing w:after="80"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="0E1D4A"/><w:sz w:val="44"/><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/></w:rPr><w:t xml:space="preserve">${escXml(r.title)}</w:t></w:r></w:p>`;
-  body += para(`Prepared ${r.date}  ·  ${r.venueAddr}`, { color: '8A857A', size: 20, italic: true });
-
-  // Executive summary
-  body += heading1('Executive summary');
-  body += para(`Recommendation: ${r.branchName}`, { bold: true, color: '0E1D4A', size: 24 });
-  body += para(verdictText, { size: 22 });
-  body += para(r.scenarioLabel, { size: 22, bold: true });
-  body += para(`Projected net contribution change: ${r.delta >= 0 ? '+' : ''}${fmtD(r.delta)} per ${r.a.day}, or approximately ${r.annualDelta >= 0 ? '+' : ''}${fmtD(r.annualDelta)} annually at 52 weeks.`, { size: 22 });
-
-  // Current state
-  body += heading1('Current performance');
-  body += para(`Based on ${r.a.nights} nights of trading data, the ${r.a.day} ${r.a.name} special at ${fmtD(r.a.sp)} (against a full price of ${fmtD(r.a.fp)}, a ${r.a.discDepth}% discount) is delivering:`);
-  body += table([
-    ['Metric', 'Per night average'],
-    ['Covers', fmtN(r.a.avgCovers)],
-    ['Net revenue', fmtD(r.a.avgNet)],
-    ['Food revenue', fmtD(r.a.avgFood)],
-    ['Beverage revenue', fmtD(r.a.avgBev)],
-    ['Discount cost', `-${fmtD(r.a.totalDisc)}`],
-    ['Spend per cover', fmtD(r.a.spc)],
-    ['Bev per cover', fmtD(r.a.bpc)],
-    ['Estimated units sold', r.a.units !== null ? fmtN(r.a.units) : 'unavailable'],
-  ]);
-  body += para(' '); // spacer
-  body += para(r.a.isBevLed
-    ? `The beverage side (${fmtD(r.a.avgBev)}) is outpacing the food side (${fmtD(r.a.avgFood)}) on this night. Guests are coming for the drinks trade, not the special itself.`
-    : `Food revenue (${fmtD(r.a.avgFood)}) leads beverage (${fmtD(r.a.avgBev)}). The special is doing the work it is meant to.`);
-
-  // Competitive landscape
-  if (r.d && r.d.competitors && r.d.competitors.length) {
-    body += heading1('Competitive landscape');
-    body += para(r.d.competitorInsight || '');
-    body += heading2('What other venues run on this night');
-    r.d.competitors.forEach(c => {
-      body += para(`${c.venue}: ${c.offer}`, { bold: true });
-      if (c.note) body += para(c.note, { italic: true, color: '4A463E' });
-      if (c.source) body += para(`Source: ${c.source}`, { italic: true, color: '8A857A', size: 18 });
-    });
-  }
-
-  // Supply / category
-  if (r.d && r.d.supplyContext && r.d.supplyContext.length) {
-    body += heading1('Category & supply context');
-    body += para(r.d.supplyInsight || '');
-    r.d.supplyContext.forEach(s => {
-      body += para(s.point, { bold: true });
-      body += para(s.detail);
-      if (s.source) body += para(`Source: ${s.source}`, { italic: true, color: '8A857A', size: 18 });
-    });
-  }
-
-  // The case
-  body += heading1(`The case for ${r.branchName.toLowerCase()}`);
-  if (r.d && r.d.case) {
-    r.d.case.split('\n').filter(p => p.trim()).forEach(p => {
-      body += para(p.trim());
-    });
-  }
-  if (r.notes) {
-    body += heading2('Venue context');
-    body += para(r.notes, { italic: true });
-  }
-  if (r.d && r.d.risks && r.d.risks.length) {
-    body += heading2('Risks to flag');
-    r.d.risks.forEach(rk => { body += bullet(rk); });
-  }
-
-  // Alternative (if REPLACE)
-  if (r.branch === 'REPLACE' && r.altSelected) {
-    body += heading1('Proposed replacement');
-    body += para(r.altSelected.name + ' at ' + fmtD(r.altSelected.price), { bold: true, size: 26, color: '0E1D4A' });
-    if (r.altSelected.rationale) body += para(r.altSelected.rationale);
-  }
-
-  // Financial case
-  body += heading1('Financial case');
-  body += para(r.scenarioLabel, { bold: true });
-  body += heading2('Assumptions used');
-  body += bullet(`Cover volume change: ${r.p.coversChange > 0 ? '+' : ''}${r.p.coversChange}%`);
-  if (r.branch === 'TWEAK')   body += bullet(`New price point: ${fmtD(r.p.newPrice)}`);
-  if (r.branch === 'REPLACE') body += bullet(`Take-up rate of new special: ${r.p.takeUpRate}%`);
-  body += bullet(`Beverage spend per cover: ${fmtD(r.p.bevPerCover)}`);
-  body += bullet(`Food cost: ${r.p.foodCostPct}%`);
-  body += bullet(`Beverage margin assumed at 65%`);
-
-  body += heading2('Projected outcome');
-  body += table([
-    ['', 'Current', 'Projected', 'Change'],
-    ['Covers / night', fmtN(r.a.avgCovers), fmtN(r.newCovers), (r.newCovers - r.a.avgCovers >= 0 ? '+' : '') + fmtN(r.newCovers - r.a.avgCovers)],
-    ['Net revenue / night', fmtD(r.a.avgNet), fmtD(r.newRev), (r.newRev - r.a.avgNet >= 0 ? '+' : '') + fmtD(r.newRev - r.a.avgNet)],
-    ['Discount cost', `-${fmtD(r.a.totalDisc)}`, `-${fmtD(r.newDiscCost)}`, (r.a.totalDisc - r.newDiscCost >= 0 ? '+' : '') + fmtD(r.a.totalDisc - r.newDiscCost)],
-    ['Net contribution', fmtD(r.oldNet), fmtD(r.newNet), (r.delta >= 0 ? '+' : '') + fmtD(r.delta)],
-  ]);
-  body += para(' ');
-  body += para(`Annualised impact: ${r.annualDelta >= 0 ? 'an uplift of approximately ' : 'a reduction of approximately '}${fmtD(Math.abs(r.annualDelta))} per year, at 52 weeks of trade.`, { bold: true, color: '0E1D4A' });
-
-  // Footer
-  body += heading1('Notes on methodology');
-  body += para('Performance data is averaged across all trading days in the dataset for the day of week in question. Competitor research was conducted via web search and verified by the report author. Financial projections use the assumptions stated above and represent one scenario - other assumptions will produce different outcomes. This report was prepared using the Kickon Group Weekday Offer Review tool.', { italic: true, color: '4A463E', size: 20 });
-
-  // Assemble the .docx
-  const docXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body>
-    ${body}
-    <w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr>
-  </w:body>
-</w:document>`;
-
-  const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
-    <w:name w:val="Normal"/>
-    <w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr>
-  </w:style>
-  <w:style w:type="paragraph" w:styleId="Heading1">
-    <w:name w:val="Heading 1"/>
-    <w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:b/><w:color w:val="0E1D4A"/><w:sz w:val="32"/></w:rPr>
-  </w:style>
-</w:styles>`;
-
-  const numberingXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:abstractNum w:abstractNumId="0">
-    <w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/><w:lvlText w:val="•"/><w:lvlJc w:val="left"/><w:pPr><w:ind w:left="360" w:hanging="360"/></w:pPr></w:lvl>
-  </w:abstractNum>
-  <w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num>
-</w:numbering>`;
-
-  const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-  <Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>
-</Types>`;
-
-  const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`;
-
-  const docRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/>
-</Relationships>`;
-
-  const zip = new JSZip();
-  zip.file('[Content_Types].xml', contentTypesXml);
-  zip.folder('_rels').file('.rels', relsXml);
-  const wordFolder = zip.folder('word');
-  wordFolder.file('document.xml', docXml);
-  wordFolder.file('styles.xml', stylesXml);
-  wordFolder.file('numbering.xml', numberingXml);
-  wordFolder.folder('_rels').file('document.xml.rels', docRelsXml);
-
-  return await zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  <div class="btn-row">
+    <button class="btn-back" onclick="goHome()">← Back to start</button>
+    <button class="btn btn-primary" onclick="state.screen='path-a-venue'; render();">Run a Performance Review →</button>
+  </div>
+</div>`;
 }
 
 // ── Init ───────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', render);
-
+render();
 </script>
 </body>
 </html>
