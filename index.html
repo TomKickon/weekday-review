@@ -737,6 +737,382 @@ body {
   color: var(--body-text);
 }
 .action-bar-text strong { color: var(--deep-navy); }
+
+/* ═══════════════════════════════════════════════════════════════
+   PATH B - Strategic Plan styles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Single-special analysis screen */
+.b-hero {
+  background: var(--deep-navy);
+  color: #fff;
+  padding: 1.8rem 2rem;
+  border-radius: var(--r-lg);
+  margin-bottom: 1.5rem;
+}
+.b-hero-eyebrow {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--brand-blue);
+  margin-bottom: 0.4rem;
+}
+.b-hero-title {
+  font-size: 24px; font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.b-hero-title .light { font-weight: 300; }
+.b-hero-sub {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 1.2rem;
+}
+.b-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+.b-hero-stat-label {
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.10em; text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 4px;
+}
+.b-hero-stat-val {
+  font-size: 22px; font-weight: 600;
+  color: #fff;
+}
+.b-hero-stat-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+}
+
+/* Combo chart */
+.combo-chart {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 1.4rem 1.6rem;
+  box-shadow: var(--shadow-sm);
+}
+.combo-chart h3 {
+  font-size: 13px; font-weight: 600;
+  color: var(--deep-navy);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.3rem;
+}
+.combo-chart-sub {
+  font-size: 11.5px;
+  color: var(--support-grey);
+  margin-bottom: 1rem;
+}
+.combo-chart svg { width: 100%; height: 280px; display: block; }
+.combo-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  font-size: 11.5px;
+}
+.combo-legend-item { display: flex; align-items: center; gap: 6px; color: var(--body-text); }
+.legend-swatch { width: 12px; height: 12px; border-radius: 2px; }
+.legend-line { width: 16px; height: 3px; border-radius: 2px; }
+.combo-readout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.combo-readout-item { font-size: 12px; }
+.combo-readout-label {
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--support-grey);
+  margin-bottom: 3px;
+}
+.combo-readout-val { font-size: 15px; font-weight: 600; color: var(--deep-navy); }
+.combo-readout-val.up { color: var(--green); }
+.combo-readout-val.down { color: var(--red); }
+
+/* Branch decision cards */
+.branch-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+@media (max-width: 720px) {
+  .branch-grid { grid-template-columns: 1fr 1fr; }
+}
+.branch-card {
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 1.4rem 1.2rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+.branch-card:hover {
+  border-color: var(--brand-blue);
+  box-shadow: var(--shadow);
+}
+.branch-card.recommended {
+  border-color: var(--brand-blue);
+  border-width: 2px;
+  box-shadow: 0 0 0 3px rgba(74,139,196,0.15);
+}
+.branch-rec-tag {
+  position: absolute;
+  top: -10px; left: 1rem;
+  background: var(--brand-blue);
+  color: #fff;
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.branch-icon {
+  font-size: 26px;
+  margin-bottom: 0.5rem;
+}
+.branch-name {
+  font-size: 16px; font-weight: 600;
+  color: var(--deep-navy);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.4rem;
+}
+.branch-desc {
+  font-size: 12px;
+  color: var(--body-text);
+  line-height: 1.5;
+}
+
+/* AI loading screen */
+.ai-loading {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 2.5rem 2rem;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+.ai-loading .spinner {
+  margin: 0 auto 1.5rem;
+}
+.ai-loading-title {
+  font-size: 15px; font-weight: 600;
+  color: var(--deep-navy);
+  margin-bottom: 0.4rem;
+}
+.ai-loading-sub {
+  font-size: 12.5px;
+  color: var(--support-grey);
+  margin-bottom: 1.5rem;
+}
+.ai-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 460px;
+  margin: 0 auto;
+  text-align: left;
+}
+.ai-stage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--off-white);
+  border-radius: var(--r-md);
+  font-size: 12.5px;
+  color: var(--support-grey);
+  transition: all 0.2s;
+}
+.ai-stage.active {
+  background: var(--blue-bg);
+  color: var(--blue-tag);
+  font-weight: 500;
+}
+.ai-stage.done {
+  background: var(--green-bg);
+  color: var(--green);
+}
+.ai-stage-icon {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #fff; font-weight: 700;
+  flex-shrink: 0;
+}
+.ai-stage.active .ai-stage-icon { background: var(--brand-blue); }
+.ai-stage.done .ai-stage-icon { background: var(--green); }
+
+/* Verify/Dismiss panel */
+.verify-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 1.2rem 1.4rem;
+  margin-bottom: 0.85rem;
+  transition: opacity 0.15s;
+}
+.verify-card.dismissed {
+  opacity: 0.4;
+}
+.verify-card.dismissed .verify-name,
+.verify-card.dismissed .verify-offer {
+  text-decoration: line-through;
+}
+.verify-name {
+  font-size: 14px; font-weight: 600;
+  color: var(--deep-navy);
+  margin-bottom: 4px;
+}
+.verify-offer {
+  font-size: 13px;
+  color: var(--body-text);
+  margin-bottom: 6px;
+}
+.verify-source {
+  font-size: 11px;
+  color: var(--support-grey);
+  margin-bottom: 0.85rem;
+}
+.verify-source a { color: var(--brand-blue); text-decoration: none; }
+.verify-source a:hover { text-decoration: underline; }
+.verify-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.verify-btn {
+  flex: 1;
+  padding: 7px 12px;
+  font-size: 11.5px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--mid-navy);
+  cursor: pointer;
+  font-family: inherit;
+}
+.verify-btn:hover { background: var(--off-white); }
+.verify-btn.active-verify {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.verify-btn.active-dismiss {
+  background: var(--support-grey);
+  border-color: var(--support-grey);
+  color: #fff;
+}
+.context-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.context-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.context-list li:last-child { border-bottom: none; }
+.context-point {
+  font-size: 13px; font-weight: 600;
+  color: var(--deep-navy);
+  margin-bottom: 3px;
+}
+.context-detail {
+  font-size: 12.5px;
+  color: var(--body-text);
+  margin-bottom: 3px;
+}
+.context-source {
+  font-size: 11px;
+  color: var(--support-grey);
+}
+
+/* Projections table */
+.proj-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-top: 0.5rem;
+}
+.proj-table thead tr { background: var(--deep-navy); color: #fff; }
+.proj-table thead th {
+  padding: 10px 12px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.proj-table thead th:first-child { text-align: left; }
+.proj-table tbody tr { border-bottom: 1px solid var(--line); }
+.proj-table tbody tr:last-child { border-bottom: none; }
+.proj-table td {
+  padding: 10px 12px;
+  color: var(--body-text);
+  text-align: center;
+  vertical-align: middle;
+  font-size: 12.5px;
+}
+.proj-table td:first-child {
+  text-align: left;
+  font-weight: 500;
+  color: var(--deep-navy);
+}
+.proj-table input {
+  width: 70px;
+  padding: 5px 6px;
+  text-align: center;
+  font-family: inherit;
+  font-size: 12.5px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  outline: none;
+}
+.proj-table input:focus {
+  border-color: var(--brand-blue);
+}
+.scenario-star {
+  display: inline-block;
+  width: 18px; height: 18px;
+  cursor: pointer;
+  color: var(--line-2);
+  font-size: 16px;
+  line-height: 1;
+}
+.scenario-star.active { color: var(--amber); }
+.proj-globals {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1rem 1.2rem;
+  background: var(--off-white);
+  border-radius: var(--r-md);
+  margin-top: 1rem;
+}
+.proj-globals .field {
+  flex: 1;
+  margin-bottom: 0;
+}
+.proj-globals input { width: 100%; }
 </style>
 </head>
 <body>
@@ -788,7 +1164,7 @@ const DAY_COLORS = {
 
 // ── App state ──────────────────────────────────────────────────────
 const state = {
-  screen: 'home',          // home | path-a-* | path-b-stub
+  screen: 'home',          // home | path-a-* | path-b-*
   path: null,              // 'A' or 'B'
   venue: null,
   files: [],
@@ -797,6 +1173,24 @@ const state = {
   specials: [],            // [{day, name, sp, fp}]
   skuMatches: {},          // { specialIdx: { itemName: { selected: bool, qty, days } } }
   results: null,           // final per-special analysis results
+  // Path B data
+  bSpecial: null,          // single special being analysed: {day, name, sp, fp}
+  bSkuMatches: {},         // { itemName: { selected, qty, avgPrice } }
+  bAnalysis: null,         // single-special analysis result (subset of computeResults)
+  bBranch: null,           // KEEP | TWEAK | REPLACE | KILL
+  bRecommendedBranch: null,
+  bAiData: null,           // { competitors:[], competitorInsight, supplyContext:[], supplyInsight }
+  bVerified: {},           // { 'comp-0': true, ... }
+  bDismissed: {},
+  bAlternative: { name: '', price: 0, rationale: '' },  // for REPLACE branch
+  bNotes: '',
+  bScenarios: [
+    { name: 'Conservative', txChange: -10, takeUp: 30, newPrice: 0, recommended: false },
+    { name: 'Moderate',     txChange: 10,  takeUp: 45, newPrice: 0, recommended: true },
+    { name: 'Strong',       txChange: 30,  takeUp: 60, newPrice: 0, recommended: false },
+    { name: 'Stretch',      txChange: 60,  takeUp: 75, newPrice: 0, recommended: false },
+  ],
+  bGlobals: { bevPerTx: 0, foodCostPct: 30 },
 };
 
 // ── Helpers ────────────────────────────────────────────────────────
@@ -1367,12 +1761,24 @@ function readSpecialsFromForm() {
 function render() {
   const wizard = $('#wizard');
   if (state.screen === 'home') { wizard.innerHTML = renderHome(); setProgress('Get started'); }
-  else if (state.screen === 'path-a-venue')     { wizard.innerHTML = renderVenue(); setProgress('Performance Review · Step 1 of 5'); }
-  else if (state.screen === 'path-a-upload')    { wizard.innerHTML = renderUpload(); setupDropZone(); setProgress('Performance Review · Step 2 of 5'); }
+  else if (state.screen === 'path-a-venue')     { wizard.innerHTML = renderVenue('A'); setProgress('Performance Review · Step 1 of 5'); }
+  else if (state.screen === 'path-a-upload')    { wizard.innerHTML = renderUpload('A'); setupDropZone(); setProgress('Performance Review · Step 2 of 5'); }
   else if (state.screen === 'path-a-specials')  { wizard.innerHTML = renderSpecials(); setupSpecialsDefaults(); setProgress('Performance Review · Step 3 of 5'); }
   else if (state.screen === 'path-a-sku')       { wizard.innerHTML = renderSkuMatch(); setProgress('Performance Review · Step 4 of 5'); }
   else if (state.screen === 'path-a-dashboard') { wizard.innerHTML = renderDashboard(); setProgress('Performance Review · Complete'); }
-  else if (state.screen === 'path-b-stub')      { wizard.innerHTML = renderStrategicStub(); setProgress('Strategic Plan'); }
+  // Path B
+  else if (state.screen === 'path-b-venue')     { wizard.innerHTML = renderVenue('B'); setProgress('Strategic Plan · Step 1 of 9'); }
+  else if (state.screen === 'path-b-upload')    { wizard.innerHTML = renderUpload('B'); setupDropZone(); setProgress('Strategic Plan · Step 2 of 9'); }
+  else if (state.screen === 'path-b-pick')      { wizard.innerHTML = renderPickSpecial(); setProgress('Strategic Plan · Step 3 of 9'); }
+  else if (state.screen === 'path-b-sku')       { wizard.innerHTML = renderBSkuMatch(); setProgress('Strategic Plan · Step 4 of 9'); }
+  else if (state.screen === 'path-b-analysis')  { wizard.innerHTML = renderBAnalysis(); drawComboChart(); setProgress('Strategic Plan · Step 5 of 9'); }
+  else if (state.screen === 'path-b-branch')    { wizard.innerHTML = renderBranch(); setProgress('Strategic Plan · Step 6 of 9'); }
+  else if (state.screen === 'path-b-ai')        { wizard.innerHTML = renderAiLoading(); triggerAIResearch(); setProgress('Strategic Plan · Step 7 of 9'); }
+  else if (state.screen === 'path-b-review')    { wizard.innerHTML = renderAiReview(); setProgress('Strategic Plan · Step 7 of 9'); }
+  else if (state.screen === 'path-b-alt')       { wizard.innerHTML = renderAlternative(); setProgress('Strategic Plan · Step 7b of 9'); }
+  else if (state.screen === 'path-b-notes')     { wizard.innerHTML = renderNotes(); setProgress('Strategic Plan · Step 8 of 9'); }
+  else if (state.screen === 'path-b-projections') { wizard.innerHTML = renderProjections(); setProgress('Strategic Plan · Step 9 of 9'); }
+  else if (state.screen === 'path-b-generate')  { wizard.innerHTML = renderGenerateStub(); setProgress('Strategic Plan · Report'); }
 }
 
 function setupSpecialsDefaults() {
@@ -1395,7 +1801,7 @@ function renderHome() {
 
   <div class="path-grid">
 
-    <div class="path-card" onclick="state.screen='path-a-venue'; render();">
+    <div class="path-card" onclick="state.path='A'; state.screen='path-a-venue'; render();">
       <div class="path-eyebrow">Option 1</div>
       <h2 class="path-title">Performance <span class="light">Review</span></h2>
       <p class="path-q">"Which of my weekday specials need attention?"</p>
@@ -1406,8 +1812,7 @@ function renderHome() {
       </div>
     </div>
 
-    <div class="path-card path-stub" onclick="state.screen='path-b-stub'; render();">
-      <div class="stub-badge">Coming soon</div>
+    <div class="path-card" onclick="state.path='B'; state.screen='path-b-venue'; render();">
       <div class="path-eyebrow">Option 2</div>
       <h2 class="path-title">Strategic <span class="light">Plan</span></h2>
       <p class="path-q">"I've identified a special that needs work. Build the case."</p>
@@ -1423,13 +1828,16 @@ function renderHome() {
 }
 
 // ── Screen: Venue ──────────────────────────────────────────────────
-function renderVenue() {
+function renderVenue(path) {
+  const isB = path === 'B';
+  const eyebrow = isB ? 'Strategic Plan · Step 1' : 'Performance Review · Step 1';
+  const nextScreen = isB ? 'path-b-upload' : 'path-a-upload';
   return `
 <div class="page">
-  <div class="step-eyebrow">Performance Review · Step 1</div>
+  <div class="step-eyebrow">${eyebrow}</div>
   <h1 class="step-title"><span class="light">Which</span> venue?</h1>
   <div class="step-divider"></div>
-  <p class="step-sub">Select the venue this performance review is for.</p>
+  <p class="step-sub">Select the venue this ${isB ? 'strategic plan' : 'performance review'} is for.</p>
 
   <div class="card">
     <div class="field">
@@ -1443,16 +1851,19 @@ function renderVenue() {
 
   <div class="btn-row">
     <button class="btn-back" onclick="goHome()">← Back to start</button>
-    <button class="btn btn-primary" id="continue-btn" ${state.venue ? '' : 'disabled'} onclick="state.screen='path-a-upload'; render();">Continue →</button>
+    <button class="btn btn-primary" id="continue-btn" ${state.venue ? '' : 'disabled'} onclick="state.screen='${nextScreen}'; render();">Continue →</button>
   </div>
 </div>`;
 }
 
 // ── Screen: Upload ─────────────────────────────────────────────────
-function renderUpload() {
+function renderUpload(path) {
+  const isB = path === 'B';
+  const eyebrow = isB ? 'Strategic Plan · Step 2' : 'Performance Review · Step 2';
+  const backScreen = isB ? 'path-b-venue' : 'path-a-venue';
   return `
 <div class="page">
-  <div class="step-eyebrow">Performance Review · Step 2</div>
+  <div class="step-eyebrow">${eyebrow}</div>
   <h1 class="step-title"><span class="light">Upload your</span> Lightspeed data</h1>
   <div class="step-divider"></div>
   <p class="step-sub">A single Line Transactions CSV from Lightspeed K-Series BackOffice. This is the only file you need.</p>
@@ -1487,19 +1898,19 @@ function renderUpload() {
   </div>
 
   <div class="btn-row">
-    <button class="btn-back" onclick="state.screen='path-a-venue'; render();">← Back</button>
-    <button class="btn btn-primary" onclick="processUpload()">Parse data →</button>
+    <button class="btn-back" onclick="state.screen='${backScreen}'; render();">← Back</button>
+    <button class="btn btn-primary" onclick="processUpload('${path || 'A'}')">Parse data →</button>
   </div>
 </div>`;
 }
 
-async function processUpload() {
+async function processUpload(path) {
+  const isB = path === 'B';
   if (!state.files.length) { showErr('upload-err', 'Please choose a CSV file first.'); return; }
-  const file = state.files[state.files.length - 1];  // most recent
+  const file = state.files[state.files.length - 1];
   if (!file.name.toLowerCase().endsWith('.csv')) { showErr('upload-err', 'File must be a .csv (Lightspeed Line Transactions export).'); return; }
 
   showErr('upload-err', null);
-  // Show loading
   $('#wizard').innerHTML = `<div class="page"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Parsing line transactions…</div></div></div>`;
 
   try {
@@ -1507,7 +1918,6 @@ async function processUpload() {
     const rows = parseCSV(text);
     if (!rows.length) throw new Error('No data rows found in CSV.');
 
-    // Check expected columns
     const expectedCols = ['Date', 'Type', 'Account', 'Item', 'Qty', 'UnitPrice', 'FinalPrice', 'StatGroup'];
     const missing = expectedCols.filter(c => !(c in rows[0]));
     if (missing.length) {
@@ -1518,10 +1928,10 @@ async function processUpload() {
     if (parsed.stats.datesCount === 0) throw new Error('No SALE rows found with valid dates. Check your export.');
 
     state.parsedData = parsed;
-    state.screen = 'path-a-specials';
+    state.screen = isB ? 'path-b-pick' : 'path-a-specials';
     render();
   } catch (e) {
-    state.screen = 'path-a-upload';
+    state.screen = isB ? 'path-b-upload' : 'path-a-upload';
     render();
     setTimeout(() => showErr('upload-err', e.message), 50);
   }
@@ -1755,9 +2165,7 @@ function renderDashboard() {
 
   <div class="action-bar">
     <div class="action-bar-text">
-      <strong>Want to dive deeper?</strong> Click any special above to investigate further with a full strategic plan.
-      <br>
-      <span style="color:var(--support-grey);">Note: Strategic Plan is coming in the next release.</span>
+      <strong>Want to dive deeper?</strong> Click any special above to investigate further with a full Strategic Plan deep-dive.
     </div>
     <div style="display:flex; gap:0.5rem;">
       <button class="btn btn-ghost" onclick="downloadReport()">↓ Download report</button>
@@ -1798,8 +2206,11 @@ function renderSpecCard(r, maxFood, maxBev, maxDisc, maxBpt) {
     return `Review the offer.`;
   })();
 
+  // Encode special as query-string-like for drill-through
+  const drillData = encodeURIComponent(JSON.stringify({day: r.day, name: r.name, sp: r.sp, fp: r.fp, selectedItems: r.selectedItems || []}));
+
   return `
-    <div class="spec-card">
+    <div class="spec-card" style="cursor:pointer;" onclick="drillToPathB('${drillData}')" title="Click to investigate this special with a Strategic Plan">
       <div class="spec-card-top"><div class="spec-dot" style="background:${color};"></div><div class="spec-day">${r.day}</div></div>
       <div class="spec-item">${escHtml(r.name)}</div>
       <div class="price-badge">
@@ -1834,7 +2245,51 @@ function renderSpecCard(r, maxFood, maxBev, maxDisc, maxBpt) {
         <span class="pill ${v.pill}">${v.label}</span>
         <div class="spec-note">${note}</div>
       </div>
+      <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--line); font-size:10px; font-weight:600; color:var(--brand-blue); letter-spacing:0.08em; text-transform:uppercase; text-align:center;">
+        Click → Strategic Plan
+      </div>
     </div>`;
+}
+
+// Drill from Path A card into Path B with the special pre-filled
+function drillToPathB(encodedData) {
+  try {
+    const data = JSON.parse(decodeURIComponent(encodedData));
+    // Carry over: venue, parsedData, and pre-fill bSpecial
+    state.path = 'B';
+    state.bSpecial = { day: data.day, name: data.name, sp: data.sp, fp: data.fp };
+    // Pre-build SKU matches using the same items that were selected in Path A
+    if (data.selectedItems && data.selectedItems.length) {
+      // Re-run fuzzy match and override selected flags from Path A
+      const candidates = findSkuCandidates(state.bSpecial, state.parsedData);
+      state.bSkuMatches = {};
+      for (const c of candidates) {
+        state.bSkuMatches[c.itemName] = {
+          selected: data.selectedItems.includes(c.itemName) || c.autoTick,
+          qtyOnDay: c.qtyOnDay,
+          avgPrice: c.avgPrice,
+          priceMatch: c.priceMatch,
+        };
+      }
+      // Add any selected items that weren't in candidates (e.g. they manually ticked)
+      for (const sel of data.selectedItems) {
+        if (!state.bSkuMatches[sel] && state.parsedData.allItems.has(sel)) {
+          const ai = state.parsedData.allItems.get(sel);
+          state.bSkuMatches[sel] = {
+            selected: true,
+            qtyOnDay: ai.days[data.day] || 0,
+            avgPrice: ai.prices.length ? ai.prices.reduce((a,b)=>a+b,0) / ai.prices.length : 0,
+            priceMatch: false,
+          };
+        }
+      }
+    }
+    state.screen = 'path-b-sku';
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (e) {
+    console.error('Drill-through failed', e);
+  }
 }
 
 function renderSumRow(r) {
@@ -1903,23 +2358,987 @@ ${cleanedHtml}
   URL.revokeObjectURL(url);
 }
 
-// ── Screen: Strategic Plan stub ────────────────────────────────────
-function renderStrategicStub() {
+// ═══════════════════════════════════════════════════════════════
+// PATH B - Strategic Plan (single-special deep dive)
+// ═══════════════════════════════════════════════════════════════
+
+// ── Screen: Pick which special to investigate ─────────────────────
+function renderPickSpecial() {
+  const parsed = state.parsedData;
+  const range = parsed.dateRange;
+  const fmtDate = d => d ? `${d.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]} ${d.getFullYear()}` : '?';
+  const weeks = range.weeks.toFixed(1);
+
+  let bannerClass = 'range-green', bannerMsg = '';
+  if (range.status === 'red') {
+    bannerClass = 'range-red';
+    bannerMsg = `<strong>⚠ Insufficient data.</strong> Your file covers only ${weeks} weeks. The tool needs at least 8 weeks of trading per weekday to produce reliable averages. Please re-export with a longer date range.`;
+  } else if (range.status === 'amber') {
+    bannerClass = 'range-amber';
+    bannerMsg = `<strong>${weeks} weeks of data.</strong> Workable, but 12 weeks gives more reliable averages.`;
+  } else if (range.status === 'green') {
+    bannerClass = 'range-green';
+    bannerMsg = `<strong>✓ ${weeks} weeks of data.</strong> Ideal range for reliable averages.`;
+  } else if (range.status === 'amber-long') {
+    bannerClass = 'range-amber';
+    bannerMsg = `<strong>${weeks} weeks of data.</strong> This may include old menu prices.`;
+  }
+  const block = range.status === 'red';
+
+  // If carried forward from Path A, pre-fill from state.bSpecial
+  const s = state.bSpecial || { day: 'Monday', name: '', sp: '', fp: '' };
+
   return `
 <div class="page">
-  <div class="step-eyebrow">Strategic Plan</div>
-  <h1 class="step-title">Coming <span class="light">soon</span></h1>
+  <div class="step-eyebrow">Strategic Plan · Step 3</div>
+  <h1 class="step-title"><span class="light">Which special are you</span> investigating?</h1>
   <div class="step-divider"></div>
-  <p class="step-sub">The deep-dive strategic plan flow is being rebuilt to use the new Line Transactions data source. It will be back in the next release.</p>
+  <p class="step-sub">${escHtml(state.venue.name)} · Data: ${fmtDate(range.start)} to ${fmtDate(range.end)}${range.droppedCount ? ` · ${range.droppedCount} partial day(s) auto-excluded` : ''}</p>
 
-  <div class="card">
-    <div class="card-head">In the meantime</div>
-    <div class="card-desc">Use <strong>Option 1 (Performance Review)</strong> to identify which specials need attention. The strategic plan will follow.</div>
+  <div class="range-banner ${bannerClass}">
+    <span style="flex:1;">${bannerMsg}</span>
+  </div>
+
+  ${block ? '' : `
+  <div class="card" style="margin-top:1.5rem;">
+    <div class="card-head">The special</div>
+    <div class="card-desc">Enter the one special you want to deep-dive on. The strategic plan will be built around this single item.</div>
+
+    <div style="display:grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+      <div class="field">
+        <label>Day</label>
+        <select id="b-day">
+          ${DAYS.map(d => `<option${d === s.day ? ' selected' : ''}>${d}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>Item name</label>
+        <input type="text" id="b-name" placeholder="e.g. Fish & Chips" value="${escHtml(s.name)}">
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div class="field">
+        <label>Special price ($)</label>
+        <input type="number" id="b-sp" placeholder="19" value="${s.sp}" step="0.5">
+      </div>
+      <div class="field">
+        <label>Full menu price ($)</label>
+        <input type="number" id="b-fp" placeholder="29" value="${s.fp}" step="0.5">
+      </div>
+    </div>
+    <div class="err" id="b-pick-err"></div>
+  </div>
+  `}
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='path-b-upload'; render();">← Back</button>
+    ${block
+      ? `<button class="btn btn-primary" disabled>Cannot continue</button>`
+      : `<button class="btn btn-primary" onclick="confirmBSpecial()">Continue →</button>`
+    }
+  </div>
+</div>`;
+}
+
+function confirmBSpecial() {
+  const day = document.getElementById('b-day').value;
+  const name = document.getElementById('b-name').value.trim();
+  const sp = parseFloat(document.getElementById('b-sp').value) || 0;
+  const fp = parseFloat(document.getElementById('b-fp').value) || 0;
+  if (!name || sp <= 0 || fp <= 0) {
+    showErr('b-pick-err', 'Please fill in the item name and both prices.');
+    return;
+  }
+  if (sp >= fp) {
+    showErr('b-pick-err', 'Special price should be lower than the full menu price.');
+    return;
+  }
+  if (!state.parsedData.byDow[day].length) {
+    showErr('b-pick-err', `No trading data found for ${day}. Check your date range covers the day your special runs.`);
+    return;
+  }
+  state.bSpecial = { day, name, sp, fp };
+  // Build fuzzy match candidates
+  const candidates = findSkuCandidates(state.bSpecial, state.parsedData);
+  state.bSkuMatches = {};
+  for (const c of candidates) {
+    state.bSkuMatches[c.itemName] = { selected: c.autoTick, qtyOnDay: c.qtyOnDay, avgPrice: c.avgPrice, priceMatch: c.priceMatch };
+  }
+  state.screen = 'path-b-sku';
+  render();
+}
+
+// ── Screen: SKU Match (Path B) ─────────────────────────────────────
+function renderBSkuMatch() {
+  const sp = state.bSpecial;
+  const matches = state.bSkuMatches;
+  const items = Object.keys(matches);
+  const nights = state.parsedData.byDow[sp.day].length;
+  let totalQty = 0;
+  for (const k of items) if (matches[k].selected) totalQty += matches[k].qtyOnDay;
+  const avgPerDay = nights ? Math.round(totalQty / nights) : 0;
+
+  return `
+<div class="page">
+  <div class="step-eyebrow">Strategic Plan · Step 4</div>
+  <h1 class="step-title"><span class="light">Confirm the</span> matching items</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">We've searched your data for items matching "${escHtml(sp.name)}" sold on ${sp.day}s. Tick the items that ARE the special.</p>
+
+  <div class="sku-panel">
+    <div class="sku-panel-head">
+      <span class="day-pill">${sp.day}</span>
+      ${escHtml(sp.name)} · ${fmtD(sp.sp)} (RRP ${fmtD(sp.fp)})
+    </div>
+    ${items.length === 0 ? `
+      <p style="font-size:12.5px; color:var(--support-grey); font-style:italic;">No items containing "${escHtml(sp.name)}" found on ${sp.day}s. Check the item name matches your POS - or go back and adjust.</p>
+    ` : items.map(itemName => {
+      const m = matches[itemName];
+      const idSafe = btoa(itemName).replace(/=/g, '');
+      return `
+      <div class="sku-row">
+        <input type="checkbox" id="bsku-${idSafe}" ${m.selected ? 'checked' : ''} onchange="toggleBSku('${itemName.replace(/'/g, "\\'")}', this.checked)">
+        <label for="bsku-${idSafe}" class="sku-name" style="cursor:pointer;">${escHtml(itemName)}${m.priceMatch ? ' <span style="color:var(--green); font-size:10px; font-weight:600;">PRICE MATCH</span>' : ''}</label>
+        <span class="sku-stats">${m.qtyOnDay} sold · avg ${fmtD(m.avgPrice)}</span>
+      </div>`;
+    }).join('')}
+    ${items.length > 0 ? `<div class="sku-total" id="bsku-total">Selected: <strong>${totalQty}</strong> units across ${nights} ${sp.day}s = <strong>${avgPerDay} units/${sp.day.toLowerCase()}</strong> avg</div>` : ''}
   </div>
 
   <div class="btn-row">
-    <button class="btn-back" onclick="goHome()">← Back to start</button>
-    <button class="btn btn-primary" onclick="state.screen='path-a-venue'; render();">Run a Performance Review →</button>
+    <button class="btn-back" onclick="state.screen='path-b-pick'; render();">← Back</button>
+    <button class="btn btn-primary" onclick="runBAnalysis()">Analyse →</button>
+  </div>
+</div>`;
+}
+
+function toggleBSku(itemName, checked) {
+  if (!state.bSkuMatches[itemName]) return;
+  state.bSkuMatches[itemName].selected = checked;
+  const sp = state.bSpecial;
+  const matches = state.bSkuMatches;
+  const nights = state.parsedData.byDow[sp.day].length;
+  let totalQty = 0;
+  for (const k of Object.keys(matches)) if (matches[k].selected) totalQty += matches[k].qtyOnDay;
+  const avgPerDay = nights ? Math.round(totalQty / nights) : 0;
+  const el = document.getElementById('bsku-total');
+  if (el) el.innerHTML = `Selected: <strong>${totalQty}</strong> units across ${nights} ${sp.day}s = <strong>${avgPerDay} units/${sp.day.toLowerCase()}</strong> avg`;
+}
+
+// ── Run analysis for Path B (single special) ───────────────────────
+function runBAnalysis() {
+  const sp = state.bSpecial;
+  const parsed = state.parsedData;
+  const selectedItems = Object.keys(state.bSkuMatches).filter(k => state.bSkuMatches[k].selected);
+
+  const dayBuckets = parsed.byDow[sp.day];
+  const nights = dayBuckets.length;
+  const avgTx = avg(dayBuckets.map(d => d.transactions));
+  const avgFoodTx = avg(dayBuckets.map(d => d.foodTx));
+  const avgFoodRev = avg(dayBuckets.map(d => d.foodRev));
+  const avgBevRev = avg(dayBuckets.map(d => d.bevRev));
+  const avgDiscFood = avg(dayBuckets.map(d => d.discFood));
+  const avgDiscBev = avg(dayBuckets.map(d => d.discBev));
+  const totalDisc = avgDiscFood + avgDiscBev;
+  const netRev = avgFoodRev + avgBevRev - totalDisc;
+
+  let totalSpecialQty = 0, totalSpecialRev = 0;
+  for (const itemName of selectedItems) {
+    for (const bucket of dayBuckets) {
+      const it = bucket.items.get(itemName);
+      if (it) { totalSpecialQty += it.qty; totalSpecialRev += it.revenue; }
+    }
+  }
+  const unitsPerNight = nights > 0 ? totalSpecialQty / nights : 0;
+  const takeUp = avgFoodTx > 0 ? Math.min(unitsPerNight / avgFoodTx, 1) : 0;
+  const discPct = sp.fp > 0 ? Math.round((sp.fp - sp.sp) / sp.fp * 100) : 0;
+  const spendPerTx = avgTx > 0 ? (avgFoodRev + avgBevRev - totalDisc) / avgTx : 0;
+  const bevPerTx = avgTx > 0 ? avgBevRev / avgTx : 0;
+  const discPerTx = avgTx > 0 ? totalDisc / avgTx : 0;
+  const isBevLed = avgBevRev > avgFoodRev;
+
+  // Per-week trend buckets (12-week aggregation)
+  const weeklyTrend = buildWeeklyTrend(dayBuckets, selectedItems);
+
+  // Verdict
+  const dowNetRev = {};
+  for (const d of DAYS) {
+    const b = parsed.byDow[d];
+    if (!b.length) { dowNetRev[d] = 0; continue; }
+    dowNetRev[d] = avg(b.map(x => x.foodRev + x.bevRev - x.discFood - x.discBev));
+  }
+  const maxNetRevDow = Object.keys(dowNetRev).reduce((a, b) => dowNetRev[a] > dowNetRev[b] ? a : b);
+
+  state.bAnalysis = {
+    ...sp,
+    selectedItems,
+    nights,
+    unitsPerNight: Math.round(unitsPerNight),
+    avgTx: Math.round(avgTx),
+    avgFoodTx: Math.round(avgFoodTx),
+    avgFoodRev: Math.round(avgFoodRev),
+    avgBevRev: Math.round(avgBevRev),
+    netRev: Math.round(netRev),
+    totalDisc: Math.round(totalDisc),
+    avgDiscFood: Math.round(avgDiscFood),
+    avgDiscBev: Math.round(avgDiscBev),
+    takeUp,
+    discPct,
+    spendPerTx: Math.round(spendPerTx),
+    bevPerTx: Math.round(bevPerTx),
+    discPerTx: Math.round(discPerTx),
+    isBevLed,
+    weeklyTrend,
+    foodCostEstimated: Math.round(sp.sp * 0.3),  // 30% food cost default
+  };
+  state.bAnalysis.verdict = computeVerdict(state.bAnalysis, maxNetRevDow, dowNetRev);
+  // Recommended branch
+  state.bRecommendedBranch = suggestBranch(state.bAnalysis.verdict.key, state.bAnalysis);
+
+  // Default bev/tx for projections
+  state.bGlobals.bevPerTx = state.bAnalysis.bevPerTx;
+  // Default new price for scenarios = current sp + $2
+  state.bScenarios.forEach(s => s.newPrice = sp.sp);
+
+  state.screen = 'path-b-analysis';
+  render();
+}
+
+// ── Suggest branch from verdict ────────────────────────────────────
+function suggestBranch(verdictKey, a) {
+  if (verdictKey === 'dominant') return 'TWEAK';
+  if (verdictKey === 'star')     return 'KEEP';
+  if (verdictKey === 'working')  return 'KEEP';
+  if (verdictKey === 'efficient') return 'KEEP';
+  if (verdictKey === 'weak')     return 'REPLACE';
+  return 'TWEAK';
+}
+
+// ── Build 12-week trend (or however many weeks available) ──────────
+// Returns array of { weekStart, weekEnd, transactions, foodTx, specialUnits, takeUp, partial }
+function buildWeeklyTrend(dayBuckets, selectedItems) {
+  if (!dayBuckets.length) return [];
+  // Group dayBuckets by ISO week (Monday-start)
+  const weeks = new Map();
+  for (const b of dayBuckets) {
+    // Get Monday of the week containing b.date
+    const d = new Date(b.date);
+    const dayIdx = (d.getDay() + 6) % 7; // 0 = Monday
+    const mon = new Date(d);
+    mon.setDate(d.getDate() - dayIdx);
+    const wk = `${mon.getFullYear()}-${String(mon.getMonth()+1).padStart(2,'0')}-${String(mon.getDate()).padStart(2,'0')}`;
+
+    let specialQty = 0;
+    for (const itemName of selectedItems) {
+      const it = b.items.get(itemName);
+      if (it) specialQty += it.qty;
+    }
+    weeks.set(wk, {
+      weekStart: new Date(mon),
+      transactions: b.transactions,
+      foodTx: b.foodTx,
+      specialUnits: specialQty,
+    });
+  }
+
+  // Sort and compute take-up + partial flag
+  const sorted = Array.from(weeks.values()).sort((a, b) => a.weekStart - b.weekStart);
+  // Calculate median foodTx to detect partial weeks
+  const median = sorted.map(s => s.foodTx).sort((a,b)=>a-b)[Math.floor(sorted.length/2)] || 0;
+  for (const w of sorted) {
+    w.takeUp = w.foodTx > 0 ? Math.min(w.specialUnits / w.foodTx, 1) : 0;
+    w.partial = median > 0 && w.foodTx < median * 0.25;
+  }
+  return sorted;
+}
+
+// ── Screen: Analysis (with combo chart) ────────────────────────────
+function renderBAnalysis() {
+  const a = state.bAnalysis;
+  const v = a.verdict;
+  return `
+<div class="page">
+  <div class="step-eyebrow">Strategic Plan · Step 5</div>
+  <h1 class="step-title"><span class="light">How is</span> ${escHtml(a.name)} performing?</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">${escHtml(state.venue.name)} · ${a.day} ${escHtml(a.name)} · ${fmtD(a.sp)} special (${a.discPct}% off ${fmtD(a.fp)} RRP)</p>
+
+  <div class="b-hero">
+    <div class="b-hero-eyebrow">Current performance</div>
+    <div class="b-hero-title">${a.day} ${escHtml(a.name)}</div>
+    <div class="b-hero-sub">Averaged across ${a.nights} ${a.day}${a.nights !== 1 ? 's' : ''} · <span class="pill ${v.pill}" style="margin-left:6px;">${v.label}</span></div>
+    <div class="b-hero-stats">
+      <div>
+        <div class="b-hero-stat-label">Units/night</div>
+        <div class="b-hero-stat-val">${fmtN(a.unitsPerNight)}</div>
+        <div class="b-hero-stat-sub">of the special sold</div>
+      </div>
+      <div>
+        <div class="b-hero-stat-label">Take-up rate</div>
+        <div class="b-hero-stat-val">${fmtPct(a.takeUp * 100)}</div>
+        <div class="b-hero-stat-sub">of ${fmtN(a.avgFoodTx)} food tx</div>
+      </div>
+      <div>
+        <div class="b-hero-stat-label">Net rev/night</div>
+        <div class="b-hero-stat-val">${fmtD(a.netRev)}</div>
+        <div class="b-hero-stat-sub">food + bev - discount</div>
+      </div>
+      <div>
+        <div class="b-hero-stat-label">Discount cost</div>
+        <div class="b-hero-stat-val">${fmtD(a.totalDisc)}</div>
+        <div class="b-hero-stat-sub">per ${a.day.toLowerCase()}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="combo-chart" id="combo-chart-wrap">
+    <h3>${a.day} Trend · ${a.weeklyTrend.length} weeks</h3>
+    <div class="combo-chart-sub">Each column is one ${a.day} - height shows total food-bearing transactions, filled portion shows units of the special. Line shows take-up rate.</div>
+    <svg id="combo-svg" viewBox="0 0 780 280"></svg>
+    <div class="combo-legend">
+      <div class="combo-legend-item"><span class="legend-swatch" style="background:${DAY_COLORS[a.day]}; opacity:0.25;"></span>Food-bearing transactions</div>
+      <div class="combo-legend-item"><span class="legend-swatch" style="background:${DAY_COLORS[a.day]};"></span>Special units sold</div>
+      <div class="combo-legend-item"><span class="legend-line" style="background:var(--deep-navy);"></span>Take-up rate (%)</div>
+      <div class="combo-legend-item" style="margin-left:auto;"><span style="display:inline-block; width:14px; height:14px; background:repeating-linear-gradient(45deg, var(--line) 0 3px, var(--off-white) 3px 6px); border-radius:2px;"></span>Partial week</div>
+    </div>
+    <div class="combo-readout" id="combo-readout"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='path-b-sku'; render();">← Back</button>
+    <button class="btn btn-primary" onclick="state.screen='path-b-branch'; render();">Continue to decision →</button>
+  </div>
+</div>`;
+}
+
+// ── Draw combo chart SVG ───────────────────────────────────────────
+function drawComboChart() {
+  const a = state.bAnalysis;
+  const svg = document.getElementById('combo-svg');
+  if (!svg) return;
+  const trend = a.weeklyTrend;
+  if (!trend.length) { svg.innerHTML = '<text x="390" y="140" text-anchor="middle" fill="#94A3B8" font-size="13">No data</text>'; return; }
+
+  const W = 780, H = 280;
+  const padL = 50, padR = 50, padT = 20, padB = 40;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+  const colW = innerW / trend.length;
+  const barW = colW * 0.65;
+  const maxFoodTx = Math.max(...trend.map(w => w.foodTx), 1);
+  // Round up the max for nicer axis
+  const yMax = Math.ceil(maxFoodTx / 50) * 50;
+
+  // SVG groups
+  const elts = [];
+  const color = DAY_COLORS[a.day] || '#4A8BC4';
+
+  // Y-axis grid lines (5 lines, 0/25/50/75/100%)
+  for (let i = 0; i <= 5; i++) {
+    const y = padT + (innerH * i / 5);
+    const val = Math.round(yMax * (5 - i) / 5);
+    elts.push(`<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#E2E8F0" stroke-width="1"/>`);
+    elts.push(`<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#94A3B8" font-size="10">${val}</text>`);
+    // Right axis (take-up %)
+    const pct = (5 - i) * 20;
+    elts.push(`<text x="${W - padR + 8}" y="${y + 4}" text-anchor="start" fill="#94A3B8" font-size="10">${pct}%</text>`);
+  }
+
+  // Y-axis labels (rotated)
+  elts.push(`<text x="14" y="${padT + innerH / 2}" text-anchor="middle" fill="#94A3B8" font-size="10" transform="rotate(-90, 14, ${padT + innerH / 2})">Food-bearing tx</text>`);
+  elts.push(`<text x="${W - 14}" y="${padT + innerH / 2}" text-anchor="middle" fill="#94A3B8" font-size="10" transform="rotate(90, ${W - 14}, ${padT + innerH / 2})">Take-up rate (%)</text>`);
+
+  // Patterns for partial weeks
+  elts.push(`<defs><pattern id="partialPat" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)"><rect width="6" height="6" fill="${color}" opacity="0.18"/><line x1="0" y1="0" x2="0" y2="6" stroke="${color}" stroke-width="2" opacity="0.55"/></pattern></defs>`);
+
+  // Bars
+  trend.forEach((w, i) => {
+    const x = padL + i * colW + (colW - barW) / 2;
+    const foodH = (w.foodTx / yMax) * innerH;
+    const foodY = padT + innerH - foodH;
+    const specialH = (w.specialUnits / yMax) * innerH;
+    const specialY = padT + innerH - specialH;
+
+    // Total tx column (light)
+    const colFill = w.partial ? 'url(#partialPat)' : color;
+    const colOpacity = w.partial ? 1 : 0.22;
+    elts.push(`<rect x="${x}" y="${foodY}" width="${barW}" height="${foodH}" fill="${colFill}" opacity="${colOpacity}" rx="2"/>`);
+    // Special units (darker, overlaid)
+    if (specialH > 0 && !w.partial) {
+      elts.push(`<rect x="${x}" y="${specialY}" width="${barW}" height="${specialH}" fill="${color}" rx="2"/>`);
+    }
+    // X-axis label (week start date)
+    const lbl = `${w.weekStart.getDate()}/${w.weekStart.getMonth()+1}`;
+    elts.push(`<text x="${x + barW/2}" y="${H - padB + 14}" text-anchor="middle" fill="#94A3B8" font-size="10">${lbl}</text>`);
+  });
+
+  // Line for take-up %
+  const linePoints = trend.map((w, i) => {
+    const x = padL + i * colW + colW / 2;
+    const y = padT + innerH - (w.takeUp * innerH);
+    return `${x},${y}`;
+  }).join(' ');
+  elts.push(`<polyline points="${linePoints}" fill="none" stroke="#0B1F3A" stroke-width="2"/>`);
+  // Line dots
+  trend.forEach((w, i) => {
+    const x = padL + i * colW + colW / 2;
+    const y = padT + innerH - (w.takeUp * innerH);
+    elts.push(`<circle cx="${x}" cy="${y}" r="3.5" fill="#0B1F3A" stroke="#fff" stroke-width="1.5"/>`);
+  });
+
+  svg.innerHTML = elts.join('');
+
+  // Render readout cells below: trend direction over period
+  const readoutEl = document.getElementById('combo-readout');
+  if (readoutEl && trend.length >= 2) {
+    const firstNonPartial = trend.find(w => !w.partial);
+    const lastNonPartial = trend.slice().reverse().find(w => !w.partial);
+    if (firstNonPartial && lastNonPartial && firstNonPartial !== lastNonPartial) {
+      const txChange = ((lastNonPartial.foodTx - firstNonPartial.foodTx) / Math.max(firstNonPartial.foodTx, 1)) * 100;
+      const unitChange = ((lastNonPartial.specialUnits - firstNonPartial.specialUnits) / Math.max(firstNonPartial.specialUnits, 1)) * 100;
+      const takeUpChange = (lastNonPartial.takeUp - firstNonPartial.takeUp) * 100;
+      const trendClass = v => v > 5 ? 'up' : v < -5 ? 'down' : '';
+      const trendSym = v => v > 5 ? '↑' : v < -5 ? '↓' : '→';
+      readoutEl.innerHTML = `
+        <div class="combo-readout-item">
+          <div class="combo-readout-label">Food tx trend</div>
+          <div class="combo-readout-val ${trendClass(txChange)}">${trendSym(txChange)} ${txChange > 0 ? '+' : ''}${txChange.toFixed(0)}%</div>
+        </div>
+        <div class="combo-readout-item">
+          <div class="combo-readout-label">Special units trend</div>
+          <div class="combo-readout-val ${trendClass(unitChange)}">${trendSym(unitChange)} ${unitChange > 0 ? '+' : ''}${unitChange.toFixed(0)}%</div>
+        </div>
+        <div class="combo-readout-item">
+          <div class="combo-readout-label">Take-up rate trend</div>
+          <div class="combo-readout-val ${trendClass(takeUpChange)}">${trendSym(takeUpChange)} ${takeUpChange > 0 ? '+' : ''}${takeUpChange.toFixed(1)}pp</div>
+        </div>`;
+    }
+  }
+}
+
+// ── Screen: Branch decision ────────────────────────────────────────
+function renderBranch() {
+  const a = state.bAnalysis;
+  const rec = state.bRecommendedBranch;
+
+  const branches = [
+    { key: 'KEEP',    icon: '✓', desc: 'The special is working. Leave it alone, monitor.' },
+    { key: 'TWEAK',   icon: '⚙', desc: 'The special is broadly working but the price, item, or mechanic needs adjustment.' },
+    { key: 'REPLACE', icon: '⟲', desc: 'The special isn\'t pulling its weight. Swap it for something else on this day.' },
+    { key: 'KILL',    icon: '✕', desc: 'Drop the food special. The day might work better without one.' },
+  ];
+
+  const recReason = (() => {
+    const v = a.verdict.key;
+    if (v === 'dominant') return `Highest net revenue day at this venue, ${fmtN(a.unitsPerNight)} units/night - a $2 price nudge could recover real revenue.`;
+    if (v === 'star') return `Food-led, ${fmtPct(a.takeUp * 100)} take-up, ${fmtN(a.unitsPerNight)} units/night. Don't fix what's working.`;
+    if (v === 'working') return `Food-led, ${fmtN(a.unitsPerNight)} units/night. Pulling its weight.`;
+    if (v === 'efficient') return `Only ${fmtD(a.totalDisc)} disc cost/night. Low overhead, no reason to touch it.`;
+    if (v === 'weak') return `Bev (${fmtD(a.avgBevRev)}) outpaces food (${fmtD(a.avgFoodRev)}). Food special isn't the drawcard.`;
+    return `Mixed signals - review recommended.`;
+  })();
+
+  return `
+<div class="page">
+  <div class="step-eyebrow">Strategic Plan · Step 6</div>
+  <h1 class="step-title"><span class="light">What do you want to</span> do about it?</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">Pick the strategic direction. We've highlighted what the data suggests, but the call is yours.</p>
+
+  <div style="background:var(--blue-bg); border-left:3px solid var(--brand-blue); padding:0.85rem 1.2rem; border-radius:var(--r-md); margin-bottom:1.5rem; font-size:12.5px; color:var(--mid-navy);">
+    <strong style="color:var(--deep-navy);">Recommended based on your data: ${rec}.</strong> ${recReason}
+  </div>
+
+  <div class="branch-grid">
+    ${branches.map(b => `
+    <div class="branch-card ${b.key === rec ? 'recommended' : ''}" onclick="pickBranch('${b.key}')">
+      ${b.key === rec ? '<div class="branch-rec-tag">Recommended</div>' : ''}
+      <div class="branch-icon">${b.icon}</div>
+      <div class="branch-name">${b.key}</div>
+      <div class="branch-desc">${b.desc}</div>
+    </div>`).join('')}
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='path-b-analysis'; render();">← Back</button>
+    <span style="font-size:12px; color:var(--support-grey);">Click a card to continue</span>
+  </div>
+</div>`;
+}
+
+function pickBranch(branch) {
+  state.bBranch = branch;
+  state.screen = 'path-b-ai';
+  render();
+}
+
+// ── Screen: AI Loading ─────────────────────────────────────────────
+function renderAiLoading() {
+  const a = state.bAnalysis;
+  return `
+<div class="page">
+  <div class="step-eyebrow">Strategic Plan · Step 7</div>
+  <h1 class="step-title"><span class="light">Researching</span> the market</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">Looking up competitors and supply context for ${escHtml(a.name)} in ${escHtml(state.venue.area)}. This takes ~30 seconds.</p>
+
+  <div class="ai-loading">
+    <div class="spinner"></div>
+    <div class="ai-loading-title">Researching the market</div>
+    <div class="ai-loading-sub">Calling on web search to find current competitor offers and supply chain context.</div>
+    <div class="ai-stages" id="ai-stages">
+      <div class="ai-stage active" data-step="0"><div class="ai-stage-icon">1</div>Searching for competitor specials in ${escHtml(state.venue.area)}</div>
+      <div class="ai-stage" data-step="1"><div class="ai-stage-icon">2</div>Gathering supply-side context for ${escHtml(a.name)}</div>
+      <div class="ai-stage" data-step="2"><div class="ai-stage-icon">3</div>Synthesising findings</div>
+    </div>
+    <div class="err" id="ai-error"></div>
+  </div>
+</div>`;
+}
+
+// ── AI Research integration ────────────────────────────────────────
+const BAKED_API_KEY = '__ANTHROPIC_API_KEY__';
+let API_KEY = null;
+
+function getApiKey() {
+  if (BAKED_API_KEY && !BAKED_API_KEY.startsWith('__') && BAKED_API_KEY.startsWith('sk-ant-')) {
+    return BAKED_API_KEY;
+  }
+  if (API_KEY) return API_KEY;
+  const stored = localStorage.getItem('kg_anthropic_key');
+  if (stored) { API_KEY = stored; return API_KEY; }
+  return null;
+}
+
+function setAiStage(idx) {
+  const steps = document.querySelectorAll('#ai-stages .ai-stage');
+  steps.forEach((el, i) => {
+    el.classList.remove('active', 'done');
+    if (i < idx) el.classList.add('done');
+    else if (i === idx) el.classList.add('active');
+  });
+}
+
+async function triggerAIResearch() {
+  if (state.bAiData) { setTimeout(() => { state.screen = 'path-b-review'; render(); }, 300); return; }
+  let key = getApiKey();
+  if (!key) {
+    const entered = prompt('Enter your Anthropic API key (starts with sk-ant-). Stored locally in your browser only.\n\nNote: in the production version this is baked in at deploy time.');
+    if (!entered) {
+      const errEl = document.getElementById('ai-error');
+      if (errEl) {
+        errEl.classList.add('visible');
+        errEl.innerHTML = 'API key needed. <a href="#" style="color:var(--brand-blue);" onclick="state.bAiData=null; state.screen=\'path-b-branch\'; render(); return false;">Go back</a>';
+      }
+      return;
+    }
+    API_KEY = entered.trim();
+    localStorage.setItem('kg_anthropic_key', API_KEY);
+    key = API_KEY;
+  }
+  // Cycle the visual stages while the API call is running
+  let stage = 0;
+  const stagesTimer = setInterval(() => {
+    stage = Math.min(stage + 1, 2);
+    setAiStage(stage);
+  }, 10000);
+  try {
+    state.bAiData = await callAIResearch(key);
+    clearInterval(stagesTimer);
+    setAiStage(3);
+    setTimeout(() => { state.screen = 'path-b-review'; render(); }, 500);
+  } catch (e) {
+    clearInterval(stagesTimer);
+    console.error(e);
+    const errEl = document.getElementById('ai-error');
+    if (errEl) {
+      errEl.classList.add('visible');
+      errEl.innerHTML = `Research failed: ${escHtml(e.message)}<br><br>
+        <button class="btn btn-ghost" onclick="state.bAiData=null; render();" style="margin-right:8px;">Try again</button>
+        <button class="btn btn-ghost" onclick="API_KEY=null; localStorage.removeItem('kg_anthropic_key'); state.bAiData=null; render();">Reset API key</button>`;
+    }
+  }
+}
+
+async function callAIResearch(apiKey) {
+  const v = state.venue;
+  const a = state.bAnalysis;
+  const branch = state.bBranch;
+
+  const sys = `You are a hospitality industry analyst writing research for a venue marketing manager at Kickon Group, an Australian hospitality group. Your output is used to draft an executive report. Be specific, factual, and use the web_search tool to find real, current information about competitors and supply chain context. Never fabricate venue names or offers. If you cannot verify a fact, omit it. Output only valid JSON.`;
+
+  const userPrompt = `
+VENUE: ${v.name}, ${v.addr}
+AREA: ${v.area}, ${v.region}
+
+CURRENT SPECIAL UNDER REVIEW:
+- Day: ${a.day}
+- Item: ${a.name}
+- Special price: $${a.sp}
+- Full menu price: $${a.fp}
+- Discount depth: ${a.discPct}%
+
+PERFORMANCE DATA (averaged across ${a.nights} ${a.day}s):
+- Units of special sold per night: ${a.unitsPerNight}
+- Food transactions per night: ${a.avgFoodTx}
+- Take-up rate: ${Math.round(a.takeUp * 100)}%
+- Net revenue per night: $${a.netRev}
+- Food revenue per night: $${a.avgFoodRev}
+- Beverage revenue per night: $${a.avgBevRev}
+- Discount cost per night: $${a.totalDisc}
+- Spend per transaction: $${a.spendPerTx}
+- Food vs bev split: ${a.isBevLed ? 'bev led - guests come for drinks' : 'food led - the special is doing the work'}
+
+MM DECISION: ${branch}
+
+TASKS:
+
+1. COMPETITOR RESEARCH:
+Search the web for 3-5 venues near ${v.area} that run a ${a.day} food special. Use specific queries combining venue location with "${a.day} special", "${a.day} night", or specific category terms relevant to ${a.name}. Focus on direct competitors (pubs, bars, casual dining) in the same area or within reasonable drive. Look at:
+- Eat Drink Cheap (eatdrinkcheap.com.au) - searches like "eatdrinkcheap ${v.area} ${a.day}"
+- The Happiest Hour (thehappiesthour.com)
+- Individual venue websites and Instagram
+
+For each competitor found, capture: venue name, what they offer on ${a.day} (be specific - item, price, mechanics), and a source URL. Only include if you can verify the offer is current (within the last 12 months).
+
+2. CATEGORY / SUPPLY CONTEXT:
+Research the current cost/supply landscape for the main ingredient or category of "${a.name}". For example: if barramundi, look at fishing quotas and wholesale prices; if steak, look at beef cattle prices and processing capacity; if pizza, look at cheese/flour costs. Find 2-3 specific data points (prices, trends, supply pressures) from credible sources (industry bodies, ABARES, MLA, Seafood Industry Australia, news articles from last 12 months). This frames why the current price point may or may not be sustainable.
+
+OUTPUT FORMAT (valid JSON, no markdown, no preamble):
+{
+  "competitors": [
+    {
+      "venue": "Venue name",
+      "offer": "Specific offer details with price",
+      "source": "URL or source name",
+      "note": "Why this is relevant (1 sentence)"
+    }
+  ],
+  "competitorInsight": "One paragraph summarising what the competitive landscape tells us",
+  "supplyContext": [
+    {
+      "point": "Headline fact",
+      "detail": "Supporting detail with numbers if available",
+      "source": "Source name or URL"
+    }
+  ],
+  "supplyInsight": "One paragraph on what the supply/category landscape means for this special"
+}
+`;
+
+  const body = {
+    model: 'claude-sonnet-4-6',
+    max_tokens: 4000,
+    system: sys,
+    messages: [{ role: 'user', content: userPrompt }],
+    tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+  };
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error(`API ${resp.status}: ${txt.slice(0, 200)}`);
+  }
+  const data = await resp.json();
+  const text = data.content.filter(c => c.type === 'text').map(c => c.text).join('\n').trim();
+  let cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  if (firstBrace >= 0 && lastBrace > firstBrace) cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+  try { return JSON.parse(cleaned); }
+  catch (e) { console.error('Failed to parse AI response:', text); throw new Error('AI response was not valid JSON. Try again.'); }
+}
+
+// ── Screen: AI Review (verify/dismiss competitors) ─────────────────
+function renderAiReview() {
+  const ai = state.bAiData;
+  if (!ai) {
+    return `<div class="page"><div class="err visible">No AI data. <button class="btn btn-primary" onclick="state.screen='path-b-ai'; render();">Re-run research</button></div></div>`;
+  }
+
+  return `
+<div class="page">
+  <div class="step-eyebrow">Strategic Plan · Step 7</div>
+  <h1 class="step-title"><span class="light">Review the</span> research</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">Verify what's accurate, dismiss anything that's wrong. Only verified items make it into the final report.</p>
+
+  <div class="card">
+    <div class="card-head">Competitors found</div>
+    ${ai.competitorInsight ? `<p class="card-desc">${escHtml(ai.competitorInsight)}</p>` : ''}
+    ${(ai.competitors || []).map((c, i) => {
+      const key = `comp-${i}`;
+      const v = state.bVerified[key];
+      const d = state.bDismissed[key];
+      return `
+      <div class="verify-card ${d ? 'dismissed' : ''}">
+        <div class="verify-name">${escHtml(c.venue || 'Unknown venue')}</div>
+        <div class="verify-offer">${escHtml(c.offer || '')}</div>
+        ${c.note ? `<div class="verify-offer" style="font-size:12px; color:var(--support-grey); font-style:italic;">${escHtml(c.note)}</div>` : ''}
+        <div class="verify-source">${c.source ? (c.source.startsWith('http') ? `<a href="${escHtml(c.source)}" target="_blank">${escHtml(c.source)}</a>` : escHtml(c.source)) : 'No source provided'}</div>
+        <div class="verify-actions">
+          <button class="verify-btn ${v ? 'active-verify' : ''}" onclick="markVerified('${key}', true)">✓ Verify</button>
+          <button class="verify-btn ${d ? 'active-dismiss' : ''}" onclick="markVerified('${key}', false)">✕ Dismiss</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>
+
+  <div class="card">
+    <div class="card-head">Supply / category context</div>
+    ${ai.supplyInsight ? `<p class="card-desc">${escHtml(ai.supplyInsight)}</p>` : ''}
+    <ul class="context-list">
+      ${(ai.supplyContext || []).map(c => `
+      <li>
+        <div class="context-point">${escHtml(c.point || '')}</div>
+        <div class="context-detail">${escHtml(c.detail || '')}</div>
+        ${c.source ? `<div class="context-source">Source: ${c.source.startsWith('http') ? `<a href="${escHtml(c.source)}" target="_blank" style="color:var(--brand-blue);">${escHtml(c.source)}</a>` : escHtml(c.source)}</div>` : ''}
+      </li>`).join('')}
+    </ul>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='path-b-branch'; render();">← Back</button>
+    <button class="btn btn-primary" onclick="afterReview()">Continue →</button>
+  </div>
+</div>`;
+}
+
+function markVerified(key, isVerify) {
+  if (isVerify) {
+    state.bVerified[key] = !state.bVerified[key];
+    if (state.bVerified[key]) state.bDismissed[key] = false;
+  } else {
+    state.bDismissed[key] = !state.bDismissed[key];
+    if (state.bDismissed[key]) state.bVerified[key] = false;
+  }
+  render();
+}
+
+function afterReview() {
+  // If REPLACE branch, go to alternative entry; otherwise notes
+  if (state.bBranch === 'REPLACE') {
+    state.screen = 'path-b-alt';
+  } else {
+    state.screen = 'path-b-notes';
+  }
+  render();
+}
+
+// ── Screen: Alternative entry (REPLACE branch only) ────────────────
+function renderAlternative() {
+  const alt = state.bAlternative;
+  return `
+<div class="page">
+  <div class="step-eyebrow">Strategic Plan · Step 7b</div>
+  <h1 class="step-title"><span class="light">What's the</span> replacement?</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">You're recommending a replacement. Describe the new special you're proposing. This goes directly into the strategic plan.</p>
+
+  <div class="card">
+    <div class="field">
+      <label>Proposed item / offer</label>
+      <input type="text" id="alt-name" placeholder="e.g. 2-for-1 Mains, Schnitzel Night, $25 Steak & Wine" value="${escHtml(alt.name)}">
+    </div>
+    <div class="field">
+      <label>Proposed price ($)</label>
+      <input type="number" id="alt-price" placeholder="25" value="${alt.price || ''}" step="0.5">
+    </div>
+    <div class="field">
+      <label>Why this works (2-3 sentences)</label>
+      <textarea id="alt-rationale" rows="4" placeholder="e.g. Solves the bev-led problem by giving guests a reason to bring a friend. Lower per-head food cost than rump. Mechanic is easy for FOH to communicate and kitchen to execute.">${escHtml(alt.rationale)}</textarea>
+    </div>
+    <div class="err" id="alt-err"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='path-b-review'; render();">← Back</button>
+    <button class="btn btn-primary" onclick="confirmAlternative()">Continue →</button>
+  </div>
+</div>`;
+}
+
+function confirmAlternative() {
+  const name = document.getElementById('alt-name').value.trim();
+  const price = parseFloat(document.getElementById('alt-price').value) || 0;
+  const rationale = document.getElementById('alt-rationale').value.trim();
+  if (!name || price <= 0 || !rationale) {
+    showErr('alt-err', 'Please fill in all three fields - name, price, and rationale.');
+    return;
+  }
+  state.bAlternative = { name, price, rationale };
+  // Pre-populate scenario new prices with the alternative price
+  state.bScenarios.forEach(s => s.newPrice = price);
+  state.screen = 'path-b-notes';
+  render();
+}
+
+// ── Screen: Notes ──────────────────────────────────────────────────
+function renderNotes() {
+  return `
+<div class="page">
+  <div class="step-eyebrow">Strategic Plan · Step 8</div>
+  <h1 class="step-title"><span class="light">Add your</span> notes</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">Any local context that the data and AI don't capture - kitchen capacity, supplier news, recent events, gut feel. These go into the report.</p>
+
+  <div class="card">
+    <div class="field">
+      <label>Notes (optional)</label>
+      <textarea id="notes-input" rows="6" placeholder="e.g. Kitchen capacity is tight on ${state.bAnalysis.day} - chef has flagged keeping a single hero protein. Local competitor X just dropped their burger night - opportunity to take the burger trade. Suppliers signalled rump cost increase coming next month.">${escHtml(state.bNotes)}</textarea>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen=(state.bBranch==='REPLACE'?'path-b-alt':'path-b-review'); render();">← Back</button>
+    <button class="btn btn-primary" onclick="state.bNotes = document.getElementById('notes-input').value.trim(); state.screen='path-b-projections'; render();">Continue →</button>
+  </div>
+</div>`;
+}
+
+// ── Screen: Projections ────────────────────────────────────────────
+function renderProjections() {
+  const a = state.bAnalysis;
+  const scenarios = state.bScenarios;
+  const g = state.bGlobals;
+  const isReplace = state.bBranch === 'REPLACE';
+  const altName = isReplace ? state.bAlternative.name : null;
+  const altPrice = isReplace ? state.bAlternative.price : a.sp;
+
+  return `
+<div class="page">
+  <div class="step-eyebrow">Strategic Plan · Step 9</div>
+  <h1 class="step-title"><span class="light">Project the</span> scenarios</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">Four scenarios, editable. Pick which you'd recommend as "the plan" - that one becomes the headline number in the report.</p>
+
+  <div class="card">
+    <div class="card-head">Scenario assumptions</div>
+    <p class="card-desc">Edit the % change in transactions, take-up rate, and proposed price for each scenario. The star marks your recommended one.</p>
+
+    <table class="proj-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Rec.</th>
+          <th>Food tx change</th>
+          <th>Take-up rate</th>
+          <th>${isReplace ? `${escHtml(altName || 'New')} price` : 'Special price'}</th>
+          <th>Units/night</th>
+          <th>Food rev/night</th>
+          <th>Bev rev/night</th>
+          <th>Net rev/night</th>
+          <th>vs current</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${scenarios.map((s, i) => {
+          const proj = projectScenario(s, a, g, isReplace, altPrice);
+          return `
+          <tr>
+            <td>${s.name}</td>
+            <td><span class="scenario-star ${s.recommended ? 'active' : ''}" onclick="pickRecScenario(${i})">★</span></td>
+            <td><input type="number" value="${s.txChange}" step="5" onchange="updateScenario(${i}, 'txChange', this.value)">%</td>
+            <td><input type="number" value="${s.takeUp}" min="0" max="100" step="5" onchange="updateScenario(${i}, 'takeUp', this.value)">%</td>
+            <td>$<input type="number" value="${s.newPrice}" step="0.5" onchange="updateScenario(${i}, 'newPrice', this.value)"></td>
+            <td>${fmtN(proj.unitsPerNight)}</td>
+            <td>${fmtD(proj.foodRev)}</td>
+            <td>${fmtD(proj.bevRev)}</td>
+            <td>${fmtD(proj.netRev)}</td>
+            <td class="${proj.deltaPct >= 0 ? 'c-green' : 'c-red'}" style="${proj.deltaPct >= 0 ? 'color:var(--green);' : 'color:var(--red);'}font-weight:600;">${proj.deltaPct >= 0 ? '+' : ''}${proj.deltaPct.toFixed(0)}%</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+
+    <div class="proj-globals">
+      <div class="field">
+        <label>Bev $ per transaction</label>
+        <input type="number" id="g-bev" value="${g.bevPerTx}" step="1" onchange="state.bGlobals.bevPerTx = parseFloat(this.value) || 0; render();">
+      </div>
+      <div class="field">
+        <label>Food cost % (for margin estimate)</label>
+        <input type="number" id="g-fc" value="${g.foodCostPct}" step="1" onchange="state.bGlobals.foodCostPct = parseFloat(this.value) || 30; render();">
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='path-b-notes'; render();">← Back</button>
+    <button class="btn btn-primary" onclick="state.screen='path-b-generate'; render();">Generate report →</button>
+  </div>
+</div>`;
+}
+
+function updateScenario(idx, field, val) {
+  state.bScenarios[idx][field] = parseFloat(val) || 0;
+  render();
+}
+function pickRecScenario(idx) {
+  state.bScenarios.forEach((s, i) => s.recommended = (i === idx));
+  render();
+}
+
+// ── Scenario projection math ───────────────────────────────────────
+function projectScenario(s, a, g, isReplace, altPrice) {
+  // Projected food tx for this scenario
+  const newFoodTx = a.avgFoodTx * (1 + s.txChange / 100);
+  const newUnits = newFoodTx * (s.takeUp / 100);
+  const price = s.newPrice || (isReplace ? altPrice : a.sp);
+  const newFoodRev = newUnits * price;
+  // Bev = transactions × bev/tx (transactions scale with food tx)
+  const newBevRev = newFoodTx * g.bevPerTx;
+  // Net rev (no discount line - the price IS the price now if REPLACE, or the special price)
+  const netRev = newFoodRev + newBevRev;
+  const deltaPct = a.netRev > 0 ? ((netRev - a.netRev) / a.netRev) * 100 : 0;
+  return {
+    unitsPerNight: newUnits,
+    foodTx: newFoodTx,
+    foodRev: newFoodRev,
+    bevRev: newBevRev,
+    netRev: netRev,
+    deltaPct,
+  };
+}
+
+// ── Screen: Generate stub (next turn: real HTML report) ────────────
+function renderGenerateStub() {
+  const a = state.bAnalysis;
+  const rec = state.bScenarios.find(s => s.recommended);
+  return `
+<div class="page">
+  <div class="step-eyebrow">Strategic Plan · Report</div>
+  <h1 class="step-title"><span class="light">Report generator</span> coming next</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">All the data has been captured. The branded HTML report generator will be built in the next release - it will take everything below and produce a downloadable strategic plan in the Kickon style.</p>
+
+  <div class="card">
+    <div class="card-head">What's been captured</div>
+    <ul style="padding-left:1.3rem; line-height:1.85; font-size:13px;">
+      <li><strong>Venue:</strong> ${escHtml(state.venue.name)}</li>
+      <li><strong>Special:</strong> ${a.day} ${escHtml(a.name)} · ${fmtD(a.sp)} (${a.discPct}% off ${fmtD(a.fp)})</li>
+      <li><strong>Performance:</strong> ${fmtN(a.unitsPerNight)} units/night · ${fmtPct(a.takeUp*100)} take-up · ${fmtD(a.netRev)} net rev/night</li>
+      <li><strong>Verdict:</strong> ${a.verdict.label}</li>
+      <li><strong>Decision:</strong> ${state.bBranch}</li>
+      ${state.bBranch === 'REPLACE' && state.bAlternative.name ? `<li><strong>Proposed replacement:</strong> ${escHtml(state.bAlternative.name)} at ${fmtD(state.bAlternative.price)}</li>` : ''}
+      <li><strong>Competitors verified:</strong> ${Object.keys(state.bVerified).filter(k => state.bVerified[k]).length} of ${(state.bAiData?.competitors?.length) || 0}</li>
+      <li><strong>Recommended scenario:</strong> ${rec ? `${rec.name} - ${rec.txChange >= 0 ? '+' : ''}${rec.txChange}% tx, ${rec.takeUp}% take-up, ${fmtD(rec.newPrice)} price` : 'None picked'}</li>
+      <li><strong>Notes:</strong> ${state.bNotes ? escHtml(state.bNotes).slice(0,140) + (state.bNotes.length > 140 ? '…' : '') : '(none)'}</li>
+    </ul>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='path-b-projections'; render();">← Back</button>
+    <button class="btn btn-primary" onclick="goHome()">Start over</button>
   </div>
 </div>`;
 }
