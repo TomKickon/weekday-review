@@ -1,0 +1,27 @@
+# Netlify build configuration
+# When Netlify deploys this site, it runs the build command below.
+# That command replaces the __ANTHROPIC_API_KEY__ placeholder in index.html
+# with the real key from the ANTHROPIC_API_KEY environment variable.
+
+[build]
+  # Replace placeholder with real key, then verify it worked.
+  # If the env var is missing, the build fails fast rather than deploying a broken site.
+  command = """
+    if [ -z "$ANTHROPIC_API_KEY" ]; then
+      echo "ERROR: ANTHROPIC_API_KEY environment variable is not set."
+      echo "Set it in Netlify: Site settings → Environment variables"
+      exit 1
+    fi
+    sed -i "s|__ANTHROPIC_API_KEY__|${ANTHROPIC_API_KEY}|g" index.html
+    if grep -q "__ANTHROPIC_API_KEY__" index.html; then
+      echo "ERROR: Placeholder replacement failed."
+      exit 1
+    fi
+    echo "API key injected successfully."
+  """
+  # No build output directory - publish from repo root
+  publish = "."
+
+[build.environment]
+  # Netlify's build image to use (LTS Node, though we don't actually need Node)
+  NODE_VERSION = "20"
