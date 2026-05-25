@@ -1192,6 +1192,103 @@ body {
   color: var(--support-grey);
   font-style: italic;
 }
+
+/* ── Tweak suggestion cards ─────────────────────────────────── */
+.tweak-suggestions-wrap {
+  background: var(--off-white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 1.1rem 1.2rem;
+  margin-bottom: 1.25rem;
+}
+.tweak-suggestions-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+.tweak-suggestions-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--brand-blue);
+}
+.tweak-suggestions-sub {
+  font-size: 11.5px;
+  color: var(--support-grey);
+  margin-bottom: 0.85rem;
+  line-height: 1.55;
+}
+.tweak-suggestion {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.55rem;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.tweak-suggestion:hover {
+  border-color: var(--brand-blue);
+  transform: translateY(-1px);
+}
+.tweak-suggestion:last-child { margin-bottom: 0; }
+.tweak-suggestion-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--deep-navy);
+  margin-bottom: 4px;
+}
+.tweak-suggestion-rationale {
+  font-size: 12px;
+  color: var(--body-text);
+  line-height: 1.55;
+}
+.tweak-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--support-grey);
+  padding: 0.5rem 0;
+}
+.tweak-loading .spinner-sm {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--line);
+  border-top-color: var(--brand-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.tweak-ref-panel {
+  margin-top: 1.25rem;
+  background: var(--off-white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 1rem 1.2rem;
+}
+.tweak-ref-head {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--support-grey);
+  margin-bottom: 0.6rem;
+}
+.tweak-ref-item {
+  font-size: 12px;
+  color: var(--body-text);
+  margin-bottom: 0.4rem;
+  line-height: 1.5;
+}
+.tweak-ref-item:last-child { margin-bottom: 0; }
+.tweak-ref-item strong { color: var(--deep-navy); }
+.tweak-ref-empty {
+  font-size: 12px;
+  color: var(--support-grey);
+  font-style: italic;
+}
 </style>
 </head>
 <body>
@@ -1262,6 +1359,8 @@ const state = {
   bVerified: {},           // { 'comp-0': true, ... }
   bDismissed: {},
   bAlternative: { name: '', price: 0, rationale: '' },  // for REPLACE branch
+  bTweak: { description: '' },                            // for TWEAK branch - what's the change
+  bTweakSuggestions: null,                                // AI-generated tweak ideas, cached
   bNotes: '',
   bScenarios: [
     { name: 'Conservative', txChange: -10, takeUp: 30, newPrice: 0, recommended: false },
@@ -1273,6 +1372,7 @@ const state = {
   bExecSummary: null,      // AI-generated executive summary, cached to avoid re-cost on re-render
   bActionItems: null,      // AI-generated action items list
   bReportHTML: null,       // generated report HTML, cached
+  bInflightId: 0,          // monotonic counter to identify the current async operation; cancelled ops compare and abort
 };
 
 // ── Helpers ────────────────────────────────────────────────────────
@@ -1966,6 +2066,7 @@ function render() {
   else if (state.screen === 'path-b-ai')        { wizard.innerHTML = renderAiLoading(); triggerAIResearch(); setProgress('Strategic Plan · Step 7 of 9'); }
   else if (state.screen === 'path-b-review')    { wizard.innerHTML = renderAiReview(); setProgress('Strategic Plan · Step 7 of 9'); }
   else if (state.screen === 'path-b-alt')       { wizard.innerHTML = renderAlternative(); setProgress('Strategic Plan · Step 7b of 9'); }
+  else if (state.screen === 'path-b-tweak')     { wizard.innerHTML = renderTweak(); setProgress('Strategic Plan · Step 7b of 9'); }
   else if (state.screen === 'path-b-notes')     { wizard.innerHTML = renderNotes(); setProgress('Strategic Plan · Step 8 of 9'); }
   else if (state.screen === 'path-b-projections') { wizard.innerHTML = renderProjections(); setProgress('Strategic Plan · Step 9 of 9'); }
   else if (state.screen === 'path-b-generate')  { wizard.innerHTML = renderGenerateStub(); setProgress('Strategic Plan · Report'); }
@@ -2504,6 +2605,7 @@ function renderDashboard() {
       <strong>Want to dive deeper?</strong> Click any special above to investigate further with a full Strategic Plan deep-dive.
     </div>
     <div style="display:flex; gap:0.5rem;">
+      <button class="btn btn-ghost" onclick="state.screen='path-a-sku'; render();">← Edit matches</button>
       <button class="btn btn-ghost" onclick="downloadReport()">↓ Download report</button>
       <button class="btn btn-primary" onclick="goHome()">Start over</button>
     </div>
@@ -3315,13 +3417,17 @@ function renderAiLoading() {
   <div class="ai-loading">
     <div class="spinner"></div>
     <div class="ai-loading-title">Researching the market</div>
-    <div class="ai-loading-sub">Calling on web search to find current competitor offers and supply chain context.</div>
+    <div class="ai-loading-sub" id="ai-loading-sub">Calling on web search to find current competitor offers and supply chain context.</div>
     <div class="ai-stages" id="ai-stages">
       <div class="ai-stage active" data-step="0"><div class="ai-stage-icon">1</div>Searching for competitor specials in ${escHtml(state.venue.area)}</div>
       <div class="ai-stage" data-step="1"><div class="ai-stage-icon">2</div>Gathering supply-side context for ${escHtml(a.name)}</div>
       <div class="ai-stage" data-step="2"><div class="ai-stage-icon">3</div>Synthesising findings</div>
     </div>
     <div class="err" id="ai-error"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.bInflightId++; state.bAiData=null; state.screen='path-b-branch'; render();">← Cancel and go back</button>
   </div>
 </div>`;
 }
@@ -3366,19 +3472,34 @@ async function triggerAIResearch() {
     localStorage.setItem('kg_anthropic_key', API_KEY);
     key = API_KEY;
   }
+  // Mark this operation so the back button can cancel it
+  const myId = ++state.bInflightId;
   // Cycle the visual stages while the API call is running
   let stage = 0;
   const stagesTimer = setInterval(() => {
     stage = Math.min(stage + 1, 2);
     setAiStage(stage);
   }, 10000);
+  // Rate-limit countdown callback
+  const onWaitUpdate = (remaining, attempt) => {
+    clearInterval(stagesTimer);  // pause stage cycling during the wait
+    const subEl = document.querySelector('#ai-loading-sub') || document.querySelector('.ai-loading-sub');
+    if (subEl) {
+      subEl.innerHTML = `<strong style="color:#a96e1c;">Rate limit hit.</strong> Retrying in ${remaining}s (attempt ${attempt}). The Anthropic API limits requests-per-minute on your workspace tier.`;
+    }
+  };
   try {
-    state.bAiData = await callAIResearch(key);
+    const result = await callAIResearch(key, onWaitUpdate);
     clearInterval(stagesTimer);
+    // If user clicked Back during the request, abort the navigation
+    if (myId !== state.bInflightId) return;
+    state.bAiData = result;
     setAiStage(3);
     setTimeout(() => { state.screen = 'path-b-review'; render(); }, 500);
   } catch (e) {
     clearInterval(stagesTimer);
+    // If cancelled, swallow silently
+    if (myId !== state.bInflightId) return;
     console.error(e);
     const errEl = document.getElementById('ai-error');
     if (errEl) {
@@ -3390,7 +3511,7 @@ async function triggerAIResearch() {
   }
 }
 
-async function callAIResearch(apiKey) {
+async function callAIResearch(apiKey, onWaitUpdate) {
   const v = state.venue;
   const a = state.bAnalysis;
   const branch = state.bBranch;
@@ -3464,21 +3585,7 @@ OUTPUT FORMAT (valid JSON, no markdown, no preamble):
     tools: [{ type: 'web_search_20250305', name: 'web_search' }],
   };
 
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify(body),
-  });
-  if (!resp.ok) {
-    const txt = await resp.text();
-    throw new Error(`API ${resp.status}: ${txt.slice(0, 200)}`);
-  }
-  const data = await resp.json();
+  const data = await callAnthropicWithRetry(apiKey, body, { onWaitUpdate });
   const text = data.content.filter(c => c.type === 'text').map(c => c.text).join('\n').trim();
   let cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
   const firstBrace = cleaned.indexOf('{');
@@ -3555,9 +3662,14 @@ function markVerified(key, isVerify) {
 }
 
 function afterReview() {
-  // If REPLACE branch, go to alternative entry; otherwise notes
+  // Branch-specific routing after the AI review step:
+  // - REPLACE goes to alternative entry (item name, price, rationale)
+  // - TWEAK goes to tweak description entry (what's the change, why)
+  // - KEEP / KILL go directly to general notes
   if (state.bBranch === 'REPLACE') {
     state.screen = 'path-b-alt';
+  } else if (state.bBranch === 'TWEAK') {
+    state.screen = 'path-b-tweak';
   } else {
     state.screen = 'path-b-notes';
   }
@@ -3612,6 +3724,163 @@ function confirmAlternative() {
   render();
 }
 
+// ── Screen: Tweak description (TWEAK branch only) ──────────────────
+function renderTweak() {
+  const t = state.bTweak;
+  const a = state.bAnalysis;
+  const ai = state.bAiData || { competitors: [], supplyContext: [] };
+  const verifiedComps = (ai.competitors || []).filter((_, i) => state.bVerified[`comp-${i}`]);
+
+  // Build the suggestions section based on cache state
+  let suggestionsHtml = '';
+  if (state.bTweakSuggestions === null || state.bTweakSuggestions === 'loading') {
+    // Not yet loaded or in-flight - show loading state
+    suggestionsHtml = `
+      <div class="tweak-suggestions-wrap" id="tweak-suggestions">
+        <div class="tweak-suggestions-head">
+          <div class="tweak-suggestions-title">💡 Brainstorm starters</div>
+        </div>
+        <div class="tweak-loading">
+          <div class="spinner-sm"></div>
+          <div>Generating tweak ideas based on your data, competitors, and supply context…</div>
+        </div>
+      </div>`;
+    // Kick off the AI call only if not already in flight
+    if (state.bTweakSuggestions === null) {
+      setTimeout(() => triggerTweakSuggestions(), 50);
+    }
+  } else if (state.bTweakSuggestions === 'error') {
+    // Failed - show inline reference instead, don't block the user
+    suggestionsHtml = `
+      <div class="tweak-suggestions-wrap" id="tweak-suggestions">
+        <div class="tweak-suggestions-head">
+          <div class="tweak-suggestions-title" style="color:var(--support-grey);">💡 Brainstorm starters</div>
+          <button onclick="state.bTweakSuggestions=null; render();" style="background:none; border:none; cursor:pointer; color:var(--brand-blue); font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;">Retry</button>
+        </div>
+        <div style="font-size:12px; color:var(--support-grey); padding:0.3rem 0;">AI suggestions unavailable right now. Use the competitor data and analysis below to draft your own tweak.</div>
+      </div>`;
+  } else if (Array.isArray(state.bTweakSuggestions) && state.bTweakSuggestions.length) {
+    // Loaded - render the cards
+    const cards = state.bTweakSuggestions.map((s, i) => {
+      const titleEsc = (s.title || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\');
+      const ratEsc = (s.rationale || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\');
+      return `
+        <div class="tweak-suggestion" onclick="useTweakSuggestion('${titleEsc}', '${ratEsc}')">
+          <div class="tweak-suggestion-title">${escHtml(s.title)}</div>
+          <div class="tweak-suggestion-rationale">${escHtml(s.rationale)}</div>
+        </div>`;
+    }).join('');
+    suggestionsHtml = `
+      <div class="tweak-suggestions-wrap" id="tweak-suggestions">
+        <div class="tweak-suggestions-head">
+          <div class="tweak-suggestions-title">💡 Brainstorm starters</div>
+          <button onclick="state.bTweakSuggestions=null; render();" style="background:none; border:none; cursor:pointer; color:var(--brand-blue); font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;">↻ Regenerate</button>
+        </div>
+        <div class="tweak-suggestions-sub">Click any idea to use it as a starting point in the textarea, then edit to make it yours. Or ignore these and write your own.</div>
+        ${cards}
+      </div>`;
+  }
+
+  // Build competitor reference panel (always shown if we have data)
+  let refPanelHtml = '';
+  if (verifiedComps.length || (ai.supplyContext || []).length) {
+    const compsList = verifiedComps.slice(0, 5).map(c =>
+      `<div class="tweak-ref-item"><strong>${escHtml(c.venue)}:</strong> ${escHtml(c.offer)}</div>`
+    ).join('');
+    const supplyList = (ai.supplyContext || []).slice(0, 3).map(c =>
+      `<div class="tweak-ref-item"><strong>${escHtml(c.point)}:</strong> ${escHtml((c.detail || '').slice(0, 180))}</div>`
+    ).join('');
+    refPanelHtml = `
+      <div class="tweak-ref-panel">
+        ${verifiedComps.length ? `
+          <div class="tweak-ref-head">What competitors are doing</div>
+          ${compsList}
+        ` : ''}
+        ${(ai.supplyContext || []).length ? `
+          <div class="tweak-ref-head" style="margin-top:${verifiedComps.length ? '0.9rem' : '0'};">Supply & cost context</div>
+          ${supplyList}
+        ` : ''}
+      </div>`;
+  }
+
+  return `
+<div class="page">
+  <div class="step-eyebrow">Strategic Plan · Step 7b</div>
+  <h1 class="step-title"><span class="light">What's the</span> tweak?</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">You're recommending a tweak rather than a wholesale change. Describe what you'd adjust - price, portion, spec, mechanic, timing, or anything else. This goes directly into the strategic plan.</p>
+
+  ${suggestionsHtml}
+
+  <div class="card">
+    <div class="field">
+      <label>What's the tweak (2-4 sentences)</label>
+      <textarea id="tweak-desc" rows="6" placeholder="Be specific. If it's a price move, say what to and from. If it's a portion or spec change, name the old and new. If it's a mechanic change, describe both states.">${escHtml(t.description)}</textarea>
+    </div>
+    <div class="err" id="tweak-err"></div>
+  </div>
+
+  ${refPanelHtml}
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='path-b-review'; render();">← Back</button>
+    <button class="btn btn-primary" onclick="confirmTweak()">Continue →</button>
+  </div>
+</div>`;
+}
+
+// Insert a suggestion into the textarea (replace if empty, append otherwise)
+function useTweakSuggestion(title, rationale) {
+  const ta = document.getElementById('tweak-desc');
+  if (!ta) return;
+  const text = `${title}. ${rationale}`;
+  if (ta.value.trim()) {
+    ta.value = ta.value.trim() + '\n\n' + text;
+  } else {
+    ta.value = text;
+  }
+  ta.focus();
+  // Move cursor to end
+  ta.setSelectionRange(ta.value.length, ta.value.length);
+}
+
+// Trigger the AI call to generate tweak suggestions. Cached in state.bTweakSuggestions.
+// State values: null = not yet started, 'loading' = in flight, 'error' = failed, array = success
+async function triggerTweakSuggestions() {
+  if (state.bTweakSuggestions !== null) return;  // already loading, errored, or loaded
+  state.bTweakSuggestions = 'loading';
+  const myId = ++state.bInflightId;
+  try {
+    const suggestions = await generateTweakSuggestions();
+    if (myId !== state.bInflightId) {
+      // Cancelled - reset so user can retry next time
+      if (state.bTweakSuggestions === 'loading') state.bTweakSuggestions = null;
+      return;
+    }
+    state.bTweakSuggestions = suggestions;
+    if (state.screen === 'path-b-tweak') render();
+  } catch (e) {
+    if (myId !== state.bInflightId) {
+      if (state.bTweakSuggestions === 'loading') state.bTweakSuggestions = null;
+      return;
+    }
+    console.error('Tweak suggestions failed:', e);
+    state.bTweakSuggestions = 'error';
+    if (state.screen === 'path-b-tweak') render();
+  }
+}
+
+function confirmTweak() {
+  const description = document.getElementById('tweak-desc').value.trim();
+  if (!description || description.length < 20) {
+    showErr('tweak-err', 'Please describe the tweak in at least a couple of sentences. This becomes the body of the Proposed Action section.');
+    return;
+  }
+  state.bTweak = { description };
+  state.screen = 'path-b-notes';
+  render();
+}
+
 // ── Screen: Notes ──────────────────────────────────────────────────
 function renderNotes() {
   return `
@@ -3629,7 +3898,7 @@ function renderNotes() {
   </div>
 
   <div class="btn-row">
-    <button class="btn-back" onclick="state.screen=(state.bBranch==='REPLACE'?'path-b-alt':'path-b-review'); render();">← Back</button>
+    <button class="btn-back" onclick="state.screen=(state.bBranch==='REPLACE'?'path-b-alt':state.bBranch==='TWEAK'?'path-b-tweak':'path-b-review'); render();">← Back</button>
     <button class="btn btn-primary" onclick="state.bNotes = document.getElementById('notes-input').value.trim(); state.screen='path-b-projections'; render();">Continue →</button>
   </div>
 </div>`;
@@ -3755,13 +4024,17 @@ function renderGenerateStub() {
   <div class="ai-loading">
     <div class="spinner"></div>
     <div class="ai-loading-title">Generating report</div>
-    <div class="ai-loading-sub">Drafting executive summary and action items from everything captured.</div>
+    <div class="ai-loading-sub" id="gen-loading-sub">Drafting executive summary and action items from everything captured.</div>
     <div class="ai-stages" id="gen-stages">
       <div class="ai-stage active" data-step="0"><div class="ai-stage-icon">1</div>Drafting executive summary</div>
       <div class="ai-stage" data-step="1"><div class="ai-stage-icon">2</div>Building action items</div>
       <div class="ai-stage" data-step="2"><div class="ai-stage-icon">3</div>Assembling the report</div>
     </div>
     <div class="err" id="gen-error"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.bInflightId++; state.bExecSummary=null; state.bActionItems=null; state.bReportHTML=null; state.screen='path-b-projections'; render();">← Cancel and go back</button>
   </div>
 </div>`;
   }
@@ -3784,7 +4057,7 @@ function renderGenerateStub() {
     </div>
     <div style="display:flex; gap:0.5rem;">
       <button class="btn btn-ghost" onclick="state.bReportHTML=null; state.bExecSummary=null; state.bActionItems=null; render();">↻ Regenerate</button>
-      <button class="btn btn-ghost" onclick="state.screen='path-b-projections'; render();">← Edit scenarios</button>
+      <button class="btn btn-ghost" onclick="state.bReportHTML=null; state.bExecSummary=null; state.bActionItems=null; state.screen='path-b-projections'; render();">← Edit scenarios</button>
       <button class="btn btn-primary" onclick="downloadBReport()">↓ Download HTML</button>
     </div>
   </div>
@@ -3805,24 +4078,35 @@ function setGenStage(idx) {
 }
 
 async function generateReport() {
+  const myId = ++state.bInflightId;
   try {
     // 1. Get exec summary + action items from AI (if not already cached)
     if (!state.bExecSummary || !state.bActionItems) {
       setGenStage(0);
-      const result = await generateExecSummary();
+      const onWaitUpdate = (remaining, attempt) => {
+        const subEl = document.getElementById('gen-loading-sub');
+        if (subEl) {
+          subEl.innerHTML = `<strong style="color:#a96e1c;">Rate limit hit.</strong> Retrying in ${remaining}s (attempt ${attempt}). Anthropic limits tokens-per-minute on your workspace tier - this usually clears within 60s.`;
+        }
+      };
+      const result = await generateExecSummary(onWaitUpdate);
+      if (myId !== state.bInflightId) return;  // cancelled
       state.bExecSummary = result.execSummary;
       state.bActionItems = result.actionItems;
     }
     setGenStage(1);
     await new Promise(r => setTimeout(r, 200));
+    if (myId !== state.bInflightId) return;
     setGenStage(2);
     // 2. Build the HTML report
     state.bReportHTML = buildReportHTML();
     setGenStage(3);
     // 3. Re-render to show the preview
     await new Promise(r => setTimeout(r, 400));
+    if (myId !== state.bInflightId) return;
     render();
   } catch (e) {
+    if (myId !== state.bInflightId) return;
     console.error(e);
     const errEl = document.getElementById('gen-error');
     if (errEl) {
@@ -3834,8 +4118,67 @@ async function generateReport() {
   }
 }
 
+// ── Generate tweak suggestions via Claude (TWEAK branch only) ─────
+// Called when the MM lands on the Tweak description screen. Uses everything we've
+// captured (performance, verified competitors, supply context) to suggest 3 specific
+// tweaks she could consider. Cached in state so navigating back/forward doesn't re-cost.
+async function generateTweakSuggestions(onWaitUpdate) {
+  const v = state.venue;
+  const a = state.bAnalysis;
+  const ai = state.bAiData || { competitors: [], supplyContext: [] };
+  const verifiedComps = (ai.competitors || []).filter((_, i) => state.bVerified[`comp-${i}`]);
+
+  let key = getApiKey();
+  if (!key) throw new Error('API key not available.');
+
+  const compsLine = verifiedComps.slice(0, 4).map(c => `${c.venue}: ${c.offer}`).join(' | ') || 'none verified';
+  const supplyLine = (ai.supplyContext || []).slice(0, 3).map(c => `${c.point}: ${c.detail || ''}`.slice(0, 200)).join(' | ') || 'none';
+
+  const sys = `Hospitality consultant brainstorming tweak ideas for a pub special. Output valid JSON only.`;
+
+  const userPrompt = `${v.name} (${v.area}) wants to tweak (not replace) their ${a.day} special: ${a.name} at $${a.sp} (RRP ${a.isRange ? '$'+Math.round(a.priceMin)+'-'+Math.round(a.priceMax) : '$'+a.fp}, ${a.discPct}% off).
+
+PERF: ${a.unitsPerNight} units/${a.day.toLowerCase()}, ${Math.round(a.takeUp*100)}% take-up. Food $${a.avgFoodRev}/bev $${a.avgBevRev} (${a.isBevLed?'BEV-LED':'FOOD-LED'}). Disc cost $${a.totalDisc}/night. $/tx $${a.spendPerTx}, bev/tx $${a.bevPerTx}.
+
+VERIFIED COMPETITORS: ${compsLine}
+SUPPLY CONTEXT: ${supplyLine}
+
+Generate 3 distinct, specific tweak ideas this venue could consider. Each tweak should:
+- Be SPECIFIC (name the change with numbers - "price up $2 to $${a.sp + 2}" not "consider a price adjustment")
+- Be MOTIVATED by something concrete in the data (the bev/food split, the take-up, the competitor landscape, the supply costs)
+- Be DIFFERENT from each other (don't propose three price changes - mix it up: pricing tweak, mechanic tweak, spec/portion tweak, timing tweak, attach tweak)
+- Be REALISTIC for a single venue to execute in 1-2 weeks
+
+Each tweak has a title (5-8 words) and a rationale (1-2 sentences explaining the logic, citing a number or competitor insight). No em-dashes (use hyphens).
+
+JSON only:
+{"suggestions":[{"title":"...","rationale":"..."},{"title":"...","rationale":"..."},{"title":"...","rationale":"..."}]}`;
+
+  const body = {
+    model: 'claude-sonnet-4-6',
+    max_tokens: 800,
+    system: sys,
+    messages: [{ role: 'user', content: userPrompt }],
+  };
+
+  const data = await callAnthropicWithRetry(key, body, { onWaitUpdate });
+  const text = data.content.filter(c => c.type === 'text').map(c => c.text).join('\n').trim();
+  let cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  if (firstBrace >= 0 && lastBrace > firstBrace) cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+  try {
+    const parsed = JSON.parse(cleaned);
+    if (!Array.isArray(parsed.suggestions)) throw new Error('No suggestions array');
+    return parsed.suggestions;
+  } catch (e) {
+    console.error('Failed to parse tweak suggestions:', text);
+    throw new Error('AI response was not valid JSON.');
+  }
+}
+
 // ── Generate exec summary + action items via Claude ────────────────
-async function generateExecSummary() {
+async function generateExecSummary(onWaitUpdate) {
   const v = state.venue;
   const a = state.bAnalysis;
   const branch = state.bBranch;
@@ -3844,10 +4187,9 @@ async function generateExecSummary() {
   const notes = state.bNotes;
   const recScenario = state.bScenarios.find(s => s.recommended) || state.bScenarios[1];
   const verifiedComps = (ai.competitors || []).filter((_, i) => state.bVerified[`comp-${i}`]);
-  // Compute projected impact from recommended scenario
   const proj = projectScenario(recScenario, a, state.bGlobals, branch === 'REPLACE', alt.price || a.sp);
 
-  // Trend signals
+  // Trend signal in 1 word
   const trend = a.weeklyTrend || [];
   let trendSignal = 'flat';
   if (trend.length >= 4) {
@@ -3863,102 +4205,43 @@ async function generateExecSummary() {
   }
 
   let key = getApiKey();
-  if (!key) throw new Error('API key not available. The exec summary requires an Anthropic API call.');
+  if (!key) throw new Error('API key not available.');
 
-  const sys = `You are a senior hospitality analyst writing an executive summary for a venue marketing manager at Kickon Group. Write clearly, decisively, and in the manager's voice. Be specific with numbers. No fluff, no jargon, no em-dashes (use hyphens). Output only valid JSON.`;
+  // SLIM PROMPT: only what the AI needs to write the summary + action items.
+  // Removed verbose section headers, kept only the data points that matter for synthesis.
+  const sys = `Hospitality analyst writing for a venue marketing manager at Kickon Group (Australian pub group). Tight prose, specific numbers, third person. No em-dashes (use hyphens). Output valid JSON only.`;
 
-  const userPrompt = `
-CONTEXT:
-- Venue: ${v.name} (${v.area}, ${v.region})
-- Special under review: ${a.day} ${a.name} at $${a.sp} (RRP $${a.fp}${a.isRange ? `, range $${Math.round(a.priceMin)}-$${Math.round(a.priceMax)}` : ''})
-- Discount depth: ${a.discPct}%
-- Period analysed: ${a.nights} ${a.day}s
+  // Pack data densely - one line per fact, no headings, minimal whitespace
+  const compsLine = verifiedComps.slice(0, 4).map(c => `${c.venue}: ${c.offer}`).join(' | ') || 'none';
+  const supplyLine = (ai.supplyContext || []).slice(0, 3).map(c => `${c.point}`).join(' | ') || 'none';
+  const altLine = branch === 'REPLACE' && alt.name ? `Replacement: ${alt.name} at $${alt.price}. ${alt.rationale}` : '';
+  const tweakLine = branch === 'TWEAK' && state.bTweak.description ? `Proposed tweak (MM's words): ${state.bTweak.description}` : '';
 
-PERFORMANCE DATA (per-${a.day.toLowerCase()} averages):
-- Units sold: ${a.unitsPerNight}
-- Food transactions: ${a.avgFoodTx}
-- Take-up rate: ${Math.round(a.takeUp * 100)}% (of food-bearing transactions)
-- Food revenue: $${a.avgFoodRev}
-- Bev revenue: $${a.avgBevRev}
-- Discount cost: $${a.totalDisc}
-- Net revenue: $${a.netRev}
-- Spend per transaction: $${a.spendPerTx}
-- Bev per transaction: $${a.bevPerTx}
-- Food vs bev: ${a.isBevLed ? 'BEV-LED (drinks revenue exceeds food)' : 'FOOD-LED (food revenue exceeds drinks)'}
-- 12-week take-up trend: ${trendSignal}
-- Verdict from analysis: ${a.verdict.label}
+  const userPrompt = `${v.name} (${v.area}). ${a.day} ${a.name} at $${a.sp} (RRP ${a.isRange ? '$'+Math.round(a.priceMin)+'-'+Math.round(a.priceMax) : '$'+a.fp}, ${a.discPct}% off). Analysed ${a.nights} ${a.day}s.
 
-MARKETING MANAGER'S DECISION: ${branch}
-${branch === 'REPLACE' && alt.name ? `Proposed replacement: ${alt.name} at $${alt.price}
-Rationale (MM's words): ${alt.rationale}` : ''}
+PERF: ${a.unitsPerNight} units/${a.day.toLowerCase()}, ${Math.round(a.takeUp*100)}% take-up (${a.avgFoodTx} food tx). Food $${a.avgFoodRev}/bev $${a.avgBevRev} (${a.isBevLed?'BEV-LED':'FOOD-LED'}). Disc cost $${a.totalDisc}. Net rev $${a.netRev}. $/tx $${a.spendPerTx}. Trend: ${trendSignal}. Verdict: ${a.verdict.label.replace(/[🏆⭐✓◐⚠?]/g,'').trim()}.
 
-VERIFIED COMPETITORS (${verifiedComps.length} of ${(ai.competitors || []).length} from research):
-${verifiedComps.map(c => `- ${c.venue}: ${c.offer}`).join('\n') || '(none verified)'}
+DECISION: ${branch}. ${altLine}${tweakLine}
 
-SUPPLY/CATEGORY CONTEXT:
-${(ai.supplyContext || []).map(c => `- ${c.point}: ${c.detail}`).join('\n') || '(none captured)'}
-
-MARKETING MANAGER'S NOTES:
-${notes || '(none provided)'}
-
-RECOMMENDED SCENARIO (${recScenario.name}):
-- Food transaction change: ${recScenario.txChange >= 0 ? '+' : ''}${recScenario.txChange}%
-- Take-up rate: ${recScenario.takeUp}%
-- New price: $${recScenario.newPrice}
-- Projected net revenue: $${Math.round(proj.netRev)} per ${a.day.toLowerCase()} (vs current $${a.netRev}, ${proj.deltaPct >= 0 ? '+' : ''}${proj.deltaPct.toFixed(0)}%)
+COMPETITORS: ${compsLine}
+SUPPLY: ${supplyLine}
+MM NOTES: ${notes || 'none'}
+REC SCENARIO (${recScenario.name}): ${recScenario.txChange>=0?'+':''}${recScenario.txChange}% tx, ${recScenario.takeUp}% take-up, $${recScenario.newPrice} price → $${Math.round(proj.netRev)}/${a.day.toLowerCase()} (${proj.deltaPct>=0?'+':''}${proj.deltaPct.toFixed(0)}% vs now).
 
 TASKS:
+1. Executive summary: 3-4 paragraphs (~200-260 words). Open with clear claim about the special's performance. Cite specific numbers. State the ${branch} recommendation with reasoning tied to data${branch==='TWEAK'?' AND the specific tweak the MM is proposing':''}. Name projected impact. Close with call to action. Third person. No headings, no bullets, no em-dashes.
+2. Action items: 3-5 verb-led concrete steps to enact ${branch}. Each doable in 1-2 weeks, sequenced logically (prep → execute → measure)${branch==='TWEAK'?'. Reference the specific tweak the MM described':''}.
 
-1. EXECUTIVE SUMMARY (3-4 paragraphs, total ~200-280 words):
-Write a tight executive summary that:
-- Opens with a single clear claim: what the data shows about this special
-- Cites specific numbers (units, take-up, revenue, food vs bev split)
-- States the recommendation (${branch}) with brief reasoning that ties to the data
-- Names the projected impact if the recommendation is enacted
-- Closes with one clear call to action
-
-Write in third person institutional voice. Don't use phrases like "this report explores" - just state findings. Don't repeat the special name in every paragraph. No bullet points - prose only.
-
-2. ACTION ITEMS (3-5 numbered items):
-Specific, concrete steps to enact the ${branch} decision. Each item should:
-- Start with a verb (Brief the kitchen, Update menu boards, Set a go-live date, Test the new mechanic, etc.)
-- Be doable in 1-2 weeks
-- Reference specific items, prices, or dates where applicable
-- Sequence logically (preparation → execution → measurement)
-
-OUTPUT FORMAT (valid JSON, no markdown, no preamble):
-{
-  "execSummary": "3-4 paragraphs of plain prose separated by \\n\\n",
-  "actionItems": [
-    "Action item 1 starting with a verb",
-    "Action item 2",
-    ...
-  ]
-}
-`;
+JSON only: {"execSummary":"<paragraphs separated by \\n\\n>","actionItems":["item 1","item 2",...]}`;
 
   const body = {
     model: 'claude-sonnet-4-6',
-    max_tokens: 2000,
+    max_tokens: 1500,
     system: sys,
     messages: [{ role: 'user', content: userPrompt }],
   };
 
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify(body),
-  });
-  if (!resp.ok) {
-    const txt = await resp.text();
-    throw new Error(`API ${resp.status}: ${txt.slice(0, 200)}`);
-  }
-  const data = await resp.json();
+  const data = await callAnthropicWithRetry(key, body, { onWaitUpdate });
   const text = data.content.filter(c => c.type === 'text').map(c => c.text).join('\n').trim();
   let cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
   const firstBrace = cleaned.indexOf('{');
@@ -3968,6 +4251,53 @@ OUTPUT FORMAT (valid JSON, no markdown, no preamble):
   catch (e) {
     console.error('Failed to parse exec summary response:', text);
     throw new Error('AI response was not valid JSON. Try again.');
+  }
+}
+
+// ── Shared API call helper with retry-on-429 ──────────────────────
+// If we hit a rate limit (429), wait the suggested time and retry once.
+// Reports progress to the user via the optional onWaitUpdate callback.
+async function callAnthropicWithRetry(apiKey, body, options = {}) {
+  const { maxRetries = 2, onWaitUpdate = null } = options;
+  let attempt = 0;
+  while (true) {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (resp.ok) return await resp.json();
+
+    if (resp.status === 429 && attempt < maxRetries) {
+      // Get retry-after if provided, otherwise default to 60s (the per-minute window)
+      const retryAfter = parseInt(resp.headers.get('retry-after') || '60', 10);
+      const waitMs = Math.max(retryAfter * 1000, 30000);  // at least 30s
+      attempt++;
+      // Inform user
+      if (onWaitUpdate) onWaitUpdate(retryAfter, attempt);
+      // Countdown
+      let remaining = retryAfter;
+      const countdown = setInterval(() => {
+        remaining--;
+        if (onWaitUpdate) onWaitUpdate(remaining, attempt);
+      }, 1000);
+      await new Promise(r => setTimeout(r, waitMs));
+      clearInterval(countdown);
+      continue;
+    }
+
+    // Non-retryable error
+    const txt = await resp.text();
+    if (resp.status === 429) {
+      throw new Error(`Rate limit hit and retries exhausted. Wait a minute then try again, or contact Anthropic to raise your workspace's tokens-per-minute limit.`);
+    }
+    throw new Error(`API ${resp.status}: ${txt.slice(0, 200)}`);
   }
 }
 
@@ -4057,9 +4387,19 @@ function buildReportHTML() {
       <p>The data supports keeping ${escHtml(a.name)} in its current form. With ${fmtN(a.unitsPerNight)} units sold per ${a.day.toLowerCase()} at ${fmtPct(a.takeUp * 100)} take-up of food-bearing transactions, the special is the reason guests are choosing this venue on ${a.day}s. Food revenue (${fmtD(a.avgFoodRev)}/${a.day.toLowerCase()}) ${a.isBevLed ? 'sits behind' : 'leads'} beverage revenue (${fmtD(a.avgBevRev)}), and ${fmtD(a.totalDisc)} discount cost is justified by the trade it generates.</p>
       <p><strong>Action:</strong> Maintain the current price point and item. Monitor monthly for any erosion in take-up rate or units sold.</p>`;
   } else if (branch === 'TWEAK') {
+    const tweakDesc = (state.bTweak.description || '').trim();
     const priceMove = recScenario.newPrice - a.sp;
+    // Convert any double newlines to paragraph breaks for nicer rendering
+    const tweakParas = tweakDesc
+      ? tweakDesc.split(/\n\n+/).filter(p => p.trim()).map(p => `<p>${escHtml(p.trim()).replace(/\n/g, '<br>')}</p>`).join('')
+      : `<p>${escHtml(a.name)} is broadly working but has room to optimise.</p>`;
+    // If there's a meaningful price change in the recommended scenario, append the math
+    const priceMath = priceMove !== 0 && a.unitsPerNight > 0
+      ? `<p><strong>Projected impact at current volume:</strong> ${priceMove > 0 ? 'A' : 'A'} ${fmtD(Math.abs(priceMove))} ${priceMove > 0 ? 'increase' : 'reduction'} from ${fmtD(a.sp)} to ${fmtD(recScenario.newPrice)} ${priceMove > 0 ? 'recovers' : 'gives back'} approximately ${fmtD(Math.abs(priceMove) * a.unitsPerNight)} per ${a.day.toLowerCase()} (${fmtD(Math.abs(priceMove) * a.unitsPerNight * a.nights * 4)} annualised) at the current run rate of ${fmtN(a.unitsPerNight)} units/${a.day.toLowerCase()}, before factoring in any volume change.</p>`
+      : '';
     actionSection = `
-      <p>${escHtml(a.name)} is broadly working but has room to optimise. ${priceMove > 0 ? `A price adjustment from ${fmtD(a.sp)} to ${fmtD(recScenario.newPrice)} (a ${fmtD(priceMove)} increase) is the proposed tweak.` : priceMove < 0 ? `A price reduction from ${fmtD(a.sp)} to ${fmtD(recScenario.newPrice)} is the proposed tweak.` : 'The proposed tweak adjusts mechanics rather than price.'} ${priceMove > 0 ? `At current volume of ${fmtN(a.unitsPerNight)} units/${a.day.toLowerCase()}, this recovers approximately ${fmtD(priceMove * a.unitsPerNight)} per ${a.day.toLowerCase()} (${fmtD(priceMove * a.unitsPerNight * a.nights * 4)} annualised) before factoring in any volume change.` : ''}</p>
+      ${tweakParas}
+      ${priceMath}
       ${notes ? `<p><strong>Operational context:</strong> ${escHtml(notes)}</p>` : ''}`;
   } else if (branch === 'REPLACE' && alt.name) {
     actionSection = `
