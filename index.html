@@ -1113,6 +1113,85 @@ body {
   margin-bottom: 0;
 }
 .proj-globals input { width: 100%; }
+
+/* ── "Add from data" browser ─────────────────────────────────── */
+.add-from-data-link {
+  display: block;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--line-2);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brand-blue);
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  padding-bottom: 4px;
+  user-select: none;
+}
+.add-from-data-link:hover { color: var(--deep-navy); }
+.afd-browser {
+  margin-top: 0.7rem;
+  padding: 0.85rem 1rem;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.afd-filter {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  font-family: inherit;
+  outline: none;
+  margin-bottom: 0.7rem;
+}
+.afd-filter:focus {
+  border-color: var(--brand-blue);
+}
+.afd-list {
+  max-height: 280px;
+  overflow-y: auto;
+  background: var(--off-white);
+  border-radius: var(--r);
+  padding: 4px;
+}
+.afd-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-radius: var(--r);
+  cursor: pointer;
+  font-size: 12.5px;
+  transition: background 0.12s;
+}
+.afd-item:hover { background: var(--blue-bg); }
+.afd-item.already-added { color: var(--support-grey); cursor: default; }
+.afd-item.already-added:hover { background: transparent; }
+.afd-item.already-added .afd-already-tag {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--green);
+  background: var(--green-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-left: 8px;
+}
+.afd-item-name { flex: 1; color: var(--body-text); }
+.afd-item.already-added .afd-item-name { color: var(--support-grey); }
+.afd-item-stats { font-size: 11px; color: var(--support-grey); font-family: monospace; }
+.afd-empty {
+  padding: 1.2rem;
+  text-align: center;
+  font-size: 12px;
+  color: var(--support-grey);
+  font-style: italic;
+}
 </style>
 </head>
 <body>
@@ -1305,6 +1384,47 @@ async function readText(file) {
   });
 }
 
+// ── Classify a line item as food / beverage / discount ────────────
+// Handles two known venue patterns (and others sharing the same conventions):
+//  - Terminus: StatGroup field is populated ('Food', 'Beverage', 'Discount Food', etc.)
+//  - Doutta Galla: StatGroup is mostly empty; Group field uses prefixes ('DG -' food, 'BEV -' bev)
+// Returns: 'food' | 'beverage' | 'disc_food' | 'disc_bev' | 'other'
+function classifyLineItem(statGroup, groupName) {
+  const sg = (statGroup || '').trim();
+  const gn = (groupName || '').trim();
+
+  // First-pass: trust StatGroup if it's populated with a known value
+  if (sg) {
+    if (/^food$/i.test(sg)) return 'food';
+    if (/^beverage$/i.test(sg)) return 'beverage';
+    if (/^discount\s*food$/i.test(sg)) return 'disc_food';
+    if (/^discount\s*(beverage|bev)$/i.test(sg)) return 'disc_bev';
+    if (/^other$/i.test(sg)) return 'other';
+  }
+
+  // Fall back to Group-field convention
+  if (!gn) return 'other';
+  // Strip the "(id)" suffix Lightspeed sometimes adds (e.g. "BAR - Classics(1240618483318819)")
+  const cleanGroup = gn.replace(/\(\d+\)$/, '').trim();
+
+  // Discount lines first (they may contain 'BEV' or 'Food' substrings)
+  if (/discount/i.test(cleanGroup)) {
+    if (/food/i.test(cleanGroup)) return 'disc_food';
+    if (/bev/i.test(cleanGroup)) return 'disc_bev';
+    return 'other';  // unknown discount type - skip
+  }
+
+  // BEV-prefixed groups are beverages (BEV - Wine, BAR - BEV - Beer, etc.)
+  if (/\bBEV\b/i.test(cleanGroup)) return 'beverage';
+
+  // Misc / surcharge / service - exclude
+  if (/^(misc|surcharge|service|tip|gratuity|me&u|loss|comp)/i.test(cleanGroup)) return 'other';
+
+  // Everything else with a non-empty Group → food
+  // (BAR - Classics, BAR - Grill, DG - Pasta, DG - Snacks, etc.)
+  return 'food';
+}
+
 // ── Line Transactions parser ───────────────────────────────────────
 // Produces a structured per-date aggregation.
 // Returns:
@@ -1353,6 +1473,7 @@ function parseLineTransactions(rows) {
 
     const acct = (r.Account || '').trim();
     const sg = (r.StatGroup || '').trim();
+    const groupRaw = (r.Group || '').trim();
     const qty = toNum(r.Qty);
     const finalPrice = toNum(r.FinalPrice);
     const unitPrice = toNum(r.UnitPrice);
@@ -1360,7 +1481,15 @@ function parseLineTransactions(rows) {
 
     if (acct) rec.transactions.add(acct);
 
-    if (sg === 'Food' && qty > 0) {
+    // Universal classifier: use StatGroup if populated, otherwise derive from Group field.
+    // Different venues' Lightspeed setups populate these differently:
+    //  - Terminus: StatGroup = 'Food' / 'Beverage' / 'Discount Food' / 'Discount Beverage' / 'other'
+    //  - Doutta Galla: StatGroup is mostly empty; Group field uses 'DG - X' for food, 'BEV - X' for bev
+    // Group field convention (consistent across venues): substring 'BEV' indicates beverage,
+    // 'Discount' indicates discount line, otherwise food.
+    const category = classifyLineItem(sg, groupRaw);
+
+    if (category === 'food' && qty > 0) {
       if (acct) rec.foodTx.add(acct);
       rec.foodRev += finalPrice;
       if (item) {
@@ -1385,11 +1514,11 @@ function parseLineTransactions(rows) {
           ai.pricesByDay[dn].push(unitPrice);
         }
       }
-    } else if (sg === 'Beverage' && qty > 0) {
+    } else if (category === 'beverage' && qty > 0) {
       rec.bevRev += finalPrice;
-    } else if (sg === 'Discount Food') {
+    } else if (category === 'disc_food') {
       rec.discFood += Math.abs(finalPrice);
-    } else if (sg === 'Discount Beverage') {
+    } else if (category === 'disc_bev') {
       rec.discBev += Math.abs(finalPrice);
     }
   }
@@ -1987,7 +2116,7 @@ async function processUpload(path) {
     const rows = parseCSV(text);
     if (!rows.length) throw new Error('No data rows found in CSV.');
 
-    const expectedCols = ['Date', 'Type', 'Account', 'Item', 'Qty', 'UnitPrice', 'FinalPrice', 'StatGroup'];
+    const expectedCols = ['Date', 'Type', 'Account', 'Item', 'Qty', 'UnitPrice', 'FinalPrice', 'Group'];
     const missing = expectedCols.filter(c => !(c in rows[0]));
     if (missing.length) {
       throw new Error(`This doesn't look like a Line Transactions export. Missing columns: ${missing.join(', ')}. Please re-export from Reports → All reports → Line transactions.`);
@@ -2142,7 +2271,7 @@ function renderSkuPanel(sp, idx) {
     · ${fmtD(sp.sp)} (RRP ${fmtD(sp.fp)})
   </div>
   ${items.length === 0 ? `
-    <p style="font-size:12.5px; color:var(--support-grey); font-style:italic; padding:8px 0;">No items containing "${escHtml(sp.name)}" found in your data on ${sp.day}s. Try the <strong>Edit</strong> button above - your POS item might be called something slightly different (e.g. "Schnitzel" not "Schnitty").</p>
+    <p style="font-size:12.5px; color:var(--support-grey); font-style:italic; padding:8px 0;">No items containing "${escHtml(sp.name)}" found in your data on ${sp.day}s. Try the <strong>Edit</strong> button above to fix the name (e.g. "Parma" not "Parmigiana"), or click <strong>"+ Add from your data"</strong> below to browse all items sold that day.</p>
   ` : items.map(itemName => {
     const m = matches[itemName];
     const idSafe = 'sku-' + idx + '-' + btoa(unescape(encodeURIComponent(itemName))).replace(/=/g, '');
@@ -2154,7 +2283,92 @@ function renderSkuPanel(sp, idx) {
     </div>`;
   }).join('')}
   ${items.length > 0 ? `<div class="sku-total" id="sku-total-${idx}">Selected: <strong>${totalQty}</strong> units across ${nights} ${sp.day}s = <strong>${avgPerDay} units/${sp.day.toLowerCase()}</strong> avg</div>` : ''}
+
+  <div class="add-from-data-link" id="afd-link-${idx}" onclick="toggleAfd(${idx})">+ Add from your data</div>
+  <div class="afd-browser" id="afd-browser-${idx}" style="display:none;">
+    <input type="text" class="afd-filter" id="afd-filter-${idx}" placeholder="Filter items sold on ${sp.day}s…" oninput="filterAfd(${idx}, this.value)">
+    <div class="afd-list" id="afd-list-${idx}">${renderAfdList(sp.day, matches, idx, '', false)}</div>
+  </div>
 </div>`;
+}
+
+// ── Build the items list for "Add from your data" browser ─────────
+// `pathB` flag distinguishes Path A (idx is special index) from Path B (single special).
+function renderAfdList(day, currentMatches, idx, filter, pathB) {
+  const parsed = state.parsedData;
+  // Get all food items sold on this day, sorted by qty on day desc
+  const candidates = [];
+  parsed.allItems.forEach((data, itemName) => {
+    if (itemName.endsWith('*')) return;  // skip modifier lines
+    const qtyOnDay = data.days[day] || 0;
+    if (qtyOnDay === 0) return;
+    const avgPrice = data.prices.length ? data.prices.reduce((a, b) => a + b, 0) / data.prices.length : 0;
+    candidates.push({ itemName, qtyOnDay, avgPrice });
+  });
+  candidates.sort((a, b) => b.qtyOnDay - a.qtyOnDay);
+  // Apply filter
+  const f = (filter || '').trim().toLowerCase();
+  const filtered = f ? candidates.filter(c => c.itemName.toLowerCase().includes(f)) : candidates;
+  // Limit to top 80 for performance
+  const shown = filtered.slice(0, 80);
+
+  if (!shown.length) {
+    return `<div class="afd-empty">No items match "${escHtml(filter)}"</div>`;
+  }
+  return shown.map(c => {
+    const isAdded = currentMatches[c.itemName];
+    const safeArg = c.itemName.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const handler = pathB
+      ? `onclick="addAfdItemB('${safeArg}')"`
+      : `onclick="addAfdItem(${idx}, '${safeArg}')"`;
+    return `
+    <div class="afd-item ${isAdded ? 'already-added' : ''}" ${isAdded ? '' : handler}>
+      <span class="afd-item-name">${escHtml(c.itemName)}${isAdded ? '<span class="afd-already-tag">Added</span>' : ''}</span>
+      <span class="afd-item-stats">${Math.round(c.qtyOnDay)} sold · ${fmtD(c.avgPrice)}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggleAfd(idx) {
+  const browser = document.getElementById('afd-browser-' + idx);
+  const link = document.getElementById('afd-link-' + idx);
+  if (browser.style.display === 'none') {
+    browser.style.display = 'block';
+    link.textContent = '− Hide list';
+    document.getElementById('afd-filter-' + idx).focus();
+  } else {
+    browser.style.display = 'none';
+    link.textContent = '+ Add from your data';
+  }
+}
+
+function filterAfd(idx, value) {
+  const sp = state.specials[idx];
+  const matches = state.skuMatches[idx] || {};
+  const list = document.getElementById('afd-list-' + idx);
+  if (list) list.innerHTML = renderAfdList(sp.day, matches, idx, value, false);
+}
+
+function addAfdItem(idx, itemName) {
+  const sp = state.specials[idx];
+  if (!state.skuMatches[idx]) state.skuMatches[idx] = {};
+  if (state.skuMatches[idx][itemName]) return;  // already there
+  const ai = state.parsedData.allItems.get(itemName);
+  if (!ai) return;
+  const avgPrice = ai.prices.length ? ai.prices.reduce((a, b) => a + b, 0) / ai.prices.length : 0;
+  state.skuMatches[idx][itemName] = {
+    selected: true,
+    qtyOnDay: ai.days[sp.day] || 0,
+    avgPrice,
+    priceMatch: avgPrice > 0 && Math.abs(avgPrice - sp.sp) <= 2,
+  };
+  // Re-render this panel
+  const panel = document.getElementById('sku-panel-' + idx);
+  if (panel) {
+    panel.outerHTML = renderSkuPanel(sp, idx);
+    // Re-open the browser since the user is probably looking for more items
+    setTimeout(() => { toggleAfd(idx); }, 10);
+  }
 }
 
 function editSkuName(idx) {
@@ -2623,7 +2837,7 @@ function renderBSkuMatch() {
       · ${fmtD(sp.sp)} (RRP ${fmtD(sp.fp)})
     </div>
     ${items.length === 0 ? `
-      <p style="font-size:12.5px; color:var(--support-grey); font-style:italic; padding:8px 0;">No items containing "${escHtml(sp.name)}" found on ${sp.day}s. Try the <strong>Edit</strong> button above - your POS item might be called something slightly different.</p>
+      <p style="font-size:12.5px; color:var(--support-grey); font-style:italic; padding:8px 0;">No items containing "${escHtml(sp.name)}" found on ${sp.day}s. Try the <strong>Edit</strong> button above to fix the name (e.g. "Parma" not "Parmigiana"), or click <strong>"+ Add from your data"</strong> below to browse all items sold that day.</p>
     ` : items.map(itemName => {
       const m = matches[itemName];
       const idSafe = 'bsku-' + btoa(unescape(encodeURIComponent(itemName))).replace(/=/g, '');
@@ -2635,6 +2849,12 @@ function renderBSkuMatch() {
       </div>`;
     }).join('')}
     ${items.length > 0 ? `<div class="sku-total" id="bsku-total">Selected: <strong>${totalQty}</strong> units across ${nights} ${sp.day}s = <strong>${avgPerDay} units/${sp.day.toLowerCase()}</strong> avg</div>` : ''}
+
+    <div class="add-from-data-link" id="bafd-link" onclick="toggleBAfd()">+ Add from your data</div>
+    <div class="afd-browser" id="bafd-browser" style="display:none;">
+      <input type="text" class="afd-filter" id="bafd-filter" placeholder="Filter items sold on ${sp.day}s…" oninput="filterBAfd(this.value)">
+      <div class="afd-list" id="bafd-list">${renderAfdList(sp.day, matches, 0, '', true)}</div>
+    </div>
   </div>
 
   <div class="btn-row">
@@ -2689,6 +2909,43 @@ function toggleBSku(itemName, checked) {
   const avgPerDay = nights ? Math.round(totalQty / nights) : 0;
   const el = document.getElementById('bsku-total');
   if (el) el.innerHTML = `Selected: <strong>${totalQty}</strong> units across ${nights} ${sp.day}s = <strong>${avgPerDay} units/${sp.day.toLowerCase()}</strong> avg`;
+}
+
+// ── Path B "Add from data" browser handlers ───────────────────────
+function toggleBAfd() {
+  const browser = document.getElementById('bafd-browser');
+  const link = document.getElementById('bafd-link');
+  if (!browser || !link) return;
+  if (browser.style.display === 'none') {
+    browser.style.display = 'block';
+    link.textContent = '− Hide list';
+    const filter = document.getElementById('bafd-filter');
+    if (filter) filter.focus();
+  } else {
+    browser.style.display = 'none';
+    link.textContent = '+ Add from your data';
+  }
+}
+function filterBAfd(value) {
+  const sp = state.bSpecial;
+  const list = document.getElementById('bafd-list');
+  if (list) list.innerHTML = renderAfdList(sp.day, state.bSkuMatches, 0, value, true);
+}
+function addAfdItemB(itemName) {
+  const sp = state.bSpecial;
+  if (state.bSkuMatches[itemName]) return;
+  const ai = state.parsedData.allItems.get(itemName);
+  if (!ai) return;
+  const avgPrice = ai.prices.length ? ai.prices.reduce((a, b) => a + b, 0) / ai.prices.length : 0;
+  state.bSkuMatches[itemName] = {
+    selected: true,
+    qtyOnDay: ai.days[sp.day] || 0,
+    avgPrice,
+    priceMatch: avgPrice > 0 && Math.abs(avgPrice - sp.sp) <= 2,
+  };
+  render();
+  // Re-open the browser since the user may want to add more items
+  setTimeout(() => { toggleBAfd(); }, 10);
 }
 
 // ── Run analysis for Path B (single special) ───────────────────────
