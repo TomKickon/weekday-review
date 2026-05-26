@@ -307,35 +307,7 @@ body {
 }
 
 /* ── Specials table ──────────────────────────────────── */
-.spec-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 0.5rem;
-}
-.spec-table th {
-  font-size: 10px; font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--support-grey);
-  text-align: left;
-  padding: 0 8px 7px;
-  border-bottom: 1px solid var(--line);
-}
-.spec-table td { padding: 5px 8px; vertical-align: middle; }
-.spec-table select, .spec-table input {
-  width: 100%;
-  background: var(--off-white);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  padding: 8px 10px;
-  font-size: 13px;
-  color: var(--body-text);
-  font-family: inherit;
-  outline: none;
-}
-.spec-table select:focus, .spec-table input:focus {
-  border-color: var(--brand-blue);
-}
+.spec-add-btn:hover { /* placeholder - reserved */ }
 .del-btn {
   background: none; border: none; cursor: pointer;
   color: var(--support-grey); font-size: 20px; line-height: 1;
@@ -358,6 +330,103 @@ body {
 }
 .add-btn:hover {
   background: var(--off-white);
+  border-color: var(--brand-blue);
+  color: var(--deep-navy);
+}
+
+/* ── Special entry card (multi-item entry form on Specials screen) ─── */
+.spec-entry-card {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--off-white);
+  margin-top: 0.85rem;
+  overflow: hidden;
+}
+.spec-entry-head {
+  padding: 12px 14px 10px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+.spec-entry-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+.spec-entry-field { display: flex; flex-direction: column; gap: 4px; }
+.spec-entry-field.flex-grow { flex: 1; }
+.flex-grow { flex: 1; }
+.spec-entry-field label {
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--support-grey);
+}
+.spec-entry-hint {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--support-grey);
+  font-size: 10px;
+  font-style: italic;
+}
+.spec-entry-card input, .spec-entry-card select {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--body-text);
+  font-family: inherit;
+  outline: none;
+}
+.spec-entry-card input:focus, .spec-entry-card select:focus { border-color: var(--brand-blue); }
+.spec-entry-day { min-width: 120px; }
+.spec-entry-sp { width: 90px; }
+.spec-entry-del {
+  background: none; border: none; cursor: pointer;
+  color: var(--support-grey); font-size: 22px; line-height: 1;
+  padding: 4px 8px;
+  align-self: flex-end;
+  margin-bottom: 2px;
+}
+.spec-entry-del:hover { color: var(--red); }
+
+.spec-entry-items-wrap {
+  padding: 10px 14px 12px;
+  background: var(--off-white);
+}
+.spec-entry-items-label {
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--support-grey);
+  margin-bottom: 6px;
+}
+.spec-entry-items { display: flex; flex-direction: column; gap: 6px; }
+.spec-entry-subitem { display: flex; gap: 8px; align-items: center; }
+.spec-entry-item-name { width: 100%; }
+.spec-entry-item-fp { width: 100px; }
+.spec-entry-subitem-del {
+  background: none; border: none; cursor: pointer;
+  color: var(--support-grey); font-size: 18px; line-height: 1;
+  padding: 4px 8px;
+}
+.spec-entry-subitem-del:hover { color: var(--red); }
+.spec-entry-add-item {
+  margin-top: 8px;
+  background: transparent;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-md);
+  padding: 6px 12px;
+  font-size: 11px; font-weight: 500;
+  color: var(--mid-navy);
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.spec-entry-add-item:hover {
+  background: #fff;
   border-color: var(--brand-blue);
   color: var(--deep-navy);
 }
@@ -481,6 +550,39 @@ body {
 }
 .sku-total strong { color: var(--deep-navy); font-weight: 600; }
 
+/* Sub-panel for multi-item specials (one sub-panel per sub-item) */
+.sku-subpanel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 0.85rem 1rem;
+  margin-top: 0.7rem;
+}
+.sku-subpanel:first-of-type { margin-top: 0.5rem; }
+.sku-subpanel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px; font-weight: 600;
+  color: var(--deep-navy);
+  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+}
+.sub-item-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--support-grey);
+}
+.sub-rrp {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--mid-navy);
+  font-family: monospace;
+}
+
 /* ── Dashboard (Path A output) ─────────────────────────── */
 .dash-header {
   background: var(--deep-navy);
@@ -595,6 +697,112 @@ body {
   height: 1px;
   background: var(--line);
   margin: 0.6rem 0;
+}
+
+/* Sub-item breakdown (multi-item specials, on dashboard card) */
+.subitem-breakdown {
+  margin: 0.5rem 0 0.4rem;
+  padding: 6px 8px;
+  background: var(--off-white);
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+}
+.subitem-label {
+  font-size: 8.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--support-grey);
+  margin-bottom: 3px;
+}
+.subitem-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding: 2px 0;
+  font-size: 10.5px;
+}
+.subitem-row:not(:last-child) { border-bottom: 1px dotted var(--line); }
+.subitem-name { color: var(--body-text); font-weight: 500; }
+.subitem-stats { color: var(--support-grey); font-family: monospace; font-size: 9.5px; white-space: nowrap; }
+
+/* Sub-item picker (Path B, multi-item drill-through) */
+.subitem-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem;
+  margin-top: 1.5rem;
+}
+.subitem-pick-card {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 1.1rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+.subitem-pick-card:hover {
+  border-color: var(--brand-blue);
+  background: var(--off-white);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+.subitem-pick-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.85rem;
+}
+.subitem-pick-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--deep-navy);
+}
+.subitem-pick-tag {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--blue-bg);
+  color: var(--blue-tag);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.subitem-pick-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 0.85rem;
+}
+.subitem-pick-kpi {
+  text-align: center;
+}
+.subitem-pick-val {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--deep-navy);
+  font-variant-numeric: tabular-nums;
+}
+.subitem-pick-lab {
+  font-size: 9px;
+  color: var(--support-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.subitem-pick-cta {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--brand-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--line);
 }
 .mini-bar-wrap { margin-bottom: 4px; }
 .mini-bar-label {
@@ -1346,11 +1554,13 @@ const state = {
   files: [],
   // Path A data
   parsedData: null,        // result of parseLineTransactions()
-  specials: [],            // [{day, name, sp, fp}]
-  skuMatches: {},          // { specialIdx: { itemName: { selected: bool, qty, days } } }
+  specials: [],            // [{day, name, sp, items:[{name, fp}, ...]}]  -- items[] supports multi-item specials like "Locals' Night $20 for fish/schnitty/burger"
+  skuMatches: {},          // { specialIdx: { itemIdx: { itemName: { selected, qty, days } } } }
   results: null,           // final per-special analysis results
   // Path B data
   bSpecial: null,          // single special being analysed: {day, name, sp, fp}
+  bParentOffer: null,      // when drilling from a multi-item Path A special: {name, sp, items:[{name,fp},...], chosenItemName}
+                           // null for single-item or direct-entry Path B. Provides context for AI prompts and report.
   bSkuMatches: {},         // { itemName: { selected, qty, avgPrice } }
   bAnalysis: null,         // single-special analysis result (subset of computeResults)
   bBranch: null,           // KEEP | TWEAK | REPLACE | KILL
@@ -1812,8 +2022,27 @@ function computeResults() {
 
   for (let i = 0; i < state.specials.length; i++) {
     const sp = state.specials[i];
-    const matched = state.skuMatches[i] || {};
-    const selectedItems = Object.keys(matched).filter(k => matched[k].selected);
+    const matchedBySub = state.skuMatches[i] || {};
+
+    // Build a flat list of selected items across all sub-items
+    // and also a per-sub-item breakdown for the dashboard.
+    const allSelectedItems = [];      // unique flat list (for effective-price calc)
+    const seenItems = new Set();
+    const subItemBreakdown = [];      // [{name, fp, selectedItems, totalQty, avgEffPrice}]
+
+    for (let j = 0; j < sp.items.length; j++) {
+      const subItem = sp.items[j];
+      const subMatches = matchedBySub[j] || {};
+      const subSelected = Object.keys(subMatches).filter(k => subMatches[k].selected);
+      for (const it of subSelected) {
+        if (!seenItems.has(it)) { allSelectedItems.push(it); seenItems.add(it); }
+      }
+      subItemBreakdown.push({
+        name: subItem.name,
+        fp: subItem.fp,
+        selectedItems: subSelected,
+      });
+    }
 
     const dayBuckets = parsed.byDow[sp.day] || [];
     const nights = dayBuckets.length;
@@ -1823,7 +2052,7 @@ function computeResults() {
       continue;
     }
 
-    // Per-night metrics
+    // Per-night metrics (same as before - these are day-level, not per-item)
     const avgTx = avg(dayBuckets.map(d => d.transactions));
     const avgFoodTx = avg(dayBuckets.map(d => d.foodTx));
     const avgFoodRev = avg(dayBuckets.map(d => d.foodRev));
@@ -1833,45 +2062,77 @@ function computeResults() {
     const totalDisc = avgDiscFood + avgDiscBev;
     const netRev = avgFoodRev + avgBevRev - totalDisc;
 
-    // Units of the special: sum selected items' qty on this day, divided by nights
+    // Per-sub-item qty + revenue, then aggregate
     let totalSpecialQty = 0;
     let totalSpecialRev = 0;
-    for (const itemName of selectedItems) {
-      for (const bucket of dayBuckets) {
-        const it = bucket.items.get(itemName);
-        if (it) { totalSpecialQty += it.qty; totalSpecialRev += it.revenue; }
+    for (let j = 0; j < sp.items.length; j++) {
+      const subSelected = subItemBreakdown[j].selectedItems;
+      let subQty = 0;
+      let subRev = 0;
+      for (const itemName of subSelected) {
+        for (const bucket of dayBuckets) {
+          const it = bucket.items.get(itemName);
+          if (it) { subQty += it.qty; subRev += it.revenue; }
+        }
       }
+      subItemBreakdown[j].totalQty = subQty;
+      subItemBreakdown[j].avgPerNight = nights > 0 ? Math.round(subQty / nights) : 0;
+      totalSpecialQty += subQty;
+      totalSpecialRev += subRev;
     }
     const unitsPerNight = nights > 0 ? totalSpecialQty / nights : 0;
 
-    // Take-up rate: units ÷ food-bearing transactions
+    // Take-up rate: total units (all sub-items) ÷ food-bearing transactions per night
     const takeUp = avgFoodTx > 0 ? Math.min(unitsPerNight / avgFoodTx, 1) : 0;
 
-    // Discount % - use effective full price (weighted average from non-special-day sales)
-    // if it differs meaningfully from the MM-entered RRP. This handles range specials.
-    const effective = computeEffectiveFullPrice(selectedItems, sp.day, parsed);
-    const effectiveFullPrice = effective ? effective.effectiveFullPrice : sp.fp;
-    const fpForDisc = effective ? effective.effectiveFullPrice : sp.fp;
-    const discPct = fpForDisc > 0 ? Math.round((fpForDisc - sp.sp) / fpForDisc * 100) : 0;
+    // Discount % - use effective full price across all selected items (multi-item-aware).
+    // computeEffectiveFullPrice returns the weighted-avg non-special-day price across
+    // the flat union of selected items. For multi-item specials this gives a single
+    // representative full price weighted by units sold.
+    const effective = computeEffectiveFullPrice(allSelectedItems, sp.day, parsed);
+    // Fallback when there isn't enough non-special-day data: use the weighted-average
+    // of the MM-entered RRPs, weighted by units sold per sub-item. This makes a
+    // multi-item special with one big seller and two small sellers correctly skew
+    // toward the big seller's discount depth.
+    let fallbackRrp;
+    if (totalSpecialQty > 0) {
+      let weighted = 0;
+      for (const sub of subItemBreakdown) {
+        weighted += sub.fp * sub.totalQty;
+      }
+      fallbackRrp = weighted / totalSpecialQty;
+    } else {
+      // No volume - simple average of entered RRPs
+      fallbackRrp = sp.items.reduce((s, it) => s + it.fp, 0) / sp.items.length;
+    }
+    const effectiveFullPrice = effective ? effective.effectiveFullPrice : fallbackRrp;
+    const discPct = effectiveFullPrice > 0 ? Math.round((effectiveFullPrice - sp.sp) / effectiveFullPrice * 100) : 0;
+
     // Per-transaction
-    const spendPerTx = avgTx > 0 ? avgFoodRev + avgBevRev - totalDisc : 0;
     const spendPerTxVal = avgTx > 0 ? (avgFoodRev + avgBevRev - totalDisc) / avgTx : 0;
     const bevPerTx = avgTx > 0 ? avgBevRev / avgTx : 0;
     const discPerTx = avgTx > 0 ? totalDisc / avgTx : 0;
     const foodAttach = avgTx > 0 ? avgFoodTx / avgTx : 0;
     const isBevLed = avgBevRev > avgFoodRev;
 
+    // Compute price range across sub-items (min/max of MM-entered RRPs)
+    const subFps = sp.items.map(it => it.fp);
+    const subFpMin = Math.min(...subFps);
+    const subFpMax = Math.max(...subFps);
+    const isMultiItem = sp.items.length > 1;
+
     results.push({
       ...sp,
       nights,
       hasData: true,
-      selectedItems,
-      // Effective full price (weighted avg from non-special days). When the special covers
-      // a range of items, this is the most accurate "what would they have paid normally" figure.
-      effectiveFullPrice: effective ? Math.round(effective.effectiveFullPrice * 100) / 100 : sp.fp,
-      isRange: effective ? effective.isRange : false,
-      priceMin: effective ? effective.priceMin : sp.fp,
-      priceMax: effective ? effective.priceMax : sp.fp,
+      selectedItems: allSelectedItems,
+      subItemBreakdown,
+      isMultiItem,
+      // For multi-item: show range of full prices from RRPs entered
+      effectiveFullPrice: Math.round(effectiveFullPrice * 100) / 100,
+      isRange: effective ? effective.isRange : (subFpMax - subFpMin > 0),
+      priceMin: effective ? effective.priceMin : subFpMin,
+      priceMax: effective ? effective.priceMax : subFpMax,
       // Volumes
       unitsPerNight: Math.round(unitsPerNight),
       avgTx: Math.round(avgTx),
@@ -2023,28 +2284,106 @@ function renderFileList() {
 }
 
 // ── Specials management (Path A) ───────────────────────────────────
-function addSpecialRow(s = {}) {
+// ── Specials entry form (multi-item capable) ──────────────────────
+// Each "special" is rendered as a card. The card has:
+//   - Day selector
+//   - Special name (the offer name, e.g. "Locals' Night" or "Fish & Chips")
+//   - Special price (one price for the whole offer)
+//   - Sub-items: 1+ rows of {item name, full price}
+//   - "+ Add another item to this special" button
+// A single-item special is just a card with one sub-item row.
+// A multi-item special (like Doutta Galla's Locals' Night) has 2+ sub-item rows.
+function addSpecialCard(s = {}) {
   const tbody = document.getElementById('specials-body');
   if (!tbody) return;
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td><select>${DAYS.map(d => `<option${d === (s.day || 'Monday') ? ' selected' : ''}>${d}</option>`).join('')}</select></td>
-    <td><input type="text" placeholder="e.g. Fish & Chips" value="${escHtml(s.name || '')}"></td>
-    <td><input type="number" placeholder="19" value="${s.sp || ''}" step="0.5"></td>
-    <td><input type="number" placeholder="29" value="${s.fp || ''}" step="0.5"></td>
-    <td><button class="del-btn" onclick="this.closest('tr').remove()">×</button></td>`;
-  tbody.appendChild(tr);
+  const cardIdx = tbody.children.length;
+  const items = (s.items && s.items.length) ? s.items : [{ name: s.name || '', fp: s.fp || '' }];
+  const card = document.createElement('div');
+  card.className = 'spec-entry-card';
+  card.dataset.idx = cardIdx;
+  card.innerHTML = `
+    <div class="spec-entry-head">
+      <div class="spec-entry-row">
+        <div class="spec-entry-field">
+          <label>Day</label>
+          <select class="spec-entry-day">${DAYS.map(d => `<option${d === (s.day || 'Monday') ? ' selected' : ''}>${d}</option>`).join('')}</select>
+        </div>
+        <div class="spec-entry-field flex-grow">
+          <label>Offer name <span class="spec-entry-hint">(what guests know it as)</span></label>
+          <input type="text" class="spec-entry-offer-name" placeholder="e.g. Fish & Chips, or Locals' Night" value="${escHtml(s.name || '')}">
+        </div>
+        <div class="spec-entry-field">
+          <label>Special $</label>
+          <input type="number" class="spec-entry-sp" placeholder="20" value="${s.sp || ''}" step="0.5">
+        </div>
+        <button class="spec-entry-del" title="Remove this special" onclick="this.closest('.spec-entry-card').remove()">×</button>
+      </div>
+    </div>
+    <div class="spec-entry-items-wrap">
+      <div class="spec-entry-items-label">Items in this offer</div>
+      <div class="spec-entry-items">
+        ${items.map((it, i) => renderSubItemHTML(it, i, items.length > 1)).join('')}
+      </div>
+      <button type="button" class="spec-entry-add-item" onclick="addSubItemToCard(this)">+ Add another item at the same special price</button>
+    </div>
+  `;
+  tbody.appendChild(card);
 }
+
+// Render a single sub-item row inside a special card
+function renderSubItemHTML(item, idx, canDelete) {
+  return `
+    <div class="spec-entry-subitem">
+      <div class="spec-entry-field flex-grow">
+        <input type="text" class="spec-entry-item-name" placeholder="e.g. Fish & Chips" value="${escHtml(item.name || '')}">
+      </div>
+      <div class="spec-entry-field">
+        <input type="number" class="spec-entry-item-fp" placeholder="RRP" value="${item.fp || ''}" step="0.5">
+      </div>
+      <button class="spec-entry-subitem-del" title="Remove item" onclick="removeSubItem(this)" ${canDelete ? '' : 'style="visibility:hidden;"'}>×</button>
+    </div>`;
+}
+
+function addSubItemToCard(btn) {
+  const card = btn.closest('.spec-entry-card');
+  const itemsDiv = card.querySelector('.spec-entry-items');
+  // Make sure existing delete buttons are visible (since we now have >1 item)
+  itemsDiv.querySelectorAll('.spec-entry-subitem-del').forEach(b => b.style.visibility = 'visible');
+  const newIdx = itemsDiv.children.length;
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = renderSubItemHTML({ name: '', fp: '' }, newIdx, true);
+  itemsDiv.appendChild(wrapper.firstElementChild);
+}
+
+function removeSubItem(btn) {
+  const subitem = btn.closest('.spec-entry-subitem');
+  const itemsDiv = subitem.parentElement;
+  // Don't allow removing the last item
+  if (itemsDiv.children.length <= 1) return;
+  subitem.remove();
+  // If only one item remains, hide its delete button
+  if (itemsDiv.children.length === 1) {
+    const lastDel = itemsDiv.querySelector('.spec-entry-subitem-del');
+    if (lastDel) lastDel.style.visibility = 'hidden';
+  }
+}
+
+// Reads all special cards from the form and returns array of {day, name, sp, items: [{name, fp}]}
 function readSpecialsFromForm() {
-  return Array.from(document.querySelectorAll('#specials-body tr')).map(tr => {
-    const e = tr.querySelectorAll('select, input');
-    return {
-      day: e[0].value,
-      name: e[1].value.trim(),
-      sp: parseFloat(e[2].value) || 0,
-      fp: parseFloat(e[3].value) || 0,
-    };
-  }).filter(s => s.name && s.sp > 0 && s.fp > 0);
+  const cards = Array.from(document.querySelectorAll('#specials-body .spec-entry-card'));
+  const specials = [];
+  for (const card of cards) {
+    const day = card.querySelector('.spec-entry-day').value;
+    const name = card.querySelector('.spec-entry-offer-name').value.trim();
+    const sp = parseFloat(card.querySelector('.spec-entry-sp').value) || 0;
+    const subItems = Array.from(card.querySelectorAll('.spec-entry-subitem')).map(si => ({
+      name: si.querySelector('.spec-entry-item-name').value.trim(),
+      fp: parseFloat(si.querySelector('.spec-entry-item-fp').value) || 0,
+    })).filter(it => it.name && it.fp > 0);
+    if (!name || sp <= 0 || !subItems.length) continue;
+    specials.push({ day, name, sp, items: subItems });
+  }
+  return specials;
 }
 
 // ── Render dispatcher ──────────────────────────────────────────────
@@ -2060,6 +2399,7 @@ function render() {
   else if (state.screen === 'path-b-venue')     { wizard.innerHTML = renderVenue('B'); setProgress('Strategic Plan · Step 1 of 9'); }
   else if (state.screen === 'path-b-upload')    { wizard.innerHTML = renderUpload('B'); setupDropZone(); setProgress('Strategic Plan · Step 2 of 9'); }
   else if (state.screen === 'path-b-pick')      { wizard.innerHTML = renderPickSpecial(); setProgress('Strategic Plan · Step 3 of 9'); }
+  else if (state.screen === 'path-b-subitem-pick') { wizard.innerHTML = renderSubItemPicker(); setProgress('Strategic Plan · Pick item'); }
   else if (state.screen === 'path-b-sku')       { wizard.innerHTML = renderBSkuMatch(); setProgress('Strategic Plan · Step 4 of 9'); }
   else if (state.screen === 'path-b-analysis')  { wizard.innerHTML = renderBAnalysis(); drawComboChart(); setProgress('Strategic Plan · Step 5 of 9'); }
   else if (state.screen === 'path-b-branch')    { wizard.innerHTML = renderBranch(); setProgress('Strategic Plan · Step 6 of 9'); }
@@ -2073,18 +2413,18 @@ function render() {
 }
 
 function setupSpecialsDefaults() {
-  // If no rows present, restore from state.specials (if MM went back), or use defaults
+  // If no cards present, restore from state.specials (if MM went back), or use defaults
   const tbody = document.getElementById('specials-body');
   if (!tbody || tbody.children.length > 0) return;
   if (state.specials && state.specials.length > 0) {
-    // Restore what the MM previously entered
+    // Restore what the MM previously entered (already in multi-item shape)
     for (const s of state.specials) {
-      addSpecialRow(s);
+      addSpecialCard(s);
     }
   } else {
-    // First time on this screen - show defaults
+    // First time - show 4 empty cards for Mon-Thu (the typical weekday specials pattern)
     for (const d of ['Monday', 'Tuesday', 'Wednesday', 'Thursday']) {
-      addSpecialRow({ day: d });
+      addSpecialCard({ day: d });
     }
   }
 }
@@ -2273,24 +2613,13 @@ function renderSpecials() {
 
   ${blockContinue ? '' : `
   <div class="card" style="margin-top:1.5rem;">
-    <div class="card-head">Your specials</div>
+    <div class="card-head">Your weekday specials</div>
     <div class="card-desc">
-      One row per special day. <strong>Special $</strong> is what you charge. <strong>Full price $</strong> is the normal menu price.
-      <br><span style="color:var(--support-grey); font-size:12px;">If your special covers a range of items at different prices (e.g. "Pizza Day" where pizzas range $22-32), enter the <strong>most expensive</strong> price. The tool will also derive the average price from your data for the real discount calc.</span>
+      One card per special. <strong>Special $</strong> is what you charge for the offer. Then list the item(s) that are part of this special.
+      <br><span style="color:var(--support-grey); font-size:12px;">For a multi-item special like "Locals' Night $20 - Fish/Schnitzel/Burger", click <strong>+ Add another item</strong> to include all three at the same special price. Their full prices may differ (the tool handles that).</span>
     </div>
-    <table class="spec-table">
-      <thead>
-        <tr>
-          <th style="width:130px">Day</th>
-          <th>Item name</th>
-          <th style="width:115px">Special $</th>
-          <th style="width:115px">Full price $</th>
-          <th style="width:36px"></th>
-        </tr>
-      </thead>
-      <tbody id="specials-body"></tbody>
-    </table>
-    <button class="add-btn" onclick="addSpecialRow()">+ Add another special</button>
+    <div id="specials-body"></div>
+    <button class="add-btn" onclick="addSpecialCard()">+ Add another special</button>
     <div class="err" id="specials-err"></div>
   </div>
   `}
@@ -2307,7 +2636,7 @@ function renderSpecials() {
 
 function confirmSpecials() {
   const specs = readSpecialsFromForm();
-  if (!specs.length) { showErr('specials-err', 'Please add at least one special with day, name, and both prices filled in.'); return; }
+  if (!specs.length) { showErr('specials-err', 'Please add at least one special with day, offer name, special price, and at least one item with a full price.'); return; }
   // Validate that each special has data on its day
   const noData = specs.filter(s => !state.parsedData.byDow[s.day].length);
   if (noData.length === specs.length) {
@@ -2316,13 +2645,21 @@ function confirmSpecials() {
   }
   showErr('specials-err', null);
   state.specials = specs;
-  // Build initial SKU matches via fuzzy search
+  // Build initial SKU matches via fuzzy search - now per sub-item
+  // Shape: state.skuMatches[specialIdx][itemIdx] = { [itemName]: { selected, qtyOnDay, avgPrice, priceMatch } }
   state.skuMatches = {};
   for (let i = 0; i < specs.length; i++) {
-    const candidates = findSkuCandidates(specs[i], state.parsedData);
     state.skuMatches[i] = {};
-    for (const c of candidates) {
-      state.skuMatches[i][c.itemName] = { selected: c.autoTick, qtyOnDay: c.qtyOnDay, avgPrice: c.avgPrice, priceMatch: c.priceMatch };
+    for (let j = 0; j < specs[i].items.length; j++) {
+      // Build a "pseudo-special" for findSkuCandidates: it expects {day, name, sp, fp}
+      // We use the sub-item's name and full price, but the special's day and sp price.
+      const subItem = specs[i].items[j];
+      const pseudoSp = { day: specs[i].day, name: subItem.name, sp: specs[i].sp, fp: subItem.fp };
+      const candidates = findSkuCandidates(pseudoSp, state.parsedData);
+      state.skuMatches[i][j] = {};
+      for (const c of candidates) {
+        state.skuMatches[i][j][c.itemName] = { selected: c.autoTick, qtyOnDay: c.qtyOnDay, avgPrice: c.avgPrice, priceMatch: c.priceMatch };
+      }
     }
   }
   state.screen = 'path-a-sku';
@@ -2348,54 +2685,71 @@ function renderSkuMatch() {
 }
 
 function renderSkuPanel(sp, idx) {
-  const matches = state.skuMatches[idx] || {};
-  const items = Object.keys(matches);
+  const matchesByItem = state.skuMatches[idx] || {};
   const nights = state.parsedData.byDow[sp.day].length;
 
-  let totalQty = 0;
-  for (const itemName of items) {
-    if (matches[itemName].selected) totalQty += matches[itemName].qtyOnDay;
-  }
-  const avgPerDay = nights ? Math.round(totalQty / nights) : 0;
+  // Render header for the whole special (offer name + day + special price)
+  // Then one sub-panel per sub-item.
+  const subPanels = sp.items.map((subItem, subIdx) => {
+    const matches = matchesByItem[subIdx] || {};
+    const items = Object.keys(matches);
+    let totalQty = 0;
+    for (const itemName of items) {
+      if (matches[itemName].selected) totalQty += matches[itemName].qtyOnDay;
+    }
+    const avgPerDay = nights ? Math.round(totalQty / nights) : 0;
+    const isMulti = sp.items.length > 1;
+
+    return `
+    <div class="sku-subpanel" id="sku-subpanel-${idx}-${subIdx}">
+      <div class="sku-subpanel-head">
+        <span style="display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          ${isMulti ? `<span class="sub-item-label">Item ${subIdx + 1} of ${sp.items.length}:</span>` : ''}
+          <span class="sku-name-display" id="sku-name-${idx}-${subIdx}" style="display:inline;">${escHtml(subItem.name)}</span>
+          <input type="text" id="sku-edit-${idx}-${subIdx}" value="${escHtml(subItem.name)}" style="display:none; padding:4px 8px; font-size:12.5px; border:1px solid var(--brand-blue); border-radius:4px; min-width:180px;" />
+          <button class="edit-name-btn" id="sku-edit-btn-${idx}-${subIdx}" onclick="editSkuName(${idx}, ${subIdx})" style="background:none; border:none; cursor:pointer; color:var(--brand-blue); font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:2px 6px;">Edit</button>
+          <button class="edit-name-save" id="sku-save-btn-${idx}-${subIdx}" onclick="saveSkuName(${idx}, ${subIdx})" style="display:none; background:var(--brand-blue); border:none; cursor:pointer; color:#fff; font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:3px 8px; border-radius:4px;">Save</button>
+          <button class="edit-name-cancel" id="sku-cancel-btn-${idx}-${subIdx}" onclick="cancelSkuName(${idx}, ${subIdx})" style="display:none; background:none; border:none; cursor:pointer; color:var(--support-grey); font-size:11px; padding:2px 6px;">Cancel</button>
+        </span>
+        <span class="sub-rrp">RRP ${fmtD(subItem.fp)} → ${fmtD(sp.sp)}</span>
+      </div>
+      ${items.length === 0 ? `
+        <p style="font-size:12.5px; color:var(--support-grey); font-style:italic; padding:8px 0;">No items containing "${escHtml(subItem.name)}" found in your data on ${sp.day}s. Try the <strong>Edit</strong> button above to fix the name, or click <strong>"+ Add from your data"</strong> below to browse all items sold that day.</p>
+      ` : items.map(itemName => {
+        const m = matches[itemName];
+        const idSafe = 'sku-' + idx + '-' + subIdx + '-' + btoa(unescape(encodeURIComponent(itemName))).replace(/=/g, '');
+        return `
+        <div class="sku-row">
+          <input type="checkbox" id="${idSafe}" ${m.selected ? 'checked' : ''} onchange="toggleSku(${idx}, ${subIdx}, '${itemName.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}', this.checked)">
+          <label for="${idSafe}" class="sku-name" style="cursor:pointer;">${escHtml(itemName)}${m.priceMatch ? ' <span style="color:var(--green); font-size:10px; font-weight:600;">PRICE MATCH</span>' : ''}</label>
+          <span class="sku-stats">${m.qtyOnDay} sold · avg ${fmtD(m.avgPrice)}</span>
+        </div>`;
+      }).join('')}
+      ${items.length > 0 ? `<div class="sku-total" id="sku-total-${idx}-${subIdx}">Selected: <strong>${totalQty}</strong> units across ${nights} ${sp.day}s = <strong>${avgPerDay} units/${sp.day.toLowerCase()}</strong> avg</div>` : ''}
+
+      <div class="add-from-data-link" id="afd-link-${idx}-${subIdx}" onclick="toggleAfd(${idx}, ${subIdx})">+ Add from your data</div>
+      <div class="afd-browser" id="afd-browser-${idx}-${subIdx}" style="display:none;">
+        <input type="text" class="afd-filter" id="afd-filter-${idx}-${subIdx}" placeholder="Filter items sold on ${sp.day}s…" oninput="filterAfd(${idx}, ${subIdx}, this.value)">
+        <div class="afd-list" id="afd-list-${idx}-${subIdx}">${renderAfdList(sp.day, matches, idx, '', false, subIdx)}</div>
+      </div>
+    </div>`;
+  }).join('');
 
   return `
 <div class="sku-panel" id="sku-panel-${idx}">
-  <div class="sku-panel-head" id="sku-head-${idx}">
+  <div class="sku-panel-head">
     <span class="day-pill">${sp.day}</span>
-    <span style="display:inline-flex; align-items:center; gap:8px;">
-      <span class="sku-name-display" id="sku-name-${idx}" style="display:inline;">${escHtml(sp.name)}</span>
-      <input type="text" id="sku-edit-${idx}" value="${escHtml(sp.name)}" style="display:none; padding:4px 8px; font-size:12.5px; border:1px solid var(--brand-blue); border-radius:4px; min-width:180px;" />
-      <button class="edit-name-btn" id="sku-edit-btn-${idx}" onclick="editSkuName(${idx})" style="background:none; border:none; cursor:pointer; color:var(--brand-blue); font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:2px 6px;">Edit</button>
-      <button class="edit-name-save" id="sku-save-btn-${idx}" onclick="saveSkuName(${idx})" style="display:none; background:var(--brand-blue); border:none; cursor:pointer; color:#fff; font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:3px 8px; border-radius:4px;">Save</button>
-      <button class="edit-name-cancel" id="sku-cancel-btn-${idx}" onclick="cancelSkuName(${idx})" style="display:none; background:none; border:none; cursor:pointer; color:var(--support-grey); font-size:11px; padding:2px 6px;">Cancel</button>
-    </span>
-    · ${fmtD(sp.sp)} (RRP ${fmtD(sp.fp)})
+    <span style="font-weight:600;">${escHtml(sp.name)}</span>
+    · ${fmtD(sp.sp)} special${sp.items.length > 1 ? ` · ${sp.items.length} items` : ''}
   </div>
-  ${items.length === 0 ? `
-    <p style="font-size:12.5px; color:var(--support-grey); font-style:italic; padding:8px 0;">No items containing "${escHtml(sp.name)}" found in your data on ${sp.day}s. Try the <strong>Edit</strong> button above to fix the name (e.g. "Parma" not "Parmigiana"), or click <strong>"+ Add from your data"</strong> below to browse all items sold that day.</p>
-  ` : items.map(itemName => {
-    const m = matches[itemName];
-    const idSafe = 'sku-' + idx + '-' + btoa(unescape(encodeURIComponent(itemName))).replace(/=/g, '');
-    return `
-    <div class="sku-row">
-      <input type="checkbox" id="${idSafe}" ${m.selected ? 'checked' : ''} onchange="toggleSku(${idx}, '${itemName.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}', this.checked)">
-      <label for="${idSafe}" class="sku-name" style="cursor:pointer;">${escHtml(itemName)}${m.priceMatch ? ' <span style="color:var(--green); font-size:10px; font-weight:600;">PRICE MATCH</span>' : ''}</label>
-      <span class="sku-stats">${m.qtyOnDay} sold · avg ${fmtD(m.avgPrice)}</span>
-    </div>`;
-  }).join('')}
-  ${items.length > 0 ? `<div class="sku-total" id="sku-total-${idx}">Selected: <strong>${totalQty}</strong> units across ${nights} ${sp.day}s = <strong>${avgPerDay} units/${sp.day.toLowerCase()}</strong> avg</div>` : ''}
-
-  <div class="add-from-data-link" id="afd-link-${idx}" onclick="toggleAfd(${idx})">+ Add from your data</div>
-  <div class="afd-browser" id="afd-browser-${idx}" style="display:none;">
-    <input type="text" class="afd-filter" id="afd-filter-${idx}" placeholder="Filter items sold on ${sp.day}s…" oninput="filterAfd(${idx}, this.value)">
-    <div class="afd-list" id="afd-list-${idx}">${renderAfdList(sp.day, matches, idx, '', false)}</div>
-  </div>
+  ${subPanels}
 </div>`;
 }
 
 // ── Build the items list for "Add from your data" browser ─────────
 // `pathB` flag distinguishes Path A (idx is special index) from Path B (single special).
-function renderAfdList(day, currentMatches, idx, filter, pathB) {
+// `subIdx` is only used for Path A (which sub-item the candidate is being added to)
+function renderAfdList(day, currentMatches, idx, filter, pathB, subIdx) {
   const parsed = state.parsedData;
   // Get all food items sold on this day, sorted by qty on day desc
   const candidates = [];
@@ -2421,7 +2775,7 @@ function renderAfdList(day, currentMatches, idx, filter, pathB) {
     const safeArg = c.itemName.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const handler = pathB
       ? `onclick="addAfdItemB('${safeArg}')"`
-      : `onclick="addAfdItem(${idx}, '${safeArg}')"`;
+      : `onclick="addAfdItem(${idx}, ${subIdx}, '${safeArg}')"`;
     return `
     <div class="afd-item ${isAdded ? 'already-added' : ''}" ${isAdded ? '' : handler}>
       <span class="afd-item-name">${escHtml(c.itemName)}${isAdded ? '<span class="afd-already-tag">Added</span>' : ''}</span>
@@ -2430,105 +2784,109 @@ function renderAfdList(day, currentMatches, idx, filter, pathB) {
   }).join('');
 }
 
-function toggleAfd(idx) {
-  const browser = document.getElementById('afd-browser-' + idx);
-  const link = document.getElementById('afd-link-' + idx);
+function toggleAfd(idx, subIdx) {
+  const browser = document.getElementById('afd-browser-' + idx + '-' + subIdx);
+  const link = document.getElementById('afd-link-' + idx + '-' + subIdx);
   if (browser.style.display === 'none') {
     browser.style.display = 'block';
     link.textContent = '− Hide list';
-    document.getElementById('afd-filter-' + idx).focus();
+    document.getElementById('afd-filter-' + idx + '-' + subIdx).focus();
   } else {
     browser.style.display = 'none';
     link.textContent = '+ Add from your data';
   }
 }
 
-function filterAfd(idx, value) {
+function filterAfd(idx, subIdx, value) {
   const sp = state.specials[idx];
-  const matches = state.skuMatches[idx] || {};
-  const list = document.getElementById('afd-list-' + idx);
-  if (list) list.innerHTML = renderAfdList(sp.day, matches, idx, value, false);
+  const matches = (state.skuMatches[idx] && state.skuMatches[idx][subIdx]) || {};
+  const list = document.getElementById('afd-list-' + idx + '-' + subIdx);
+  if (list) list.innerHTML = renderAfdList(sp.day, matches, idx, value, false, subIdx);
 }
 
-function addAfdItem(idx, itemName) {
+function addAfdItem(idx, subIdx, itemName) {
   const sp = state.specials[idx];
   if (!state.skuMatches[idx]) state.skuMatches[idx] = {};
-  if (state.skuMatches[idx][itemName]) return;  // already there
+  if (!state.skuMatches[idx][subIdx]) state.skuMatches[idx][subIdx] = {};
+  if (state.skuMatches[idx][subIdx][itemName]) return;  // already there
   const ai = state.parsedData.allItems.get(itemName);
   if (!ai) return;
   const avgPrice = ai.prices.length ? ai.prices.reduce((a, b) => a + b, 0) / ai.prices.length : 0;
-  state.skuMatches[idx][itemName] = {
+  state.skuMatches[idx][subIdx][itemName] = {
     selected: true,
     qtyOnDay: ai.days[sp.day] || 0,
     avgPrice,
     priceMatch: avgPrice > 0 && Math.abs(avgPrice - sp.sp) <= 2,
   };
-  // Re-render this panel
+  // Re-render the whole special panel (since the sub-panel is nested inside)
   const panel = document.getElementById('sku-panel-' + idx);
   if (panel) {
     panel.outerHTML = renderSkuPanel(sp, idx);
     // Re-open the browser since the user is probably looking for more items
-    setTimeout(() => { toggleAfd(idx); }, 10);
+    setTimeout(() => { toggleAfd(idx, subIdx); }, 10);
   }
 }
 
-function editSkuName(idx) {
-  document.getElementById('sku-name-' + idx).style.display = 'none';
-  document.getElementById('sku-edit-btn-' + idx).style.display = 'none';
-  const input = document.getElementById('sku-edit-' + idx);
+function editSkuName(idx, subIdx) {
+  document.getElementById('sku-name-' + idx + '-' + subIdx).style.display = 'none';
+  document.getElementById('sku-edit-btn-' + idx + '-' + subIdx).style.display = 'none';
+  const input = document.getElementById('sku-edit-' + idx + '-' + subIdx);
   input.style.display = 'inline-block';
   input.focus();
   input.select();
-  document.getElementById('sku-save-btn-' + idx).style.display = 'inline-block';
-  document.getElementById('sku-cancel-btn-' + idx).style.display = 'inline-block';
+  document.getElementById('sku-save-btn-' + idx + '-' + subIdx).style.display = 'inline-block';
+  document.getElementById('sku-cancel-btn-' + idx + '-' + subIdx).style.display = 'inline-block';
   // Allow Enter to save, Escape to cancel
   input.onkeydown = (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); saveSkuName(idx); }
-    if (e.key === 'Escape') { e.preventDefault(); cancelSkuName(idx); }
+    if (e.key === 'Enter') { e.preventDefault(); saveSkuName(idx, subIdx); }
+    if (e.key === 'Escape') { e.preventDefault(); cancelSkuName(idx, subIdx); }
   };
 }
 
-function cancelSkuName(idx) {
-  const sp = state.specials[idx];
-  document.getElementById('sku-edit-' + idx).value = sp.name;
-  document.getElementById('sku-name-' + idx).style.display = 'inline';
-  document.getElementById('sku-edit-btn-' + idx).style.display = 'inline-block';
-  document.getElementById('sku-edit-' + idx).style.display = 'none';
-  document.getElementById('sku-save-btn-' + idx).style.display = 'none';
-  document.getElementById('sku-cancel-btn-' + idx).style.display = 'none';
+function cancelSkuName(idx, subIdx) {
+  const subItem = state.specials[idx].items[subIdx];
+  document.getElementById('sku-edit-' + idx + '-' + subIdx).value = subItem.name;
+  document.getElementById('sku-name-' + idx + '-' + subIdx).style.display = 'inline';
+  document.getElementById('sku-edit-btn-' + idx + '-' + subIdx).style.display = 'inline-block';
+  document.getElementById('sku-edit-' + idx + '-' + subIdx).style.display = 'none';
+  document.getElementById('sku-save-btn-' + idx + '-' + subIdx).style.display = 'none';
+  document.getElementById('sku-cancel-btn-' + idx + '-' + subIdx).style.display = 'none';
 }
 
-function saveSkuName(idx) {
-  const newName = document.getElementById('sku-edit-' + idx).value.trim();
-  if (!newName) { cancelSkuName(idx); return; }
-  // Update state
-  state.specials[idx].name = newName;
-  // Re-run fuzzy match for this special only - this replaces skuMatches[idx]
-  const candidates = findSkuCandidates(state.specials[idx], state.parsedData);
-  state.skuMatches[idx] = {};
+function saveSkuName(idx, subIdx) {
+  const newName = document.getElementById('sku-edit-' + idx + '-' + subIdx).value.trim();
+  if (!newName) { cancelSkuName(idx, subIdx); return; }
+  // Update state - rename this sub-item
+  const sp = state.specials[idx];
+  sp.items[subIdx].name = newName;
+  // Re-run fuzzy match for this sub-item only
+  const pseudoSp = { day: sp.day, name: newName, sp: sp.sp, fp: sp.items[subIdx].fp };
+  const candidates = findSkuCandidates(pseudoSp, state.parsedData);
+  if (!state.skuMatches[idx]) state.skuMatches[idx] = {};
+  state.skuMatches[idx][subIdx] = {};
   for (const c of candidates) {
-    state.skuMatches[idx][c.itemName] = { selected: c.autoTick, qtyOnDay: c.qtyOnDay, avgPrice: c.avgPrice, priceMatch: c.priceMatch };
+    state.skuMatches[idx][subIdx][c.itemName] = { selected: c.autoTick, qtyOnDay: c.qtyOnDay, avgPrice: c.avgPrice, priceMatch: c.priceMatch };
   }
-  // Re-render just this panel
+  // Re-render the whole special panel
   const panel = document.getElementById('sku-panel-' + idx);
   if (panel) {
-    panel.outerHTML = renderSkuPanel(state.specials[idx], idx);
+    panel.outerHTML = renderSkuPanel(sp, idx);
   }
 }
 
-function toggleSku(idx, itemName, checked) {
-  if (!state.skuMatches[idx] || !state.skuMatches[idx][itemName]) return;
-  state.skuMatches[idx][itemName].selected = checked;
-  // Recalculate total for this panel
+function toggleSku(idx, subIdx, itemName, checked) {
+  if (!state.skuMatches[idx] || !state.skuMatches[idx][subIdx] || !state.skuMatches[idx][subIdx][itemName]) return;
+  state.skuMatches[idx][subIdx][itemName].selected = checked;
+  // Recalculate total for this sub-panel
   const sp = state.specials[idx];
-  const matches = state.skuMatches[idx];
+  const matches = state.skuMatches[idx][subIdx];
   const nights = state.parsedData.byDow[sp.day].length;
   let totalQty = 0;
   for (const k of Object.keys(matches)) {
     if (matches[k].selected) totalQty += matches[k].qtyOnDay;
   }
   const avgPerDay = nights ? Math.round(totalQty / nights) : 0;
-  const totalEl = document.getElementById(`sku-total-${idx}`);
+  const totalEl = document.getElementById(`sku-total-${idx}-${subIdx}`);
   if (totalEl) totalEl.innerHTML = `Selected: <strong>${totalQty}</strong> units across ${nights} ${sp.day}s = <strong>${avgPerDay} units/${sp.day.toLowerCase()}</strong> avg`;
 }
 
@@ -2644,17 +3002,52 @@ function renderSpecCard(r, maxFood, maxBev, maxDisc, maxBpt) {
     return `Review the offer.`;
   })();
 
-  // Encode special as query-string-like for drill-through
-  const drillData = encodeURIComponent(JSON.stringify({day: r.day, name: r.name, sp: r.sp, fp: r.fp, selectedItems: r.selectedItems || []}));
+  // For drill-through to Path B: pass items array for multi-item, or single item if not.
+  // Path B picks one sub-item to deep-dive on. drillToPathB handles the sub-item picker.
+  const drillData = encodeURIComponent(JSON.stringify({
+    day: r.day,
+    name: r.name,
+    sp: r.sp,
+    items: r.items,                    // [{name, fp}, ...]
+    isMultiItem: r.isMultiItem,
+    subItemBreakdown: (r.subItemBreakdown || []).map(s => ({
+      name: s.name, fp: s.fp, totalQty: s.totalQty, selectedItems: s.selectedItems,
+    })),
+  }));
+
+  // Price display: single item → "RRP $34", multi-item → "$29-34 range" or weighted avg
+  const isMulti = r.isMultiItem;
+  const rrpDisplay = (() => {
+    if (isMulti) {
+      if (r.priceMin === r.priceMax) return fmtD(r.priceMin);
+      return `${fmtD(r.priceMin)}-${fmtD(r.priceMax)}`;
+    }
+    return r.isRange ? `${fmtD(r.priceMin)}-${fmtD(r.priceMax)}` : fmtD(r.items[0].fp);
+  })();
+  const rrpTitle = isMulti
+    ? `${r.items.length} items at full prices ${r.items.map(it => fmtD(it.fp)).join(', ')}. Discount % based on weighted-avg full price ${fmtD(r.effectiveFullPrice)}.`
+    : (r.isRange ? `Items range ${fmtD(r.priceMin)} - ${fmtD(r.priceMax)}, avg ${fmtD(r.effectiveFullPrice)}` : '');
+
+  // Sub-item breakdown (only shown for multi-item)
+  const subItemHtml = (isMulti && r.subItemBreakdown && r.subItemBreakdown.length) ? `
+    <div class="subitem-breakdown">
+      <div class="subitem-label">Sub-item breakdown</div>
+      ${r.subItemBreakdown.map(sub => `
+        <div class="subitem-row">
+          <span class="subitem-name">${escHtml(sub.name)}</span>
+          <span class="subitem-stats">${fmtN(sub.avgPerNight)}/${r.day.slice(0,3).toLowerCase()} · RRP ${fmtD(sub.fp)}</span>
+        </div>
+      `).join('')}
+    </div>` : '';
 
   return `
     <div class="spec-card" style="cursor:pointer;" onclick="drillToPathB('${drillData}')" title="Click to investigate this special with a Strategic Plan">
       <div class="spec-card-top"><div class="spec-dot" style="background:${color};"></div><div class="spec-day">${r.day}</div></div>
-      <div class="spec-item">${escHtml(r.name)}</div>
+      <div class="spec-item">${escHtml(r.name)}${isMulti ? ` <span style="font-size:9.5px; color:var(--support-grey); font-weight:500;">(${r.items.length} items)</span>` : ''}</div>
       <div class="price-badge">
         <div class="price-special">${fmtD(r.sp)}</div>
-        <div class="price-rrp" title="${r.isRange ? `Items range ${fmtD(r.priceMin)} - ${fmtD(r.priceMax)}, avg ${fmtD(r.effectiveFullPrice)}` : ''}">${r.isRange ? `${fmtD(r.priceMin)}-${fmtD(r.priceMax)}` : fmtD(r.fp)}</div>
-        <div class="disc-badge" style="${discBadgeStyle}" title="${r.isRange ? `Discount % based on weighted-average full price ${fmtD(r.effectiveFullPrice)} from non-${r.day} sales` : ''}">-${r.discPct}%</div>
+        <div class="price-rrp" title="${escHtml(rrpTitle)}">${rrpDisplay}</div>
+        <div class="disc-badge" style="${discBadgeStyle}" title="${isMulti ? `Weighted-avg discount across ${r.items.length} items` : ''}">-${r.discPct}%</div>
       </div>
       <div class="kpi-grid">
         <div><div class="kpi-val">${fmtN(r.unitsPerNight)}</div><div class="kpi-label">Units/${r.day.slice(0,3).toLowerCase()}</div></div>
@@ -2662,6 +3055,7 @@ function renderSpecCard(r, maxFood, maxBev, maxDisc, maxBpt) {
         <div><div class="kpi-val">${fmtPct(r.takeUp * 100)}</div><div class="kpi-label">Take-up</div></div>
         <div><div class="kpi-val">${fmtD(r.spendPerTx)}</div><div class="kpi-label">$/tx</div></div>
       </div>
+      ${subItemHtml}
       <div class="divider-line"></div>
       <div class="mini-bar-wrap">
         <div class="mini-bar-label"><span>Food rev</span><span>${fmtD(r.avgFoodRev)}</span></div>
@@ -2684,50 +3078,194 @@ function renderSpecCard(r, maxFood, maxBev, maxDisc, maxBpt) {
         <div class="spec-note">${note}</div>
       </div>
       <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--line); font-size:10px; font-weight:600; color:var(--brand-blue); letter-spacing:0.08em; text-transform:uppercase; text-align:center;">
-        Click → Strategic Plan
+        Click → Strategic Plan${isMulti ? ' (pick item)' : ''}
       </div>
     </div>`;
 }
 
-// Drill from Path A card into Path B with the special pre-filled
+// Drill from Path A card into Path B with the special pre-filled.
+// For single-item specials: jump straight to Path B's SKU match screen.
+// For multi-item specials: land on a sub-item picker first so MM picks which
+// item to deep-dive on. The picker handles the rest of the setup.
 function drillToPathB(encodedData) {
   try {
     const data = JSON.parse(decodeURIComponent(encodedData));
-    // Carry over: venue, parsedData, and pre-fill bSpecial
     state.path = 'B';
-    state.bSpecial = { day: data.day, name: data.name, sp: data.sp, fp: data.fp };
-    // Pre-build SKU matches using the same items that were selected in Path A
-    if (data.selectedItems && data.selectedItems.length) {
-      // Re-run fuzzy match and override selected flags from Path A
-      const candidates = findSkuCandidates(state.bSpecial, state.parsedData);
-      state.bSkuMatches = {};
-      for (const c of candidates) {
-        state.bSkuMatches[c.itemName] = {
-          selected: data.selectedItems.includes(c.itemName) || c.autoTick,
-          qtyOnDay: c.qtyOnDay,
-          avgPrice: c.avgPrice,
-          priceMatch: c.priceMatch,
-        };
-      }
-      // Add any selected items that weren't in candidates (e.g. they manually ticked)
-      for (const sel of data.selectedItems) {
-        if (!state.bSkuMatches[sel] && state.parsedData.allItems.has(sel)) {
-          const ai = state.parsedData.allItems.get(sel);
-          state.bSkuMatches[sel] = {
-            selected: true,
-            qtyOnDay: ai.days[data.day] || 0,
-            avgPrice: ai.prices.length ? ai.prices.reduce((a,b)=>a+b,0) / ai.prices.length : 0,
-            priceMatch: false,
-          };
-        }
-      }
+
+    // Reset Path B state to a clean slate (we're starting a new deep-dive)
+    resetPathBState();
+
+    if (data.isMultiItem && data.items && data.items.length > 1) {
+      // Multi-item: stash the parent offer context, then land on picker
+      state.bParentOffer = {
+        day: data.day,
+        name: data.name,
+        sp: data.sp,
+        items: data.items,
+        subItemBreakdown: data.subItemBreakdown || [],
+        chosenItemName: null,  // will be set when MM picks
+      };
+      state.screen = 'path-b-subitem-pick';
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     }
+
+    // Single-item: go straight to Path B SKU match
+    const chosenItem = data.items[0];
+    const chosenSelectedItems = (data.subItemBreakdown && data.subItemBreakdown[0])
+      ? data.subItemBreakdown[0].selectedItems
+      : [];
+    state.bParentOffer = null;
+    state.bSpecial = { day: data.day, name: chosenItem.name, sp: data.sp, fp: chosenItem.fp };
+    seedBSkuMatchesFromPathA(chosenSelectedItems);
     state.screen = 'path-b-sku';
     render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch (e) {
     console.error('Drill-through failed', e);
   }
+}
+
+// Reset Path B state so a new deep-dive starts clean.
+// Doesn't touch venue or parsedData (those carry over).
+function resetPathBState() {
+  state.bSpecial = null;
+  state.bParentOffer = null;
+  state.bSkuMatches = {};
+  state.bAnalysis = null;
+  state.bBranch = null;
+  state.bRecommendedBranch = null;
+  state.bAiData = null;
+  state.bVerified = {};
+  state.bDismissed = {};
+  state.bAlternative = { name: '', price: 0, rationale: '' };
+  state.bTweak = { description: '' };
+  state.bTweakSuggestions = null;
+  state.bNotes = '';
+  state.bExecSummary = null;
+  state.bActionItems = null;
+  state.bReportHTML = null;
+}
+
+// Given a list of items that were selected in Path A, seed Path B's SKU matches
+// so the MM doesn't have to re-tick them. Re-runs fuzzy match and overrides the
+// selected flag for items in chosenSelectedItems.
+function seedBSkuMatchesFromPathA(chosenSelectedItems) {
+  state.bSkuMatches = {};
+  if (!chosenSelectedItems || !chosenSelectedItems.length) return;
+  const candidates = findSkuCandidates(state.bSpecial, state.parsedData);
+  for (const c of candidates) {
+    state.bSkuMatches[c.itemName] = {
+      selected: chosenSelectedItems.includes(c.itemName) || c.autoTick,
+      qtyOnDay: c.qtyOnDay,
+      avgPrice: c.avgPrice,
+      priceMatch: c.priceMatch,
+    };
+  }
+  // Add any selected items that weren't in candidates (manually ticked in Path A)
+  for (const sel of chosenSelectedItems) {
+    if (!state.bSkuMatches[sel] && state.parsedData.allItems.has(sel)) {
+      const ai = state.parsedData.allItems.get(sel);
+      state.bSkuMatches[sel] = {
+        selected: true,
+        qtyOnDay: ai.days[state.bSpecial.day] || 0,
+        avgPrice: ai.prices.length ? ai.prices.reduce((a,b)=>a+b,0) / ai.prices.length : 0,
+        priceMatch: false,
+      };
+    }
+  }
+}
+
+// ── Screen: Sub-item picker (Path B, after drill from multi-item) ────
+// When MM drills into a multi-item Path A special, they land here. We show
+// each sub-item with its volume/RRP/discount %/verdict-ish indicators and
+// let the MM choose which one to deep-dive on. The choice sets state.bSpecial
+// and routes to path-b-sku.
+function renderSubItemPicker() {
+  const offer = state.bParentOffer;
+  if (!offer) {
+    // Defensive: shouldn't happen, but if state is corrupted, go back to dashboard
+    state.screen = 'path-a-dashboard';
+    return '<div class="page"><p>Returning to dashboard…</p></div>';
+  }
+
+  const breakdown = offer.subItemBreakdown || [];
+  const nights = (state.parsedData.byDow[offer.day] || []).length;
+
+  // For each sub-item, compute discount % and units/night for display
+  const cards = offer.items.map((item, idx) => {
+    const subBd = breakdown.find(b => b.name === item.name) || { totalQty: 0, avgPerNight: 0, selectedItems: [] };
+    const discPct = item.fp > 0 ? Math.round((item.fp - offer.sp) / item.fp * 100) : 0;
+    const unitsPerNight = nights > 0 ? Math.round(subBd.totalQty / nights) : 0;
+    // Visual emphasis: highlight the biggest seller as a "suggested" tag
+    const isBiggest = breakdown.length > 0 && breakdown.every(b => (subBd.totalQty || 0) >= (b.totalQty || 0));
+    const discColor = discPct <= 30 ? 'var(--green)' : discPct <= 42 ? 'var(--blue-tag)' : discPct <= 50 ? 'var(--amber)' : 'var(--red)';
+
+    return `
+      <div class="subitem-pick-card" onclick="pickSubItem('${item.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')">
+        <div class="subitem-pick-head">
+          <span class="subitem-pick-name">${escHtml(item.name)}</span>
+          ${isBiggest && breakdown.length > 1 ? '<span class="subitem-pick-tag">Top seller</span>' : ''}
+        </div>
+        <div class="subitem-pick-kpis">
+          <div class="subitem-pick-kpi">
+            <div class="subitem-pick-val">${fmtN(unitsPerNight)}</div>
+            <div class="subitem-pick-lab">Units/${offer.day.slice(0,3).toLowerCase()}</div>
+          </div>
+          <div class="subitem-pick-kpi">
+            <div class="subitem-pick-val">${fmtD(item.fp)}</div>
+            <div class="subitem-pick-lab">Full price</div>
+          </div>
+          <div class="subitem-pick-kpi">
+            <div class="subitem-pick-val" style="color:${discColor};">${discPct}%</div>
+            <div class="subitem-pick-lab">Discount</div>
+          </div>
+        </div>
+        <div class="subitem-pick-cta">Deep-dive this item →</div>
+      </div>`;
+  }).join('');
+
+  return `
+<div class="page">
+  <div class="step-eyebrow">Strategic Plan · Multi-item offer</div>
+  <h1 class="step-title"><span class="light">Which item to</span> deep-dive?</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">${escHtml(state.venue.name)} · <strong>${escHtml(offer.name)}</strong> on ${offer.day}s at ${fmtD(offer.sp)} covers ${offer.items.length} items. Pick the one you want to analyse - usually the top seller, but the underperformer can be worth investigating too.</p>
+
+  <div class="subitem-pick-grid">
+    ${cards}
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='path-a-dashboard'; render();">← Back to dashboard</button>
+  </div>
+</div>`;
+}
+
+// Handler for sub-item picker - MM has chosen which item to deep-dive
+function pickSubItem(itemName) {
+  const offer = state.bParentOffer;
+  if (!offer) return;
+  const item = offer.items.find(i => i.name === itemName);
+  if (!item) return;
+
+  // Find the breakdown for this sub-item to grab the selected items from Path A
+  const subBd = (offer.subItemBreakdown || []).find(b => b.name === itemName);
+  const chosenSelectedItems = (subBd && subBd.selectedItems) ? subBd.selectedItems : [];
+
+  // Mark which item was chosen so report/AI prompts can reference it correctly
+  offer.chosenItemName = itemName;
+
+  // bSpecial uses ONLY the dish name (e.g. "Fish & Chips"), not the prefixed
+  // "Locals' Night - Fish & Chips". The parent offer context is stored separately
+  // in state.bParentOffer for use in AI prompts and report titles.
+  state.bSpecial = { day: offer.day, name: itemName, sp: offer.sp, fp: item.fp };
+  seedBSkuMatchesFromPathA(chosenSelectedItems);
+
+  state.screen = 'path-b-sku';
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function renderSumRow(r) {
@@ -2926,6 +3464,13 @@ function renderBSkuMatch() {
   <div class="step-divider"></div>
   <p class="step-sub">We've searched your data for items matching "${escHtml(sp.name)}" sold on ${sp.day}s. Tick the items that ARE the special. If your POS uses a different name, click <strong>Edit</strong>.</p>
 
+  ${state.bParentOffer && state.bParentOffer.items && state.bParentOffer.items.length > 1 ? `
+  <div style="background:var(--blue-bg); border:1px solid #c8d4ed; border-radius:var(--r-md); padding:10px 14px; margin-bottom:1rem; font-size:12.5px; color:var(--deep-navy);">
+    <strong>${escHtml(state.bParentOffer.name)}</strong> · Analysing <strong>${escHtml(sp.name)}</strong> as part of the ${state.bParentOffer.items.length}-item offer at ${fmtD(state.bParentOffer.sp)} on ${sp.day}s.
+    <span style="color:var(--support-grey);"> Other items in this offer: ${state.bParentOffer.items.filter(it => it.name !== sp.name).map(it => escHtml(it.name)).join(', ')}.</span>
+  </div>
+  ` : ''}
+
   <div class="sku-panel" id="bsku-panel">
     <div class="sku-panel-head">
       <span class="day-pill">${sp.day}</span>
@@ -2960,10 +3505,28 @@ function renderBSkuMatch() {
   </div>
 
   <div class="btn-row">
-    <button class="btn-back" onclick="state.screen='path-b-pick'; render();">← Back</button>
+    <button class="btn-back" onclick="bSkuBackNav()">← Back</button>
     <button class="btn btn-primary" onclick="runBAnalysis()">Analyse →</button>
   </div>
 </div>`;
+}
+
+// Smart back navigation from Path B's SKU match screen.
+// - If we drilled from a multi-item Path A special: go back to sub-item picker
+// - If we drilled from a single-item Path A special: go back to dashboard
+// - If we entered Path B directly (no parent offer, no Path A results): go back to picker
+function bSkuBackNav() {
+  if (state.bParentOffer) {
+    // Drilled from Path A multi-item
+    state.screen = 'path-b-subitem-pick';
+  } else if (state.results) {
+    // Drilled from Path A single-item (state.results exists from Path A run)
+    state.screen = 'path-a-dashboard';
+  } else {
+    // Direct Path B entry
+    state.screen = 'path-b-pick';
+  }
+  render();
 }
 
 function editBSkuName() {
@@ -3188,12 +3751,14 @@ function buildWeeklyTrend(dayBuckets, selectedItems) {
 function renderBAnalysis() {
   const a = state.bAnalysis;
   const v = a.verdict;
+  const parent = state.bParentOffer;
+  const isMulti = parent && parent.items && parent.items.length > 1;
   return `
 <div class="page">
-  <div class="step-eyebrow">Strategic Plan · Step 5</div>
+  <div class="step-eyebrow">Strategic Plan · Step 5${isMulti ? ` · ${escHtml(parent.name)}` : ''}</div>
   <h1 class="step-title"><span class="light">How is</span> ${escHtml(a.name)} performing?</h1>
   <div class="step-divider"></div>
-  <p class="step-sub">${escHtml(state.venue.name)} · ${a.day} ${escHtml(a.name)} · ${fmtD(a.sp)} special (${a.discPct}% off ${fmtD(a.fp)} RRP)</p>
+  <p class="step-sub">${escHtml(state.venue.name)} · ${a.day} ${escHtml(a.name)} · ${fmtD(a.sp)} special (${a.discPct}% off ${fmtD(a.fp)} RRP)${isMulti ? ` · part of <strong>${escHtml(parent.name)}</strong> (${parent.items.length} items)` : ''}</p>
 
   <div class="b-hero">
     <div class="b-hero-eyebrow">Current performance</div>
@@ -3515,8 +4080,21 @@ async function callAIResearch(apiKey, onWaitUpdate) {
   const v = state.venue;
   const a = state.bAnalysis;
   const branch = state.bBranch;
+  const parent = state.bParentOffer;  // null for single-item, populated for multi-item drill-through
 
   const sys = `You are a hospitality industry analyst writing research for a venue marketing manager at Kickon Group, an Australian hospitality group. Your output is used to draft an executive report. Be specific, factual, and use the web_search tool to find real, current information about competitors and supply chain context. Never fabricate venue names or offers. If you cannot verify a fact, omit it. Output only valid JSON.`;
+
+  // Build a context line if this item is part of a multi-item offer. Tells the AI
+  // the broader context without polluting the item name (which it uses for searches).
+  const multiItemContext = (parent && parent.items && parent.items.length > 1) ? `
+
+MULTI-ITEM OFFER CONTEXT:
+This item is part of a multi-item offer called "${parent.name}" on ${parent.day}s where guests choose ONE of ${parent.items.length} items at the same special price ($${parent.sp}):
+${parent.items.map(it => `  - ${it.name} (full price $${it.fp})`).join('\n')}
+The marketing manager is deep-diving the "${a.name}" portion specifically. When you analyse competitor offers, look for both:
+- Direct competitors offering "${a.name}" specials, AND
+- Competitors running multi-item "pick one" offers (like "Locals' Night", "Pub Classics Night", "Choose Your Own" style mechanics).
+` : '';
 
   const userPrompt = `
 VENUE: ${v.name}, ${v.addr}
@@ -3528,7 +4106,7 @@ CURRENT SPECIAL UNDER REVIEW:
 - Special price: $${a.sp}
 - Full menu price: $${a.fp}
 - Discount depth: ${a.discPct}%
-
+${multiItemContext}
 PERFORMANCE DATA (averaged across ${a.nights} ${a.day}s):
 - Units of special sold per night: ${a.unitsPerNight}
 - Food transactions per night: ${a.avgFoodTx}
@@ -4125,6 +4703,7 @@ async function generateReport() {
 async function generateTweakSuggestions(onWaitUpdate) {
   const v = state.venue;
   const a = state.bAnalysis;
+  const parent = state.bParentOffer;
   const ai = state.bAiData || { competitors: [], supplyContext: [] };
   const verifiedComps = (ai.competitors || []).filter((_, i) => state.bVerified[`comp-${i}`]);
 
@@ -4134,9 +4713,15 @@ async function generateTweakSuggestions(onWaitUpdate) {
   const compsLine = verifiedComps.slice(0, 4).map(c => `${c.venue}: ${c.offer}`).join(' | ') || 'none verified';
   const supplyLine = (ai.supplyContext || []).slice(0, 3).map(c => `${c.point}: ${c.detail || ''}`.slice(0, 200)).join(' | ') || 'none';
 
+  // Include parent offer context for multi-item specials so the AI knows the mechanic
+  const isMultiItem = parent && parent.items && parent.items.length > 1;
+  const multiItemNote = isMultiItem
+    ? ` This item is part of "${parent.name}", a ${parent.items.length}-item ${a.day} offer at $${parent.sp} where guests pick ONE of: ${parent.items.map(it => it.name).join(', ')}. Tweaks can target this single item OR the broader offer mechanic.`
+    : '';
+
   const sys = `Hospitality consultant brainstorming tweak ideas for a pub special. Output valid JSON only.`;
 
-  const userPrompt = `${v.name} (${v.area}) wants to tweak (not replace) their ${a.day} special: ${a.name} at $${a.sp} (RRP ${a.isRange ? '$'+Math.round(a.priceMin)+'-'+Math.round(a.priceMax) : '$'+a.fp}, ${a.discPct}% off).
+  const userPrompt = `${v.name} (${v.area}) wants to tweak (not replace) their ${a.day} special: ${a.name} at $${a.sp} (RRP ${a.isRange ? '$'+Math.round(a.priceMin)+'-'+Math.round(a.priceMax) : '$'+a.fp}, ${a.discPct}% off).${multiItemNote}
 
 PERF: ${a.unitsPerNight} units/${a.day.toLowerCase()}, ${Math.round(a.takeUp*100)}% take-up. Food $${a.avgFoodRev}/bev $${a.avgBevRev} (${a.isBevLed?'BEV-LED':'FOOD-LED'}). Disc cost $${a.totalDisc}/night. $/tx $${a.spendPerTx}, bev/tx $${a.bevPerTx}.
 
@@ -4217,7 +4802,14 @@ async function generateExecSummary(onWaitUpdate) {
   const altLine = branch === 'REPLACE' && alt.name ? `Replacement: ${alt.name} at $${alt.price}. ${alt.rationale}` : '';
   const tweakLine = branch === 'TWEAK' && state.bTweak.description ? `Proposed tweak (MM's words): ${state.bTweak.description}` : '';
 
-  const userPrompt = `${v.name} (${v.area}). ${a.day} ${a.name} at $${a.sp} (RRP ${a.isRange ? '$'+Math.round(a.priceMin)+'-'+Math.round(a.priceMax) : '$'+a.fp}, ${a.discPct}% off). Analysed ${a.nights} ${a.day}s.
+  // Multi-item offer context (only present when MM drilled from a multi-item Path A special)
+  const parent = state.bParentOffer;
+  const isMultiItem = parent && parent.items && parent.items.length > 1;
+  const parentContextLine = isMultiItem
+    ? `\nMULTI-ITEM OFFER: "${parent.name}" - ${parent.items.length}-item ${parent.day} offer at $${parent.sp} (choose one of: ${parent.items.map(it => `${it.name} $${it.fp}RRP`).join(', ')}). MM is deep-diving the "${a.name}" portion specifically. Frame recommendations as either targeting this item alone OR adjusting the broader offer mechanic where relevant.`
+    : '';
+
+  const userPrompt = `${v.name} (${v.area}). ${a.day} ${a.name} at $${a.sp} (RRP ${a.isRange ? '$'+Math.round(a.priceMin)+'-'+Math.round(a.priceMax) : '$'+a.fp}, ${a.discPct}% off). Analysed ${a.nights} ${a.day}s.${parentContextLine}
 
 PERF: ${a.unitsPerNight} units/${a.day.toLowerCase()}, ${Math.round(a.takeUp*100)}% take-up (${a.avgFoodTx} food tx). Food $${a.avgFoodRev}/bev $${a.avgBevRev} (${a.isBevLed?'BEV-LED':'FOOD-LED'}). Disc cost $${a.totalDisc}. Net rev $${a.netRev}. $/tx $${a.spendPerTx}. Trend: ${trendSignal}. Verdict: ${a.verdict.label.replace(/[🏆⭐✓◐⚠?]/g,'').trim()}.
 
@@ -4365,10 +4957,12 @@ function buildReportHTML() {
       <td>${escHtml(c.offer || '')}</td>
       <td style="font-size:11px; color:#94A3B8;">${c.source ? (c.source.startsWith('http') ? `<a href="${escHtml(c.source)}" style="color:#4A8BC4; text-decoration:none;">${escHtml(new URL(c.source).hostname.replace('www.',''))}</a>` : escHtml(c.source)) : ''}</td>
     </tr>`).join('');
+  const parentForOwnRow = state.bParentOffer;
+  const isMultiItemForOwnRow = parentForOwnRow && parentForOwnRow.items && parentForOwnRow.items.length > 1;
   const ownRow = `
     <tr style="background:#F5F7FA; font-weight:600;">
       <td>${escHtml(v.name)} (this venue)</td>
-      <td>${a.day} ${escHtml(a.name)} at $${a.sp}${a.isRange ? ` (range $${Math.round(a.priceMin)}-$${Math.round(a.priceMax)} RRP)` : ` (RRP $${a.fp})`}</td>
+      <td>${a.day} ${isMultiItemForOwnRow ? `<strong>${escHtml(parentForOwnRow.name)}</strong> at $${parentForOwnRow.sp} - ${parentForOwnRow.items.length} items inc. ${escHtml(a.name)} (RRP $${a.fp})` : `${escHtml(a.name)} at $${a.sp}${a.isRange ? ` (range $${Math.round(a.priceMin)}-$${Math.round(a.priceMax)} RRP)` : ` (RRP $${a.fp})`}`}</td>
       <td style="font-size:11px; color:#94A3B8;">${a.discPct}% off · ${a.unitsPerNight} units/${a.day.toLowerCase()}</td>
     </tr>`;
 
@@ -4681,10 +5275,15 @@ body {
 
   <!-- COVER -->
   <div class="rep-cover">
-    <div class="rep-cover-eyebrow">Strategic Plan</div>
+    <div class="rep-cover-eyebrow">Strategic Plan${(state.bParentOffer && state.bParentOffer.items && state.bParentOffer.items.length > 1) ? ` · Part of ${escHtml(state.bParentOffer.name)}` : ''}</div>
     <h1>${escHtml(a.day)} <span class="bold">${escHtml(a.name)}</span></h1>
     <div class="rep-cover-divider"></div>
     <div style="font-size:15px; color:rgba(255,255,255,0.85);">${escHtml(v.name)} - ${escHtml(v.area)}</div>
+    ${(state.bParentOffer && state.bParentOffer.items && state.bParentOffer.items.length > 1) ? `
+    <div style="margin-top:1rem; font-size:12.5px; color:rgba(255,255,255,0.75); line-height:1.6; max-width:680px;">
+      <strong style="color:#fff;">${escHtml(state.bParentOffer.name)}</strong> is a multi-item ${escHtml(a.day)} offer at ${fmtD(state.bParentOffer.sp)} where guests choose one of ${state.bParentOffer.items.length} items:
+      ${state.bParentOffer.items.map(it => `<span style="display:inline-block; margin-right:14px; ${it.name === a.name ? 'font-weight:600; color:#fff;' : ''}">${escHtml(it.name)} ${fmtD(it.fp)}${it.name === a.name ? ' (this analysis)' : ''}</span>`).join('')}
+    </div>` : ''}
     <div class="rep-cover-meta">
       <div>
         <div class="rep-cover-meta-label">Data period</div>
@@ -4738,6 +5337,11 @@ body {
     <div class="rep-section">
       <h2><span class="rep-section-num">2</span>Current Performance</h2>
       <div class="rep-section-divider"></div>
+      ${(state.bParentOffer && state.bParentOffer.items && state.bParentOffer.items.length > 1) ? `
+      <p style="background:var(--off-white); border-left:3px solid ${dayColor}; padding:10px 14px; font-size:12.5px; color:#334155; margin-bottom:1.1rem;">
+        <strong>Context:</strong> ${escHtml(a.name)} is one of ${state.bParentOffer.items.length} options in the <strong>${escHtml(state.bParentOffer.name)}</strong> offer (${fmtD(state.bParentOffer.sp)} on ${a.day}s, guests choose one). The figures below reflect this item's portion of the offer only. Take-up rate is the share of food-bearing transactions on a typical ${a.day} that bought this specific item.
+      </p>
+      ` : ''}
       <p>${a.day} ${escHtml(a.name)} sells <strong>${fmtN(a.unitsPerNight)} units per ${a.day.toLowerCase()}</strong> on average across ${fmtN(a.avgFoodTx)} food-bearing transactions - a <strong>${fmtPct(a.takeUp * 100)} take-up rate</strong>. The special is priced at ${fmtD(a.sp)} against ${a.isRange ? `a range of ${fmtD(a.priceMin)}-${fmtD(a.priceMax)} (avg ${fmtD(a.effectiveFullPrice)})` : `an RRP of ${fmtD(a.fp)}`}, giving a <strong>${a.discPct}% discount depth</strong>.</p>
       <p>Food revenue averages ${fmtD(a.avgFoodRev)} per ${a.day.toLowerCase()} against beverage at ${fmtD(a.avgBevRev)}, making this a <strong>${a.isBevLed ? 'beverage-led' : 'food-led'} night</strong>. Discount cost runs at ${fmtD(a.totalDisc)} per ${a.day.toLowerCase()} (${fmtD(a.discPerTx)}/tx), and net revenue averages ${fmtD(a.netRev)}.</p>
 
