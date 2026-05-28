@@ -1322,6 +1322,236 @@ body {
 }
 .proj-globals input { width: 100%; }
 
+/* ── Projection sliders ─────────────────────────────────────── */
+.proj-outcome {
+  background: var(--deep-navy);
+  border-radius: var(--r-lg);
+  padding: 1.4rem 1.6rem;
+  margin-bottom: 1.25rem;
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+.proj-outcome-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.5rem;
+  align-items: center;
+}
+.proj-outcome-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 0.3rem;
+}
+.proj-outcome-val {
+  font-size: 32px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.proj-outcome-unit {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.7);
+}
+.proj-outcome-delta {
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 0.3rem;
+}
+.proj-outcome-delta[style*="green"] { color: #5cdc8a !important; }
+.proj-outcome-delta[style*="red"] { color: #ff8e8e !important; }
+.proj-outcome-subgrid {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 0.6rem 1.5rem;
+  text-align: right;
+}
+.proj-outcome-sub-val {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.proj-outcome-sub-lab {
+  font-size: 9.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.6);
+  margin-top: 1px;
+}
+
+.slider-block {
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.slider-block:first-of-type { padding-top: 0.4rem; }
+.slider-block:last-of-type { border-bottom: none; padding-bottom: 0.4rem; }
+.slider-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 0.75rem;
+}
+.slider-label strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--deep-navy);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.slider-desc {
+  font-size: 12px;
+  color: var(--body-text);
+  line-height: 1.5;
+}
+.slider-val {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--deep-navy);
+  text-align: right;
+  white-space: nowrap;
+  min-width: 110px;
+  line-height: 1.1;
+}
+.slider-val.pos { color: var(--green); }
+.slider-val.neg { color: var(--red); }
+.slider-val-sub {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--support-grey);
+  margin-top: 2px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Slider track styling */
+.slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: var(--line);
+  border-radius: 3px;
+  outline: none;
+  margin: 0.4rem 0 0.3rem;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  background: var(--brand-blue);
+  border: 3px solid #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: transform 0.1s;
+}
+.slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.slider::-webkit-slider-thumb:active { transform: scale(1.25); background: var(--deep-navy); }
+.slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  background: var(--brand-blue);
+  border: 3px solid #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--support-grey);
+  margin-top: 0.3rem;
+  font-variant-numeric: tabular-nums;
+}
+.slider-footnote {
+  font-size: 11px;
+  color: var(--support-grey);
+  font-style: italic;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--line);
+  line-height: 1.5;
+}
+
+/* Reference scenarios */
+.ref-scenarios-wrap {
+  margin-top: 1.25rem;
+}
+.ref-scenarios-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--deep-navy);
+  margin-bottom: 0.7rem;
+}
+.ref-scenarios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+.ref-scenario-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 0.85rem 0.95rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.ref-scenario-card:hover {
+  border-color: var(--brand-blue);
+  background: var(--off-white);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.ref-scenario-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--deep-navy);
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.02em;
+}
+.ref-scenario-assumptions {
+  font-size: 9.5px;
+  color: var(--support-grey);
+  margin-bottom: 0.65rem;
+  font-variant-numeric: tabular-nums;
+}
+.ref-scenario-net {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--deep-navy);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.ref-scenario-delta {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.ref-scenario-cta {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--brand-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.55rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--line);
+}
+
 /* ── "Add from data" browser ─────────────────────────────────── */
 .add-from-data-link {
   display: block;
@@ -1572,12 +1802,19 @@ const state = {
   bTweak: { description: '' },                            // for TWEAK branch - what's the change
   bTweakSuggestions: null,                                // AI-generated tweak ideas, cached
   bNotes: '',
+  // The 4 stock reference scenarios. These are read-only - they exist to give the MM
+  // a benchmark range when they're tuning their own plan with the sliders. They are
+  // ALSO used in the report's sensitivity table to show "across all 4 scenarios,
+  // here's the range of outcomes."
   bScenarios: [
-    { name: 'Conservative', txChange: -10, takeUp: 30, newPrice: 0, recommended: false },
-    { name: 'Moderate',     txChange: 10,  takeUp: 45, newPrice: 0, recommended: true },
-    { name: 'Strong',       txChange: 30,  takeUp: 60, newPrice: 0, recommended: false },
-    { name: 'Stretch',      txChange: 60,  takeUp: 75, newPrice: 0, recommended: false },
+    { name: 'Conservative', txChange: -10, takeUp: 30, newPrice: 0 },
+    { name: 'Moderate',     txChange: 10,  takeUp: 45, newPrice: 0 },
+    { name: 'Strong',       txChange: 30,  takeUp: 60, newPrice: 0 },
+    { name: 'Stretch',      txChange: 60,  takeUp: 75, newPrice: 0 },
   ],
+  // The MM's actual recommended plan - what the sliders edit. Defaults to Moderate's values.
+  // This becomes the headline scenario in the report.
+  bRecommended: { name: 'Recommended plan', txChange: 10, takeUp: 45, newPrice: 0 },
   bGlobals: { bevPerTx: 0, foodCostPct: 30 },
   bExecSummary: null,      // AI-generated executive summary, cached to avoid re-cost on re-render
   bActionItems: null,      // AI-generated action items list
@@ -3146,6 +3383,8 @@ function resetPathBState() {
   state.bExecSummary = null;
   state.bActionItems = null;
   state.bReportHTML = null;
+  // Reset slider-driven scenario back to Moderate defaults
+  state.bRecommended = { name: 'Recommended plan', txChange: 10, takeUp: 45, newPrice: 0 };
 }
 
 // Given a list of items that were selected in Path A, seed Path B's SKU matches
@@ -3692,8 +3931,10 @@ function runBAnalysis() {
 
   // Default bev/tx for projections
   state.bGlobals.bevPerTx = state.bAnalysis.bevPerTx;
-  // Default new price for scenarios = current sp + $2
+  // Default new price for scenarios = current sp
   state.bScenarios.forEach(s => s.newPrice = sp.sp);
+  // Initialise the slider-driven recommended scenario to current price
+  state.bRecommended.newPrice = sp.sp;
 
   state.screen = 'path-b-analysis';
   render();
@@ -4298,6 +4539,7 @@ function confirmAlternative() {
   state.bAlternative = { name, price, rationale };
   // Pre-populate scenario new prices with the alternative price
   state.bScenarios.forEach(s => s.newPrice = price);
+  state.bRecommended.newPrice = price;
   state.screen = 'path-b-notes';
   render();
 }
@@ -4338,12 +4580,15 @@ function renderTweak() {
         <div style="font-size:12px; color:var(--support-grey); padding:0.3rem 0;">AI suggestions unavailable right now. Use the competitor data and analysis below to draft your own tweak.</div>
       </div>`;
   } else if (Array.isArray(state.bTweakSuggestions) && state.bTweakSuggestions.length) {
-    // Loaded - render the cards
+    // Loaded - render the cards.
+    // We use a data-idx attribute and look up the suggestion from state when
+    // clicked, rather than interpolating the title/rationale into onclick. This
+    // is bullet-proof against quotes, dollar signs, parens, newlines, and any
+    // other character the AI might generate. The previous approach with string
+    // escape + onclick="..." was breaking on rationales containing $, parens, etc.
     const cards = state.bTweakSuggestions.map((s, i) => {
-      const titleEsc = (s.title || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\');
-      const ratEsc = (s.rationale || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\');
       return `
-        <div class="tweak-suggestion" onclick="useTweakSuggestion('${titleEsc}', '${ratEsc}')">
+        <div class="tweak-suggestion" data-tweak-idx="${i}" onclick="useTweakSuggestion(${i})">
           <div class="tweak-suggestion-title">${escHtml(s.title)}</div>
           <div class="tweak-suggestion-rationale">${escHtml(s.rationale)}</div>
         </div>`;
@@ -4408,17 +4653,21 @@ function renderTweak() {
 }
 
 // Insert a suggestion into the textarea (replace if empty, append otherwise)
-function useTweakSuggestion(title, rationale) {
+function useTweakSuggestion(idx) {
+  // Look up the suggestion from state by index. This is more robust than
+  // interpolating the strings into the onclick attribute (which breaks on
+  // quotes, $, parens, etc. that the AI commonly outputs).
+  if (!Array.isArray(state.bTweakSuggestions)) return;
+  const s = state.bTweakSuggestions[idx];
+  if (!s) return;
   const ta = document.getElementById('tweak-desc');
   if (!ta) return;
-  const text = `${title}. ${rationale}`;
-  if (ta.value.trim()) {
-    ta.value = ta.value.trim() + '\n\n' + text;
-  } else {
-    ta.value = text;
-  }
+  // Always replace the textarea content with the clicked suggestion.
+  // The MM can then edit it freely. If they want to combine ideas, they can
+  // type the additions themselves.
+  ta.value = `${s.title}. ${s.rationale}`;
   ta.focus();
-  // Move cursor to end
+  // Move cursor to end so MM can keep typing without re-clicking
   ta.setSelectionRange(ta.value.length, ta.value.length);
 }
 
@@ -4485,67 +4734,146 @@ function renderNotes() {
 // ── Screen: Projections ────────────────────────────────────────────
 function renderProjections() {
   const a = state.bAnalysis;
-  const scenarios = state.bScenarios;
+  const rec = state.bRecommended;
   const g = state.bGlobals;
   const isReplace = state.bBranch === 'REPLACE';
   const altName = isReplace ? state.bAlternative.name : null;
   const altPrice = isReplace ? state.bAlternative.price : a.sp;
+
+  // Compute the live projection from the MM's slider values
+  const proj = projectScenario(rec, a, g, isReplace, altPrice);
+
+  // Compute the 4 stock reference scenarios for comparison
+  const stockProjections = state.bScenarios.map(s => ({
+    name: s.name,
+    txChange: s.txChange,
+    takeUp: s.takeUp,
+    newPrice: s.newPrice,
+    proj: projectScenario(s, a, g, isReplace, altPrice),
+  }));
+
+  const dayShort = a.day.slice(0, 3).toLowerCase();
+  const priceLabel = isReplace ? `${escHtml(altName || 'New')} price` : 'Special price';
+  const currentPrice = isReplace ? altPrice : a.sp;
+  // Bound the price slider sensibly: ±$10 from current, with $0.50 steps
+  const priceMin = Math.max(1, currentPrice - 10);
+  const priceMax = currentPrice + 10;
+  const deltaCol = proj.deltaPct >= 0 ? 'var(--green)' : 'var(--red)';
 
   return `
 <div class="page">
   <div class="step-eyebrow">Strategic Plan · Step 9</div>
   <h1 class="step-title"><span class="light">Project the</span> scenarios</h1>
   <div class="step-divider"></div>
-  <p class="step-sub">Four scenarios, editable. Pick which you'd recommend as "the plan" - that one becomes the headline number in the report.</p>
+  <p class="step-sub">
+    Adjust the three sliders below to model what you think will happen with this offer. The projected net revenue updates live. The four reference cards at the bottom show stock scenarios for comparison - they're just there for context, not editable.
+  </p>
 
+  <!-- Big projected outcome -->
+  <div class="proj-outcome">
+    <div class="proj-outcome-head">
+      <div>
+        <div class="proj-outcome-label">Your recommended plan projects</div>
+        <div class="proj-outcome-val">${fmtD(proj.netRev)}<span class="proj-outcome-unit"> net rev / ${a.day.toLowerCase()}</span></div>
+        <div class="proj-outcome-delta" style="color:${deltaCol};">
+          ${proj.deltaPct >= 0 ? '+' : ''}${proj.deltaPct.toFixed(0)}% vs current ${fmtD(a.netRev)}
+        </div>
+      </div>
+      <div class="proj-outcome-subgrid">
+        <div>
+          <div class="proj-outcome-sub-val">${fmtN(proj.unitsPerNight)}</div>
+          <div class="proj-outcome-sub-lab">Units / ${dayShort}</div>
+        </div>
+        <div>
+          <div class="proj-outcome-sub-val">${fmtN(Math.round(proj.foodTx))}</div>
+          <div class="proj-outcome-sub-lab">Food tx / ${dayShort}</div>
+        </div>
+        <div>
+          <div class="proj-outcome-sub-val">${fmtD(proj.foodRev)}</div>
+          <div class="proj-outcome-sub-lab">Food rev / ${dayShort}</div>
+        </div>
+        <div>
+          <div class="proj-outcome-sub-val">${fmtD(proj.bevRev)}</div>
+          <div class="proj-outcome-sub-lab">Bev rev / ${dayShort}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sliders -->
   <div class="card">
-    <div class="card-head">Scenario assumptions</div>
-    <p class="card-desc">Edit the % change in transactions, take-up rate, and proposed price for each scenario. The star marks your recommended one.</p>
+    <div class="card-head">Tune your assumptions</div>
 
-    <table class="proj-table">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Rec.</th>
-          <th>Food tx change</th>
-          <th>Take-up rate</th>
-          <th>${isReplace ? `${escHtml(altName || 'New')} price` : 'Special price'}</th>
-          <th>Units/night</th>
-          <th>Food rev/night</th>
-          <th>Bev rev/night</th>
-          <th>Net rev/night</th>
-          <th>vs current</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${scenarios.map((s, i) => {
-          const proj = projectScenario(s, a, g, isReplace, altPrice);
-          return `
-          <tr>
-            <td>${s.name}</td>
-            <td><span class="scenario-star ${s.recommended ? 'active' : ''}" onclick="pickRecScenario(${i})">★</span></td>
-            <td><input type="number" value="${s.txChange}" step="5" onchange="updateScenario(${i}, 'txChange', this.value)">%</td>
-            <td><input type="number" value="${s.takeUp}" min="0" max="100" step="5" onchange="updateScenario(${i}, 'takeUp', this.value)">%</td>
-            <td>$<input type="number" value="${s.newPrice}" step="0.5" onchange="updateScenario(${i}, 'newPrice', this.value)"></td>
-            <td>${fmtN(proj.unitsPerNight)}</td>
-            <td>${fmtD(proj.foodRev)}</td>
-            <td>${fmtD(proj.bevRev)}</td>
-            <td>${fmtD(proj.netRev)}</td>
-            <td class="${proj.deltaPct >= 0 ? 'c-green' : 'c-red'}" style="${proj.deltaPct >= 0 ? 'color:var(--green);' : 'color:var(--red);'}font-weight:600;">${proj.deltaPct >= 0 ? '+' : ''}${proj.deltaPct.toFixed(0)}%</td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>
+    <!-- Food tx slider -->
+    <div class="slider-block">
+      <div class="slider-head">
+        <div class="slider-label">
+          <strong>Food transactions change</strong>
+          <div class="slider-desc">How much will the number of customers ordering food on ${a.day}s shift after this change? Currently ${fmtN(a.avgFoodTx)} food tx/${dayShort}. Negative means fewer customers (e.g. a price rise turns some away); positive means more (e.g. a hot new offer brings in new faces).</div>
+        </div>
+        <div class="slider-val ${rec.txChange >= 0 ? 'pos' : 'neg'}">
+          ${rec.txChange >= 0 ? '+' : ''}${rec.txChange}%
+          <div class="slider-val-sub">${fmtN(Math.round(a.avgFoodTx * (1 + rec.txChange / 100)))} food tx</div>
+        </div>
+      </div>
+      <input type="range" class="slider" id="slider-tx" min="-50" max="100" step="5" value="${rec.txChange}" oninput="updateRecommended('txChange', this.value)">
+      <div class="slider-ticks">
+        <span>-50%</span><span>-25%</span><span>0%</span><span>+25%</span><span>+50%</span><span>+75%</span><span>+100%</span>
+      </div>
+    </div>
 
-    <div class="proj-globals">
-      <div class="field">
-        <label>Bev $ per transaction</label>
-        <input type="number" id="g-bev" value="${g.bevPerTx}" step="1" onchange="state.bGlobals.bevPerTx = parseFloat(this.value) || 0; render();">
+    <!-- Take-up slider -->
+    <div class="slider-block">
+      <div class="slider-head">
+        <div class="slider-label">
+          <strong>Take-up rate</strong>
+          <div class="slider-desc">Of all food-bearing transactions on a ${a.day}, what % will buy this special? Currently ${fmtPct(a.takeUp * 100)}. Higher means more of your customers choose the offer over other menu items; lower means they stick with off-menu choices.</div>
+        </div>
+        <div class="slider-val">${rec.takeUp}%
+          <div class="slider-val-sub">${fmtN(Math.round(a.avgFoodTx * (1 + rec.txChange / 100) * (rec.takeUp / 100)))} units of special</div>
+        </div>
       </div>
-      <div class="field">
-        <label>Food cost % (for margin estimate)</label>
-        <input type="number" id="g-fc" value="${g.foodCostPct}" step="1" onchange="state.bGlobals.foodCostPct = parseFloat(this.value) || 30; render();">
+      <input type="range" class="slider" id="slider-takeup" min="0" max="100" step="5" value="${rec.takeUp}" oninput="updateRecommended('takeUp', this.value)">
+      <div class="slider-ticks">
+        <span>0%</span><span>20%</span><span>40%</span><span>60%</span><span>80%</span><span>100%</span>
       </div>
+    </div>
+
+    <!-- Price slider -->
+    <div class="slider-block">
+      <div class="slider-head">
+        <div class="slider-label">
+          <strong>${priceLabel}</strong>
+          <div class="slider-desc">The price the special is sold at. Currently ${fmtD(currentPrice)}. Drag to model price changes - the projection updates instantly.</div>
+        </div>
+        <div class="slider-val">${fmtD(rec.newPrice)}
+          <div class="slider-val-sub">${rec.newPrice > currentPrice ? '+' : ''}${fmtD(rec.newPrice - currentPrice)} vs current</div>
+        </div>
+      </div>
+      <input type="range" class="slider" id="slider-price" min="${priceMin}" max="${priceMax}" step="0.5" value="${rec.newPrice}" oninput="updateRecommended('newPrice', this.value)">
+      <div class="slider-ticks">
+        <span>${fmtD(priceMin)}</span><span>${fmtD((priceMin + currentPrice) / 2)}</span><span>${fmtD(currentPrice)}</span><span>${fmtD((currentPrice + priceMax) / 2)}</span><span>${fmtD(priceMax)}</span>
+      </div>
+    </div>
+
+    <p class="slider-footnote">Bev revenue scales with food transactions at the current run rate of ${fmtD(g.bevPerTx)}/tx (calculated from your actual data on ${a.day}s).</p>
+  </div>
+
+  <!-- Reference scenarios -->
+  <div class="ref-scenarios-wrap">
+    <div class="ref-scenarios-label">Reference scenarios <span style="color:var(--support-grey); font-weight:400;">- for comparison only</span></div>
+    <div class="ref-scenarios-grid">
+      ${stockProjections.map(s => {
+        const sDeltaCol = s.proj.deltaPct >= 0 ? 'var(--green)' : 'var(--red)';
+        return `
+        <div class="ref-scenario-card" onclick="applyReferenceScenario('${s.name}')">
+          <div class="ref-scenario-name">${s.name}</div>
+          <div class="ref-scenario-assumptions">${s.txChange >= 0 ? '+' : ''}${s.txChange}% tx · ${s.takeUp}% take-up · ${fmtD(s.newPrice)}</div>
+          <div class="ref-scenario-net">${fmtD(s.proj.netRev)}</div>
+          <div class="ref-scenario-delta" style="color:${sDeltaCol};">${s.proj.deltaPct >= 0 ? '+' : ''}${s.proj.deltaPct.toFixed(0)}%</div>
+          <div class="ref-scenario-cta">Tap to apply</div>
+        </div>`;
+      }).join('')}
     </div>
   </div>
 
@@ -4556,12 +4884,21 @@ function renderProjections() {
 </div>`;
 }
 
-function updateScenario(idx, field, val) {
-  state.bScenarios[idx][field] = parseFloat(val) || 0;
+// Slider change handler. Updates the recommended scenario's value and re-renders.
+function updateRecommended(field, val) {
+  const num = parseFloat(val);
+  if (isNaN(num)) return;
+  state.bRecommended[field] = num;
   render();
 }
-function pickRecScenario(idx) {
-  state.bScenarios.forEach((s, i) => s.recommended = (i === idx));
+
+// Click on a reference scenario card - copy its values into the MM's recommended plan
+function applyReferenceScenario(name) {
+  const ref = state.bScenarios.find(s => s.name === name);
+  if (!ref) return;
+  state.bRecommended.txChange = ref.txChange;
+  state.bRecommended.takeUp = ref.takeUp;
+  state.bRecommended.newPrice = ref.newPrice;
   render();
 }
 
@@ -4770,7 +5107,7 @@ async function generateExecSummary(onWaitUpdate) {
   const ai = state.bAiData || { competitors: [], supplyContext: [] };
   const alt = state.bAlternative;
   const notes = state.bNotes;
-  const recScenario = state.bScenarios.find(s => s.recommended) || state.bScenarios[1];
+  const recScenario = state.bRecommended;
   const verifiedComps = (ai.competitors || []).filter((_, i) => state.bVerified[`comp-${i}`]);
   const proj = projectScenario(recScenario, a, state.bGlobals, branch === 'REPLACE', alt.price || a.sp);
 
@@ -4901,7 +5238,7 @@ function buildReportHTML() {
   const ai = state.bAiData || { competitors: [], supplyContext: [] };
   const alt = state.bAlternative;
   const notes = state.bNotes;
-  const recScenario = state.bScenarios.find(s => s.recommended) || state.bScenarios[1];
+  const recScenario = state.bRecommended;
   const verifiedComps = (ai.competitors || []).filter((_, i) => state.bVerified[`comp-${i}`]);
   const proj = projectScenario(recScenario, a, state.bGlobals, branch === 'REPLACE', alt.price || a.sp);
   const today = new Date();
@@ -5006,15 +5343,32 @@ function buildReportHTML() {
       ${notes ? `<p><strong>Operational context:</strong> ${escHtml(notes)}</p>` : ''}`;
   }
 
-  // Scenarios table
+  // Scenarios table - shows the 4 stock reference scenarios PLUS the MM's
+  // recommended plan as a highlighted row at the top. The MM's plan may match
+  // one of the stock scenarios closely, but the slider lets them set their own
+  // numbers, so the recommended row is always shown separately.
   const isReplace = branch === 'REPLACE';
   const altPrice = isReplace ? alt.price : a.sp;
-  const scenarioRows = state.bScenarios.map(s => {
+  const recProj = projectScenario(state.bRecommended, a, state.bGlobals, isReplace, altPrice);
+  const recDeltaCol = recProj.deltaPct >= 0 ? '#1f6f3e' : '#7a2a2a';
+  const recRow = `
+    <tr style="background:#e0ecf7;">
+      <td><strong>★ Recommended plan</strong></td>
+      <td>${state.bRecommended.txChange >= 0 ? '+' : ''}${state.bRecommended.txChange}%</td>
+      <td>${state.bRecommended.takeUp}%</td>
+      <td>${fmtD(state.bRecommended.newPrice)}</td>
+      <td>${fmtN(recProj.unitsPerNight)}</td>
+      <td>${fmtD(recProj.foodRev)}</td>
+      <td>${fmtD(recProj.bevRev)}</td>
+      <td><strong>${fmtD(recProj.netRev)}</strong></td>
+      <td style="color:${recDeltaCol}; font-weight:600;">${recProj.deltaPct >= 0 ? '+' : ''}${recProj.deltaPct.toFixed(0)}%</td>
+    </tr>`;
+  const scenarioRows = recRow + state.bScenarios.map(s => {
     const p = projectScenario(s, a, state.bGlobals, isReplace, altPrice);
     const deltaCol = p.deltaPct >= 0 ? '#1f6f3e' : '#7a2a2a';
     return `
-    <tr${s.recommended ? ' style="background:#e0ecf7;"' : ''}>
-      <td>${s.recommended ? '★ ' : ''}${escHtml(s.name)}</td>
+    <tr>
+      <td style="color:#666;">${escHtml(s.name)}</td>
       <td>${s.txChange >= 0 ? '+' : ''}${s.txChange}%</td>
       <td>${s.takeUp}%</td>
       <td>${fmtD(s.newPrice)}</td>
