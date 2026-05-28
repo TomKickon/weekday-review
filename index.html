@@ -402,9 +402,21 @@ body {
   color: var(--support-grey);
   margin-bottom: 6px;
 }
+.spec-entry-items-help {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--support-grey);
+  margin-top: 3px;
+  line-height: 1.5;
+  font-style: italic;
+}
 .spec-entry-items { display: flex; flex-direction: column; gap: 6px; }
 .spec-entry-subitem { display: flex; gap: 8px; align-items: center; }
 .spec-entry-item-name { width: 100%; }
+.spec-entry-item-sp { width: 100px; }
 .spec-entry-item-fp { width: 100px; }
 .spec-entry-subitem-del {
   background: none; border: none; cursor: pointer;
@@ -412,8 +424,14 @@ body {
   padding: 4px 8px;
 }
 .spec-entry-subitem-del:hover { color: var(--red); }
-.spec-entry-add-item {
+
+.spec-entry-items-actions {
+  display: flex;
+  gap: 8px;
   margin-top: 8px;
+  flex-wrap: wrap;
+}
+.spec-entry-add-item, .spec-entry-apply-all {
   background: transparent;
   border: 1px dashed var(--line-2);
   border-radius: var(--r-md);
@@ -424,12 +442,14 @@ body {
   cursor: pointer;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  transition: all 0.15s;
 }
-.spec-entry-add-item:hover {
+.spec-entry-add-item:hover, .spec-entry-apply-all:hover {
   background: #fff;
   border-color: var(--brand-blue);
   color: var(--deep-navy);
 }
+.spec-entry-apply-all { border-style: solid; opacity: 0.85; }
 
 /* ── Drop zone ────────────────────────────────────────── */
 .drop-zone {
@@ -2276,6 +2296,7 @@ function computeResults() {
       }
       subItemBreakdown.push({
         name: subItem.name,
+        sp: subItem.sp,     // sub-item's own special price (for tier display)
         fp: subItem.fp,
         selectedItems: subSelected,
       });
@@ -2343,7 +2364,34 @@ function computeResults() {
       fallbackRrp = sp.items.reduce((s, it) => s + it.fp, 0) / sp.items.length;
     }
     const effectiveFullPrice = effective ? effective.effectiveFullPrice : fallbackRrp;
-    const discPct = effectiveFullPrice > 0 ? Math.round((effectiveFullPrice - sp.sp) / effectiveFullPrice * 100) : 0;
+
+    // Compute the BLENDED special price.
+    // For uniform offers (all items at same sp), this equals that price.
+    // For tiered offers (e.g. Steak Night: $25 porterhouse + $39 wagyu), this is
+    // the weighted-avg special price by units sold - i.e. what the average guest
+    // actually pays. If wagyu sells 25% of the volume, the blended price will skew
+    // higher than $25 to reflect that real revenue mix.
+    let blendedSp;
+    if (totalSpecialQty > 0) {
+      let weighted = 0;
+      for (const sub of subItemBreakdown) {
+        // Lookup the sub-item's special price from the matching items[] entry
+        const itemDef = sp.items.find(it => it.name === sub.name);
+        const subSp = itemDef ? itemDef.sp : 0;
+        weighted += subSp * sub.totalQty;
+      }
+      blendedSp = weighted / totalSpecialQty;
+    } else {
+      blendedSp = sp.items.reduce((s, it) => s + it.sp, 0) / sp.items.length;
+    }
+
+    // Tier detection: do sub-items have different special prices?
+    const sps = sp.items.map(it => it.sp);
+    const minSp = Math.min(...sps);
+    const maxSp = Math.max(...sps);
+    const isTiered = maxSp - minSp > 0;
+
+    const discPct = effectiveFullPrice > 0 ? Math.round((effectiveFullPrice - blendedSp) / effectiveFullPrice * 100) : 0;
 
     // Per-transaction
     const spendPerTxVal = avgTx > 0 ? (avgFoodRev + avgBevRev - totalDisc) / avgTx : 0;
@@ -2360,6 +2408,17 @@ function computeResults() {
 
     results.push({
       ...sp,
+      // For tiered offers, sp at the top level is the BLENDED weighted-avg special price.
+      // (The original shape had a top-level sp; we restore that field on the result object
+      // so downstream code can keep reading r.sp. For uniform offers blendedSp equals
+      // all items' sp. For tiered, blendedSp is the weighted average.)
+      sp: Math.round(blendedSp * 100) / 100,
+      // Tier-specific fields for tiered offers (Steak Night style)
+      isTiered,
+      spMin: minSp,
+      spMax: maxSp,
+      // Same idea for full price - top-level "fp" field for back-compat
+      fp: Math.round(effectiveFullPrice * 100) / 100,
       nights,
       hasData: true,
       selectedItems: allSelectedItems,
@@ -2534,7 +2593,10 @@ function addSpecialCard(s = {}) {
   const tbody = document.getElementById('specials-body');
   if (!tbody) return;
   const cardIdx = tbody.children.length;
-  const items = (s.items && s.items.length) ? s.items : [{ name: s.name || '', fp: s.fp || '' }];
+  // Migration: if loaded from old-shape special with top-level sp, distribute to each item
+  const items = (s.items && s.items.length)
+    ? s.items.map(it => ({ name: it.name || '', sp: it.sp || s.sp || '', fp: it.fp || '' }))
+    : [{ name: s.name || '', sp: s.sp || '', fp: s.fp || '' }];
   const card = document.createElement('div');
   card.className = 'spec-entry-card';
   card.dataset.idx = cardIdx;
@@ -2547,38 +2609,98 @@ function addSpecialCard(s = {}) {
         </div>
         <div class="spec-entry-field flex-grow">
           <label>Offer name <span class="spec-entry-hint">(what guests know it as)</span></label>
-          <input type="text" class="spec-entry-offer-name" placeholder="e.g. Fish & Chips, or Locals' Night" value="${escHtml(s.name || '')}">
-        </div>
-        <div class="spec-entry-field">
-          <label>Special $</label>
-          <input type="number" class="spec-entry-sp" placeholder="20" value="${s.sp || ''}" step="0.5">
+          <input type="text" class="spec-entry-offer-name" placeholder="e.g. Steak Night, or Locals' Night, or Parma Night" value="${escHtml(s.name || '')}">
         </div>
         <button class="spec-entry-del" title="Remove this special" onclick="this.closest('.spec-entry-card').remove()">×</button>
       </div>
     </div>
     <div class="spec-entry-items-wrap">
-      <div class="spec-entry-items-label">Items in this offer</div>
+      <div class="spec-entry-items-label">
+        Items in this offer
+        <span class="spec-entry-items-help">Each item has its own Special $ and Full price $. For tiered offers (e.g. $25 porterhouse + $39 wagyu upsell on Steak Night), enter both rows. For uniform offers (e.g. $20 across F&C / Schnitzel / Burger), use "Apply $ to all".</span>
+      </div>
       <div class="spec-entry-items">
         ${items.map((it, i) => renderSubItemHTML(it, i, items.length > 1)).join('')}
       </div>
-      <button type="button" class="spec-entry-add-item" onclick="addSubItemToCard(this)">+ Add another item at the same special price</button>
+      <div class="spec-entry-items-actions">
+        <button type="button" class="spec-entry-add-item" onclick="addSubItemToCard(this)">+ Add another item</button>
+        <button type="button" class="spec-entry-apply-all" onclick="applySpecialPriceToAll(this)" title="Copy the first row's Special $ down to every other row">Apply Special $ to all</button>
+      </div>
     </div>
   `;
   tbody.appendChild(card);
 }
 
 // Render a single sub-item row inside a special card
+// Each row has its own Special $ and Full price $ fields - supports tiered pricing
+// (e.g. Steak Night: $25 porterhouse, $39 wagyu) as well as uniform pricing.
 function renderSubItemHTML(item, idx, canDelete) {
   return `
     <div class="spec-entry-subitem">
       <div class="spec-entry-field flex-grow">
-        <input type="text" class="spec-entry-item-name" placeholder="e.g. Fish & Chips" value="${escHtml(item.name || '')}">
+        <input type="text" class="spec-entry-item-name" placeholder="e.g. Porterhouse Steak" value="${escHtml(item.name || '')}">
       </div>
       <div class="spec-entry-field">
-        <input type="number" class="spec-entry-item-fp" placeholder="RRP" value="${item.fp || ''}" step="0.5">
+        <input type="number" class="spec-entry-item-sp" placeholder="Special $" value="${item.sp || ''}" step="0.5" oninput="onFirstSpecialPriceTyped(this)">
+      </div>
+      <div class="spec-entry-field">
+        <input type="number" class="spec-entry-item-fp" placeholder="Full price $" value="${item.fp || ''}" step="0.5">
       </div>
       <button class="spec-entry-subitem-del" title="Remove item" onclick="removeSubItem(this)" ${canDelete ? '' : 'style="visibility:hidden;"'}>×</button>
     </div>`;
+}
+
+// Convenience: when MM types into the first row's Special $ field AND all other
+// rows are empty, mirror the value into them. This handles the common Locals'
+// Night case (one price across all items) without forcing the MM to type it 3x.
+// Doesn't overwrite values the MM has already entered into sibling rows.
+function onFirstSpecialPriceTyped(input) {
+  const subitem = input.closest('.spec-entry-subitem');
+  const itemsDiv = subitem.parentElement;
+  const allRows = Array.from(itemsDiv.children);
+  // Only fire if this is the first row
+  if (allRows.indexOf(subitem) !== 0) return;
+  const val = input.value;
+  if (!val) return;
+  // Copy to siblings only if they're empty (don't blow away typed work)
+  for (let i = 1; i < allRows.length; i++) {
+    const siblingSp = allRows[i].querySelector('.spec-entry-item-sp');
+    if (siblingSp && !siblingSp.value) {
+      siblingSp.value = val;
+    }
+  }
+}
+
+// Explicit button: copy the first row's Special $ to every other row, even
+// overwriting existing values. Used when MM wants to re-sync prices after edits.
+function applySpecialPriceToAll(btn) {
+  const card = btn.closest('.spec-entry-card');
+  const itemsDiv = card.querySelector('.spec-entry-items');
+  const allRows = Array.from(itemsDiv.children);
+  if (!allRows.length) return;
+  const firstSp = allRows[0].querySelector('.spec-entry-item-sp').value;
+  if (!firstSp) {
+    // Show a brief inline message
+    btn.textContent = '← Type Special $ in first row first';
+    btn.style.color = 'var(--red)';
+    setTimeout(() => {
+      btn.textContent = 'Apply Special $ to all';
+      btn.style.color = '';
+    }, 2000);
+    return;
+  }
+  for (let i = 1; i < allRows.length; i++) {
+    const sp = allRows[i].querySelector('.spec-entry-item-sp');
+    if (sp) sp.value = firstSp;
+  }
+  // Brief visual confirmation
+  const orig = btn.textContent;
+  btn.textContent = '✓ Applied to all';
+  btn.style.color = 'var(--green)';
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.style.color = '';
+  }, 1500);
 }
 
 function addSubItemToCard(btn) {
@@ -2588,7 +2710,7 @@ function addSubItemToCard(btn) {
   itemsDiv.querySelectorAll('.spec-entry-subitem-del').forEach(b => b.style.visibility = 'visible');
   const newIdx = itemsDiv.children.length;
   const wrapper = document.createElement('div');
-  wrapper.innerHTML = renderSubItemHTML({ name: '', fp: '' }, newIdx, true);
+  wrapper.innerHTML = renderSubItemHTML({ name: '', sp: '', fp: '' }, newIdx, true);
   itemsDiv.appendChild(wrapper.firstElementChild);
 }
 
@@ -2605,20 +2727,22 @@ function removeSubItem(btn) {
   }
 }
 
-// Reads all special cards from the form and returns array of {day, name, sp, items: [{name, fp}]}
+// Reads all special cards from the form and returns array of:
+//   {day, name, items: [{name, sp, fp}, ...]}
+// Note: there is no longer a top-level `sp` on the special. Each item has its own.
 function readSpecialsFromForm() {
   const cards = Array.from(document.querySelectorAll('#specials-body .spec-entry-card'));
   const specials = [];
   for (const card of cards) {
     const day = card.querySelector('.spec-entry-day').value;
     const name = card.querySelector('.spec-entry-offer-name').value.trim();
-    const sp = parseFloat(card.querySelector('.spec-entry-sp').value) || 0;
     const subItems = Array.from(card.querySelectorAll('.spec-entry-subitem')).map(si => ({
       name: si.querySelector('.spec-entry-item-name').value.trim(),
+      sp: parseFloat(si.querySelector('.spec-entry-item-sp').value) || 0,
       fp: parseFloat(si.querySelector('.spec-entry-item-fp').value) || 0,
-    })).filter(it => it.name && it.fp > 0);
-    if (!name || sp <= 0 || !subItems.length) continue;
-    specials.push({ day, name, sp, items: subItems });
+    })).filter(it => it.name && it.sp > 0 && it.fp > 0);
+    if (!name || !subItems.length) continue;
+    specials.push({ day, name, items: subItems });
   }
   return specials;
 }
@@ -2873,7 +2997,7 @@ function renderSpecials() {
 
 function confirmSpecials() {
   const specs = readSpecialsFromForm();
-  if (!specs.length) { showErr('specials-err', 'Please add at least one special with day, offer name, special price, and at least one item with a full price.'); return; }
+  if (!specs.length) { showErr('specials-err', 'Please add at least one special with day, offer name, and at least one item with special price + full price filled in.'); return; }
   // Validate that each special has data on its day
   const noData = specs.filter(s => !state.parsedData.byDow[s.day].length);
   if (noData.length === specs.length) {
@@ -2882,16 +3006,17 @@ function confirmSpecials() {
   }
   showErr('specials-err', null);
   state.specials = specs;
-  // Build initial SKU matches via fuzzy search - now per sub-item
+  // Build initial SKU matches via fuzzy search - per sub-item.
   // Shape: state.skuMatches[specialIdx][itemIdx] = { [itemName]: { selected, qtyOnDay, avgPrice, priceMatch } }
   state.skuMatches = {};
   for (let i = 0; i < specs.length; i++) {
     state.skuMatches[i] = {};
     for (let j = 0; j < specs[i].items.length; j++) {
-      // Build a "pseudo-special" for findSkuCandidates: it expects {day, name, sp, fp}
-      // We use the sub-item's name and full price, but the special's day and sp price.
+      // Each sub-item runs its own fuzzy match. The pseudoSp uses the sub-item's
+      // own sp (special price) - critical for tiered offers like Steak Night
+      // where porterhouse=$25 and wagyu=$39 trigger different price-match flags.
       const subItem = specs[i].items[j];
-      const pseudoSp = { day: specs[i].day, name: subItem.name, sp: specs[i].sp, fp: subItem.fp };
+      const pseudoSp = { day: specs[i].day, name: subItem.name, sp: subItem.sp, fp: subItem.fp };
       const candidates = findSkuCandidates(pseudoSp, state.parsedData);
       state.skuMatches[i][j] = {};
       for (const c of candidates) {
@@ -2948,7 +3073,7 @@ function renderSkuPanel(sp, idx) {
           <button class="edit-name-save" id="sku-save-btn-${idx}-${subIdx}" onclick="saveSkuName(${idx}, ${subIdx})" style="display:none; background:var(--brand-blue); border:none; cursor:pointer; color:#fff; font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:3px 8px; border-radius:4px;">Save</button>
           <button class="edit-name-cancel" id="sku-cancel-btn-${idx}-${subIdx}" onclick="cancelSkuName(${idx}, ${subIdx})" style="display:none; background:none; border:none; cursor:pointer; color:var(--support-grey); font-size:11px; padding:2px 6px;">Cancel</button>
         </span>
-        <span class="sub-rrp">RRP ${fmtD(subItem.fp)} → ${fmtD(sp.sp)}</span>
+        <span class="sub-rrp">RRP ${fmtD(subItem.fp)} → ${fmtD(subItem.sp)}</span>
       </div>
       ${items.length === 0 ? `
         <p style="font-size:12.5px; color:var(--support-grey); font-style:italic; padding:8px 0;">No items containing "${escHtml(subItem.name)}" found in your data on ${sp.day}s. Try the <strong>Edit</strong> button above to fix the name, or click <strong>"+ Add from your data"</strong> below to browse all items sold that day.</p>
@@ -2972,12 +3097,22 @@ function renderSkuPanel(sp, idx) {
     </div>`;
   }).join('');
 
+  // Format the price line for the header. For uniform offers, show "$20 special".
+  // For tiered offers, show "$25-$39 across 2 items" so the MM sees the price tier
+  // immediately without having to scan each sub-panel.
+  const prices = sp.items.map(it => it.sp).filter(p => p > 0);
+  const minPrice = prices.length ? Math.min(...prices) : 0;
+  const maxPrice = prices.length ? Math.max(...prices) : 0;
+  const headerPrice = (sp.items.length > 1 && minPrice !== maxPrice)
+    ? `${fmtD(minPrice)}-${fmtD(maxPrice)} across ${sp.items.length} items (tiered)`
+    : `${fmtD(minPrice)} special${sp.items.length > 1 ? ` · ${sp.items.length} items` : ''}`;
+
   return `
 <div class="sku-panel" id="sku-panel-${idx}">
   <div class="sku-panel-head">
     <span class="day-pill">${sp.day}</span>
     <span style="font-weight:600;">${escHtml(sp.name)}</span>
-    · ${fmtD(sp.sp)} special${sp.items.length > 1 ? ` · ${sp.items.length} items` : ''}
+    · ${headerPrice}
   </div>
   ${subPanels}
 </div>`;
@@ -3043,6 +3178,7 @@ function filterAfd(idx, subIdx, value) {
 
 function addAfdItem(idx, subIdx, itemName) {
   const sp = state.specials[idx];
+  const subItem = sp.items[subIdx];
   if (!state.skuMatches[idx]) state.skuMatches[idx] = {};
   if (!state.skuMatches[idx][subIdx]) state.skuMatches[idx][subIdx] = {};
   if (state.skuMatches[idx][subIdx][itemName]) return;  // already there
@@ -3053,7 +3189,9 @@ function addAfdItem(idx, subIdx, itemName) {
     selected: true,
     qtyOnDay: ai.days[sp.day] || 0,
     avgPrice,
-    priceMatch: avgPrice > 0 && Math.abs(avgPrice - sp.sp) <= 2,
+    // priceMatch checks against THIS sub-item's special price (not the offer's
+    // — there is no offer-level price anymore, since tiered offers have different prices per item)
+    priceMatch: avgPrice > 0 && subItem && subItem.sp > 0 && Math.abs(avgPrice - subItem.sp) <= 2,
   };
   // Re-render the whole special panel (since the sub-panel is nested inside)
   const panel = document.getElementById('sku-panel-' + idx);
@@ -3096,8 +3234,11 @@ function saveSkuName(idx, subIdx) {
   // Update state - rename this sub-item
   const sp = state.specials[idx];
   sp.items[subIdx].name = newName;
-  // Re-run fuzzy match for this sub-item only
-  const pseudoSp = { day: sp.day, name: newName, sp: sp.sp, fp: sp.items[subIdx].fp };
+  // Re-run fuzzy match for this sub-item only.
+  // pseudoSp uses the sub-item's own sp/fp because tiered offers have different
+  // prices per item (e.g. Steak Night: $25 porterhouse, $39 wagyu).
+  const subItem = sp.items[subIdx];
+  const pseudoSp = { day: sp.day, name: newName, sp: subItem.sp, fp: subItem.fp };
   const candidates = findSkuCandidates(pseudoSp, state.parsedData);
   if (!state.skuMatches[idx]) state.skuMatches[idx] = {};
   state.skuMatches[idx][subIdx] = {};
@@ -3239,20 +3380,28 @@ function renderSpecCard(r, maxFood, maxBev, maxDisc, maxBpt) {
     return `Review the offer.`;
   })();
 
-  // For drill-through to Path B: pass items array for multi-item, or single item if not.
-  // Path B picks one sub-item to deep-dive on. drillToPathB handles the sub-item picker.
+  // For drill-through to Path B: pass items array (each with name/sp/fp) and breakdown
   const drillData = encodeURIComponent(JSON.stringify({
     day: r.day,
     name: r.name,
-    sp: r.sp,
-    items: r.items,                    // [{name, fp}, ...]
+    sp: r.sp,                          // blended sp (for back-compat with Path B)
+    items: r.items,                    // [{name, sp, fp}, ...] each with its own special price
     isMultiItem: r.isMultiItem,
+    isTiered: r.isTiered,
     subItemBreakdown: (r.subItemBreakdown || []).map(s => ({
-      name: s.name, fp: s.fp, totalQty: s.totalQty, selectedItems: s.selectedItems,
+      name: s.name, sp: s.sp, fp: s.fp, totalQty: s.totalQty, selectedItems: s.selectedItems,
     })),
   }));
 
-  // Price display: single item → "RRP $34", multi-item → "$29-34 range" or weighted avg
+  // Headline special price display.
+  // For tiered offers (different prices per item, e.g. Steak Night $25/$39), show range.
+  // For uniform offers (all items same price), show the single price.
+  const isTiered = r.isTiered;
+  const spDisplay = isTiered
+    ? `${fmtD(r.spMin)}-${fmtD(r.spMax)}`
+    : fmtD(r.sp);
+
+  // Full price (RRP) display - same logic as before
   const isMulti = r.isMultiItem;
   const rrpDisplay = (() => {
     if (isMulti) {
@@ -3265,24 +3414,35 @@ function renderSpecCard(r, maxFood, maxBev, maxDisc, maxBpt) {
     ? `${r.items.length} items at full prices ${r.items.map(it => fmtD(it.fp)).join(', ')}. Discount % based on weighted-avg full price ${fmtD(r.effectiveFullPrice)}.`
     : (r.isRange ? `Items range ${fmtD(r.priceMin)} - ${fmtD(r.priceMax)}, avg ${fmtD(r.effectiveFullPrice)}` : '');
 
-  // Sub-item breakdown (only shown for multi-item)
+  // Sub-item breakdown table (only shown for multi-item). For tiered offers, also show each
+  // sub-item's special price. This makes it crystal clear that Steak Night = porterhouse $25
+  // AND wagyu $39 simultaneously.
   const subItemHtml = (isMulti && r.subItemBreakdown && r.subItemBreakdown.length) ? `
     <div class="subitem-breakdown">
       <div class="subitem-label">Sub-item breakdown</div>
-      ${r.subItemBreakdown.map(sub => `
+      ${r.subItemBreakdown.map(sub => {
+        const tierTag = isTiered ? `${fmtD(sub.sp)} special · RRP ${fmtD(sub.fp)}` : `RRP ${fmtD(sub.fp)}`;
+        return `
         <div class="subitem-row">
           <span class="subitem-name">${escHtml(sub.name)}</span>
-          <span class="subitem-stats">${fmtN(sub.avgPerNight)}/${r.day.slice(0,3).toLowerCase()} · RRP ${fmtD(sub.fp)}</span>
-        </div>
-      `).join('')}
+          <span class="subitem-stats">${fmtN(sub.avgPerNight)}/${r.day.slice(0,3).toLowerCase()} · ${tierTag}</span>
+        </div>`;
+      }).join('')}
     </div>` : '';
+
+  // Card-level multi-item / tiered badge
+  const multiBadge = (() => {
+    if (isTiered) return ` <span style="font-size:9.5px; color:var(--brand-blue); font-weight:600; background:var(--blue-bg); padding:1px 5px; border-radius:3px; letter-spacing:0.04em; text-transform:uppercase;">${r.items.length} tiers</span>`;
+    if (isMulti) return ` <span style="font-size:9.5px; color:var(--support-grey); font-weight:500;">(${r.items.length} items)</span>`;
+    return '';
+  })();
 
   return `
     <div class="spec-card" style="cursor:pointer;" onclick="drillToPathB('${drillData}')" title="Click to investigate this special with a Strategic Plan">
       <div class="spec-card-top"><div class="spec-dot" style="background:${color};"></div><div class="spec-day">${r.day}</div></div>
-      <div class="spec-item">${escHtml(r.name)}${isMulti ? ` <span style="font-size:9.5px; color:var(--support-grey); font-weight:500;">(${r.items.length} items)</span>` : ''}</div>
+      <div class="spec-item">${escHtml(r.name)}${multiBadge}</div>
       <div class="price-badge">
-        <div class="price-special">${fmtD(r.sp)}</div>
+        <div class="price-special" title="${isTiered ? `Tiered: ${r.items.map(it => `${escHtml(it.name)} ${fmtD(it.sp)}`).join(', ')}. Blended avg by units: ${fmtD(r.sp)}.` : ''}">${spDisplay}</div>
         <div class="price-rrp" title="${escHtml(rrpTitle)}">${rrpDisplay}</div>
         <div class="disc-badge" style="${discBadgeStyle}" title="${isMulti ? `Weighted-avg discount across ${r.items.length} items` : ''}">-${r.discPct}%</div>
       </div>
@@ -3337,8 +3497,9 @@ function drillToPathB(encodedData) {
       state.bParentOffer = {
         day: data.day,
         name: data.name,
-        sp: data.sp,
+        sp: data.sp,                 // blended sp (kept for back-compat & sub-item picker fallback)
         items: data.items,
+        isTiered: data.isTiered,
         subItemBreakdown: data.subItemBreakdown || [],
         chosenItemName: null,  // will be set when MM picks
       };
@@ -3348,13 +3509,16 @@ function drillToPathB(encodedData) {
       return;
     }
 
-    // Single-item: go straight to Path B SKU match
+    // Single-item: go straight to Path B SKU match.
+    // Use chosenItem.sp (the item's own special price) not data.sp (offer-level blended).
+    // For single-item specials these are identical; for tiered offers (theoretically
+    // impossible here because we routed multi-item above) we'd want the item-level price.
     const chosenItem = data.items[0];
     const chosenSelectedItems = (data.subItemBreakdown && data.subItemBreakdown[0])
       ? data.subItemBreakdown[0].selectedItems
       : [];
     state.bParentOffer = null;
-    state.bSpecial = { day: data.day, name: chosenItem.name, sp: data.sp, fp: chosenItem.fp };
+    state.bSpecial = { day: data.day, name: chosenItem.name, sp: chosenItem.sp || data.sp, fp: chosenItem.fp };
     seedBSkuMatchesFromPathA(chosenSelectedItems);
     state.screen = 'path-b-sku';
     render();
@@ -3432,12 +3596,20 @@ function renderSubItemPicker() {
   const breakdown = offer.subItemBreakdown || [];
   const nights = (state.parsedData.byDow[offer.day] || []).length;
 
-  // For each sub-item, compute discount % and units/night for display
+  // Detect if this is a tiered offer (items have different special prices)
+  const offerSps = offer.items.map(it => it.sp).filter(s => s > 0);
+  const offerSpMin = offerSps.length ? Math.min(...offerSps) : 0;
+  const offerSpMax = offerSps.length ? Math.max(...offerSps) : 0;
+  const offerIsTiered = offer.isTiered || (offerSpMax - offerSpMin > 0);
+
+  // For each sub-item, compute discount % using ITS OWN special price (item.sp),
+  // not the blended offer.sp. This matters hugely for tiered offers - the wagyu
+  // upsell at $39 has very different discount math from the porterhouse at $25.
   const cards = offer.items.map((item, idx) => {
     const subBd = breakdown.find(b => b.name === item.name) || { totalQty: 0, avgPerNight: 0, selectedItems: [] };
-    const discPct = item.fp > 0 ? Math.round((item.fp - offer.sp) / item.fp * 100) : 0;
+    const itemSp = item.sp || offer.sp;  // fallback to blended if missing
+    const discPct = item.fp > 0 ? Math.round((item.fp - itemSp) / item.fp * 100) : 0;
     const unitsPerNight = nights > 0 ? Math.round(subBd.totalQty / nights) : 0;
-    // Visual emphasis: highlight the biggest seller as a "suggested" tag
     const isBiggest = breakdown.length > 0 && breakdown.every(b => (subBd.totalQty || 0) >= (b.totalQty || 0));
     const discColor = discPct <= 30 ? 'var(--green)' : discPct <= 42 ? 'var(--blue-tag)' : discPct <= 50 ? 'var(--amber)' : 'var(--red)';
 
@@ -3453,8 +3625,8 @@ function renderSubItemPicker() {
             <div class="subitem-pick-lab">Units/${offer.day.slice(0,3).toLowerCase()}</div>
           </div>
           <div class="subitem-pick-kpi">
-            <div class="subitem-pick-val">${fmtD(item.fp)}</div>
-            <div class="subitem-pick-lab">Full price</div>
+            <div class="subitem-pick-val">${fmtD(itemSp)}<span style="font-size:10px; color:var(--support-grey); font-weight:400;"> / ${fmtD(item.fp)}</span></div>
+            <div class="subitem-pick-lab">Special / RRP</div>
           </div>
           <div class="subitem-pick-kpi">
             <div class="subitem-pick-val" style="color:${discColor};">${discPct}%</div>
@@ -3465,12 +3637,17 @@ function renderSubItemPicker() {
       </div>`;
   }).join('');
 
+  // Subheader prose: handle tiered vs uniform pricing in the description
+  const priceDesc = offerIsTiered
+    ? `prices range ${fmtD(offerSpMin)}-${fmtD(offerSpMax)} across ${offer.items.length} items (tiered offer)`
+    : `at ${fmtD(offer.items[0].sp)} covers ${offer.items.length} items`;
+
   return `
 <div class="page">
   <div class="step-eyebrow">Strategic Plan · Multi-item offer</div>
   <h1 class="step-title"><span class="light">Which item to</span> deep-dive?</h1>
   <div class="step-divider"></div>
-  <p class="step-sub">${escHtml(state.venue.name)} · <strong>${escHtml(offer.name)}</strong> on ${offer.day}s at ${fmtD(offer.sp)} covers ${offer.items.length} items. Pick the one you want to analyse - usually the top seller, but the underperformer can be worth investigating too.</p>
+  <p class="step-sub">${escHtml(state.venue.name)} · <strong>${escHtml(offer.name)}</strong> on ${offer.day}s ${priceDesc}. Pick the one you want to analyse - usually the top seller, but the underperformer (or the upsell) can be worth investigating too.</p>
 
   <div class="subitem-pick-grid">
     ${cards}
@@ -3496,10 +3673,11 @@ function pickSubItem(itemName) {
   // Mark which item was chosen so report/AI prompts can reference it correctly
   offer.chosenItemName = itemName;
 
-  // bSpecial uses ONLY the dish name (e.g. "Fish & Chips"), not the prefixed
-  // "Locals' Night - Fish & Chips". The parent offer context is stored separately
-  // in state.bParentOffer for use in AI prompts and report titles.
-  state.bSpecial = { day: offer.day, name: itemName, sp: offer.sp, fp: item.fp };
+  // bSpecial uses the sub-item's OWN special price (item.sp), not the offer's
+  // blended price. This matters for tiered offers - Steak Night porterhouse at
+  // $25 vs wagyu at $39 are completely different analyses.
+  // Parent offer context is stored separately in state.bParentOffer for AI prompts and report titles.
+  state.bSpecial = { day: offer.day, name: itemName, sp: item.sp || offer.sp, fp: item.fp };
   seedBSkuMatchesFromPathA(chosenSelectedItems);
 
   state.screen = 'path-b-sku';
@@ -3510,8 +3688,10 @@ function pickSubItem(itemName) {
 function renderSumRow(r) {
   if (!r.hasData) return `<tr><td><strong>${r.day} · ${escHtml(r.name)}</strong></td><td colspan="11" style="color:var(--support-grey); font-style:italic;">No data</td></tr>`;
   const v = r.verdict;
+  // For tiered offers, show price range in the day/offer cell instead of just blended sp
+  const spLabel = r.isTiered ? `${fmtD(r.spMin)}-${fmtD(r.spMax)}` : fmtD(r.sp);
   return `<tr>
-    <td><strong>${r.day} · ${fmtD(r.sp)} ${escHtml(r.name)}</strong></td>
+    <td><strong>${r.day} · ${spLabel} ${escHtml(r.name)}${r.isTiered ? ' <span style="font-size:9px; color:var(--brand-blue); font-weight:600; background:var(--blue-bg); padding:1px 5px; border-radius:3px; letter-spacing:0.04em; text-transform:uppercase;">tiered</span>' : ''}</strong></td>
     <td class="r ${r.discPct >= 50 ? 'c-red' : r.discPct <= 30 ? 'c-green' : ''}">${r.discPct}%</td>
     <td class="r">${fmtN(r.unitsPerNight)}</td>
     <td class="r">${fmtN(r.avgFoodTx)}</td>
