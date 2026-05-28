@@ -510,6 +510,27 @@ body {
 .range-red   { background: var(--red-bg); color: var(--red); }
 .range-banner strong { font-weight: 600; }
 
+/* Function-exclusion notice - shown when functions auto-detected & filtered */
+.func-ex-notice {
+  background: var(--blue-bg);
+  border-left: 3px solid var(--brand-blue);
+  border-radius: var(--r-md);
+  padding: 0.75rem 1rem;
+  margin-top: 0.6rem;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--deep-navy);
+}
+.func-ex-notice strong { font-weight: 600; color: var(--deep-navy); }
+.func-ex-help {
+  display: block;
+  font-size: 11px;
+  color: var(--support-grey);
+  margin-top: 4px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
 /* ── Errors ────────────────────────────────────────────── */
 .err {
   font-size: 13px;
@@ -2003,12 +2024,40 @@ function classifyLineItem(statGroup, groupName) {
 // }
 function parseLineTransactions(rows) {
   // Column names (case-sensitive as exported by Lightspeed)
-  // Date, Type, Account, Item, SKU, Qty, UnitPrice, FinalPrice, Discount, StatGroup
+  // Date, Type, Account, AccountName, Item, SKU, Qty, UnitPrice, FinalPrice, Discount, StatGroup, Group
   const byDate = new Map();
   const allItems = new Map();
   let earliest = null, latest = null;
   let skippedNoDate = 0;
   let skippedNoSale = 0;
+
+  // ── PASS 1: identify accounts that are functions/events ──────────────
+  // These should be excluded from the special's analysis because functions:
+  //  - are pre-booked at separate pricing, not part of the special's mechanic
+  //  - pollute the take-up rate denominator if counted as food-bearing transactions
+  //  - inflate item qty counts (e.g. a 50th birthday booking 30 schnitties)
+  //
+  // Detection signals (any one triggers function flag):
+  //  1. AccountName contains function keywords (birthday, wedding, etc.)
+  //  2. AccountName contains an ordinal age marker (21st, 30th, 40th, 50th, etc.)
+  //  3. AccountName mentions named-event days (mothers day, fathers day, valentine's)
+  //  4. Group field = "Functions & Misc" (rare but explicit signal)
+  //
+  // We pre-scan the data and build a Set of function Account IDs, then filter them
+  // out in the main parse loop. We also count them so we can report to the MM.
+  const functionAccounts = new Set();
+  const functionRegex = /\b(birthday|wedding|anniversary|engagement|function|christening|baptism|graduation|reunion|farewell|hens|bucks|kitchen tea|baby shower|memorial|wake|catering)\b|\b\d+(st|nd|rd|th)\b|\bmothers? day\b|\bfathers? day\b|\bvalentine\b/i;
+  for (const r of rows) {
+    if ((r.Type || '').toUpperCase() !== 'SALE') continue;
+    const acct = (r.Account || '').trim();
+    if (!acct) continue;
+    const accName = (r.AccountName || '').trim();
+    const groupRaw = (r.Group || '').trim();
+    if (functionRegex.test(accName) || /functions?\s*&?\s*misc/i.test(groupRaw)) {
+      functionAccounts.add(acct);
+    }
+  }
+  let functionRowsSkipped = 0;     // for diagnostic reporting
 
   for (const r of rows) {
     if ((r.Type || '').toUpperCase() !== 'SALE') { skippedNoSale++; continue; }
@@ -2039,6 +2088,16 @@ function parseLineTransactions(rows) {
     }
 
     const acct = (r.Account || '').trim();
+
+    // Skip function accounts entirely from item/rev/tx aggregation. We still want them
+    // counted in the high-level total tx (rec.transactions) so date-range integrity holds,
+    // but they don't pollute the specials-analysis figures.
+    if (acct && functionAccounts.has(acct)) {
+      rec.transactions.add(acct);    // it WAS a transaction (just not part of our special's mix)
+      functionRowsSkipped++;
+      continue;
+    }
+
     const sg = (r.StatGroup || '').trim();
     const groupRaw = (r.Group || '').trim();
     const qty = toNum(r.Qty);
@@ -2056,13 +2115,22 @@ function parseLineTransactions(rows) {
     // 'Discount' indicates discount line, otherwise food.
     const category = classifyLineItem(sg, groupRaw);
 
-    if (category === 'food' && qty > 0) {
-      if (acct) rec.foodTx.add(acct);
-      rec.foodRev += finalPrice;
+    // Skip zero-qty rows (no actual movement).
+    // IMPORTANT: we accept NEGATIVE qty too — these are common in real venue data as price
+    // corrections, function rebates, or cancellations posted against a prior positive row
+    // with the same Account+Item. Filtering them out (the previous `qty > 0` filter) caused
+    // inflated unit counts because we'd sum up positive bulk entries (e.g. function: +130
+    // parmas) while throwing away their offsetting negative (-130 parmas) on the same
+    // account. Letting both through lets them cancel naturally.
+    if (qty === 0) continue;
+
+    if (category === 'food') {
+      if (acct && qty > 0) rec.foodTx.add(acct);  // only positive rows add to the food-tx set
+      rec.foodRev += finalPrice;                   // signed: negative rows reduce food rev
       if (item) {
         let it = rec.items.get(item);
         if (!it) { it = { qty: 0, revenue: 0 }; rec.items.set(item, it); }
-        it.qty += qty;
+        it.qty += qty;          // signed
         it.revenue += finalPrice;
 
         // All-items index for fuzzy matching later
@@ -2072,17 +2140,20 @@ function parseLineTransactions(rows) {
           DAYS.forEach(d => { ai.days[d] = 0; ai.pricesByDay[d] = []; });
           allItems.set(item, ai);
         }
-        ai.qty += qty;
+        ai.qty += qty;           // signed
         ai.totalRev += finalPrice;
         const dn = dayName(dt);
-        ai.days[dn] += qty;
-        if (unitPrice > 0) {
+        ai.days[dn] += qty;      // signed
+        // Only record unit prices from POSITIVE-qty rows. Negative correction rows
+        // often have weird unit prices (e.g. unitPrice = -$60 for a function rebate)
+        // that would skew the avg-price calculation used for price-match and effective-FP.
+        if (unitPrice > 0 && qty > 0) {
           ai.prices.push(unitPrice);
           ai.pricesByDay[dn].push(unitPrice);
         }
       }
-    } else if (category === 'beverage' && qty > 0) {
-      rec.bevRev += finalPrice;
+    } else if (category === 'beverage') {
+      rec.bevRev += finalPrice;  // signed
     } else if (category === 'disc_food') {
       rec.discFood += Math.abs(finalPrice);
     } else if (category === 'disc_bev') {
@@ -2163,6 +2234,10 @@ function parseLineTransactions(rows) {
     byDow,
     allItems,
     stats: { totalRows: rows.length, skippedNoSale, skippedNoDate, datesCount: sortedKeys.length - droppedDates.size },
+    functionExclusion: {
+      accountsFlagged: functionAccounts.size,
+      rowsExcluded: functionRowsSkipped,
+    },
   };
 }
 
@@ -2340,8 +2415,13 @@ function computeResults() {
     }
     const unitsPerNight = nights > 0 ? totalSpecialQty / nights : 0;
 
-    // Take-up rate: total units (all sub-items) ÷ food-bearing transactions per night
-    const takeUp = avgFoodTx > 0 ? Math.min(unitsPerNight / avgFoodTx, 1) : 0;
+    // Take-up rate: total units (all sub-items) ÷ food-bearing transactions per night.
+    // Can legitimately exceed 100% because a single transaction (one account / table) can
+    // buy multiple specials — a couple sharing a fish & chips AND a schnitzel registers as
+    // 2 units on 1 food transaction, giving 200% take-up for that table. We DON'T cap at
+    // 100% because that would hide this signal (which is genuinely useful — high take-up >100%
+    // indicates the special is the WHOLE menu people are ordering, not just one item per table).
+    const takeUp = avgFoodTx > 0 ? unitsPerNight / avgFoodTx : 0;
 
     // Discount % - use effective full price across all selected items (multi-item-aware).
     // computeEffectiveFullPrice returns the weighted-avg non-special-day price across
@@ -2961,6 +3041,15 @@ function renderSpecials() {
 
   const blockContinue = range.status === 'red';
 
+  // Function exclusion notice - tells the MM what's been auto-filtered.
+  // Only shows when functions were actually detected, so quiet venues don't see noise.
+  const funcEx = parsed.functionExclusion || { accountsFlagged: 0, rowsExcluded: 0 };
+  const funcExNotice = funcEx.accountsFlagged > 0 ? `
+    <div class="func-ex-notice">
+      <strong>Functions excluded:</strong> ${funcEx.accountsFlagged} function-flagged account${funcEx.accountsFlagged === 1 ? '' : 's'} (${funcEx.rowsExcluded.toLocaleString('en-AU')} row${funcEx.rowsExcluded === 1 ? '' : 's'}) detected and excluded from the specials analysis.
+      <span class="func-ex-help">Functions are detected by account-name keywords (birthday, wedding, 21st, 50th, etc.) and the "Functions &amp; Misc" group. They're filtered out so your special's take-up rate isn't diluted by pre-booked event trade.</span>
+    </div>` : '';
+
   return `
 <div class="page">
   <div class="step-eyebrow">Performance Review · Step 3</div>
@@ -2971,6 +3060,8 @@ function renderSpecials() {
   <div class="range-banner ${bannerClass}">
     <span style="flex:1;">${bannerMsg}</span>
   </div>
+
+  ${funcExNotice}
 
   ${blockContinue ? '' : `
   <div class="card" style="margin-top:1.5rem;">
@@ -3780,6 +3871,14 @@ function renderPickSpecial() {
   }
   const block = range.status === 'red';
 
+  // Function exclusion notice (same as Path A)
+  const funcEx = parsed.functionExclusion || { accountsFlagged: 0, rowsExcluded: 0 };
+  const funcExNotice = funcEx.accountsFlagged > 0 ? `
+    <div class="func-ex-notice">
+      <strong>Functions excluded:</strong> ${funcEx.accountsFlagged} function-flagged account${funcEx.accountsFlagged === 1 ? '' : 's'} (${funcEx.rowsExcluded.toLocaleString('en-AU')} row${funcEx.rowsExcluded === 1 ? '' : 's'}) detected and excluded from the analysis.
+      <span class="func-ex-help">Functions are detected by account-name keywords (birthday, wedding, 21st, 50th, etc.) and the "Functions &amp; Misc" group.</span>
+    </div>` : '';
+
   // If carried forward from Path A, pre-fill from state.bSpecial
   const s = state.bSpecial || { day: 'Monday', name: '', sp: '', fp: '' };
 
@@ -3793,6 +3892,8 @@ function renderPickSpecial() {
   <div class="range-banner ${bannerClass}">
     <span style="flex:1;">${bannerMsg}</span>
   </div>
+
+  ${funcExNotice}
 
   ${block ? '' : `
   <div class="card" style="margin-top:1.5rem;">
@@ -4057,7 +4158,8 @@ function runBAnalysis() {
     }
   }
   const unitsPerNight = nights > 0 ? totalSpecialQty / nights : 0;
-  const takeUp = avgFoodTx > 0 ? Math.min(unitsPerNight / avgFoodTx, 1) : 0;
+  // No 100% cap on take-up - can legitimately exceed when one transaction buys multiple specials
+  const takeUp = avgFoodTx > 0 ? unitsPerNight / avgFoodTx : 0;
   // Effective full price - weighted avg from non-special-day sales for selected items
   const effective = computeEffectiveFullPrice(selectedItems, sp.day, parsed);
   const fpForDisc = effective ? effective.effectiveFullPrice : sp.fp;
