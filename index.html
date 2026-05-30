@@ -1564,6 +1564,34 @@ body {
   line-height: 1.5;
 }
 
+/* Attributable-revenue explainer under the headline card */
+.attrib-explainer {
+  font-size: 11.5px;
+  color: var(--support-grey);
+  line-height: 1.55;
+  margin: 0.6rem 0 1.25rem;
+  padding: 0 2px;
+}
+.attrib-explainer strong { color: var(--body-text); font-weight: 600; }
+
+/* Advanced collapsible slider (bev attach uplift) */
+.adv-slider {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--line);
+}
+.adv-slider summary {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brand-blue);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.adv-slider summary::-webkit-details-marker { display: none; }
+.adv-slider summary::before { content: '+ '; font-weight: 700; }
+.adv-slider[open] summary::before { content: '− '; }
+
 /* Reference scenarios */
 .ref-scenarios-wrap {
   margin-top: 1.25rem;
@@ -1898,7 +1926,8 @@ const state = {
   // The MM's actual recommended plan - what the sliders edit. Defaults to Moderate's values.
   // This becomes the headline scenario in the report.
   bRecommended: { name: 'Recommended plan', txChange: 10, takeUp: 45, newPrice: 0 },
-  bGlobals: { bevPerTx: 0, foodCostPct: 30 },
+  bGlobals: { bevPerTx: 0, foodCostPct: 30, bevAttachUplift: 0 },
+  bAdvOpen: false,         // advanced bev-attach slider open state in Step 9
   bExecSummary: null,      // AI-generated executive summary, cached to avoid re-cost on re-render
   bActionItems: null,      // AI-generated action items list
   bReportHTML: null,       // generated report HTML, cached
@@ -5198,7 +5227,8 @@ function renderProjections() {
   // Bound the price slider sensibly: ±$10 from current, with $0.50 steps
   const priceMin = Math.max(1, currentPrice - 10);
   const priceMax = currentPrice + 10;
-  const deltaCol = proj.deltaPct >= 0 ? 'var(--green)' : 'var(--red)';
+  const deltaCol = proj.deltaAbs >= 0 ? 'var(--green)' : 'var(--red)';
+  const specialLabel = state.bParentOffer ? escHtml(a.name) : 'This special';
 
   return `
 <div class="page">
@@ -5206,17 +5236,17 @@ function renderProjections() {
   <h1 class="step-title"><span class="light">Project the</span> scenarios</h1>
   <div class="step-divider"></div>
   <p class="step-sub">
-    Adjust the three sliders below to model what you think will happen with this offer. The projected net revenue updates live. The four reference cards at the bottom show stock scenarios for comparison - they're just there for context, not editable.
+    Model what you think the change will do to <strong>${specialLabel}'s attributable revenue</strong> - the food and beverage dollars this special itself brings in per ${a.day.toLowerCase()}. The projection compares like-for-like (this special before vs after), so it isn't muddied by the rest of the night's trade. The four reference cards show stock scenarios for context.
   </p>
 
   <!-- Big projected outcome -->
   <div class="proj-outcome">
     <div class="proj-outcome-head">
       <div>
-        <div class="proj-outcome-label">Your recommended plan projects</div>
-        <div class="proj-outcome-val">${fmtD(proj.netRev)}<span class="proj-outcome-unit"> net rev / ${a.day.toLowerCase()}</span></div>
+        <div class="proj-outcome-label">${specialLabel} attributable revenue</div>
+        <div class="proj-outcome-val">${fmtD(proj.attribRev)}<span class="proj-outcome-unit"> / ${a.day.toLowerCase()}</span></div>
         <div class="proj-outcome-delta" style="color:${deltaCol};">
-          ${proj.deltaPct >= 0 ? '+' : ''}${proj.deltaPct.toFixed(0)}% vs current ${fmtD(a.netRev)}
+          ${proj.deltaAbs >= 0 ? '+' : ''}${fmtD(proj.deltaAbs)} (${proj.deltaPct >= 0 ? '+' : ''}${proj.deltaPct.toFixed(0)}%) vs current ${fmtD(proj.curAttribRev)}
         </div>
       </div>
       <div class="proj-outcome-subgrid">
@@ -5225,8 +5255,8 @@ function renderProjections() {
           <div class="proj-outcome-sub-lab">Units / ${dayShort}</div>
         </div>
         <div>
-          <div class="proj-outcome-sub-val">${fmtN(Math.round(proj.foodTx))}</div>
-          <div class="proj-outcome-sub-lab">Food tx / ${dayShort}</div>
+          <div class="proj-outcome-sub-val">${fmtN(Math.round(proj.mains))}</div>
+          <div class="proj-outcome-sub-lab">Mains / ${dayShort}</div>
         </div>
         <div>
           <div class="proj-outcome-sub-val">${fmtD(proj.foodRev)}</div>
@@ -5239,6 +5269,10 @@ function renderProjections() {
       </div>
     </div>
   </div>
+
+  <p class="attrib-explainer">
+    <strong>Attributable revenue</strong> = ${specialLabel}'s food sales (units × price) plus the beverage that rides along with its customers (${fmtD(proj.bevPerUnit)}/unit, from your ${a.day} data${g.bevAttachUplift ? ` + ${fmtD(g.bevAttachUplift)} bundle uplift` : ''}). It deliberately excludes the rest of the night so you can see this special's own contribution moving.
+  </p>
 
   <!-- Sliders -->
   <div class="card">
@@ -5296,7 +5330,25 @@ function renderProjections() {
       </div>
     </div>
 
-    <p class="slider-footnote">Bev revenue scales with food transactions at the current run rate of ${fmtD(g.bevPerTx)}/tx (calculated from your actual data on ${a.day}s).</p>
+    <!-- Advanced: bev attach uplift (for bundle/upsell tweaks) -->
+    <details class="adv-slider" ${state.bAdvOpen ? 'open' : ''} ontoggle="state.bAdvOpen = this.open;">
+      <summary>Advanced: model a drink bundle or upsell</summary>
+      <div class="slider-block" style="margin-top:0.75rem;">
+        <div class="slider-head">
+          <div class="slider-label">
+            <strong>Extra beverage per special</strong>
+            <div class="slider-desc">If the change bundles or upsells a drink (e.g. "+$5 beer with every order"), add the extra beverage dollars each special unit will bring. Leave at $0 if there's no drink component. This adds on top of the ${fmtD(proj.bevPerUnit)}/unit that already rides along.</div>
+          </div>
+          <div class="slider-val">${fmtD(g.bevAttachUplift)}
+            <div class="slider-val-sub">per unit sold</div>
+          </div>
+        </div>
+        <input type="range" class="slider" id="slider-attach" min="0" max="15" step="0.5" value="${g.bevAttachUplift}" oninput="updateGlobal('bevAttachUplift', this.value)">
+        <div class="slider-ticks">
+          <span>$0</span><span>$5</span><span>$10</span><span>$15</span>
+        </div>
+      </div>
+    </details>
   </div>
 
   <!-- Reference scenarios -->
@@ -5304,13 +5356,13 @@ function renderProjections() {
     <div class="ref-scenarios-label">Reference scenarios <span style="color:var(--support-grey); font-weight:400;">- for comparison only</span></div>
     <div class="ref-scenarios-grid">
       ${stockProjections.map(s => {
-        const sDeltaCol = s.proj.deltaPct >= 0 ? 'var(--green)' : 'var(--red)';
+        const sDeltaCol = s.proj.deltaAbs >= 0 ? 'var(--green)' : 'var(--red)';
         return `
         <div class="ref-scenario-card" onclick="applyReferenceScenario('${s.name}')">
           <div class="ref-scenario-name">${s.name}</div>
-          <div class="ref-scenario-assumptions">${s.txChange >= 0 ? '+' : ''}${s.txChange}% tx · ${s.takeUp}% take-up · ${fmtD(s.newPrice)}</div>
-          <div class="ref-scenario-net">${fmtD(s.proj.netRev)}</div>
-          <div class="ref-scenario-delta" style="color:${sDeltaCol};">${s.proj.deltaPct >= 0 ? '+' : ''}${s.proj.deltaPct.toFixed(0)}%</div>
+          <div class="ref-scenario-assumptions">${s.txChange >= 0 ? '+' : ''}${s.txChange}% demand · ${s.takeUp}% take-up</div>
+          <div class="ref-scenario-net">${fmtD(s.proj.attribRev)}</div>
+          <div class="ref-scenario-delta" style="color:${sDeltaCol};">${s.proj.deltaAbs >= 0 ? '+' : ''}${fmtD(s.proj.deltaAbs)}</div>
           <div class="ref-scenario-cta">Tap to apply</div>
         </div>`;
       }).join('')}
@@ -5332,6 +5384,14 @@ function updateRecommended(field, val) {
   render();
 }
 
+// Advanced-slider handler for global modelling assumptions (e.g. bev attach uplift)
+function updateGlobal(field, val) {
+  const num = parseFloat(val);
+  if (isNaN(num)) return;
+  state.bGlobals[field] = num;
+  render();
+}
+
 // Click on a reference scenario card - copy its values into the MM's recommended plan
 function applyReferenceScenario(name) {
   const ref = state.bScenarios.find(s => s.name === name);
@@ -5342,29 +5402,53 @@ function applyReferenceScenario(name) {
   render();
 }
 
-// ── Scenario projection math ───────────────────────────────────────
+// ── Scenario projection math (attributable-revenue model) ──────────
+// Compares the SPECIAL's own attributable revenue before vs after the change -
+// like-for-like. This fixes the old bug where a single drilled-in item's projected
+// revenue was compared against the WHOLE night's net revenue (apples vs oranges).
+//
+// Attributable revenue = what THIS special brings in:
+//   - Food: special units × special price (actual $ taken; discount is implicit in the price)
+//   - Bev:  special units × bev-per-unit, where bev-per-unit = avgBevRev / avgMains
+//           (weekday 1:1 assumption — each main dish drags along an equal share of bev).
+//           Plus an optional advanced "bev attach uplift" for bundle/upsell tweaks.
+// No separate discount line: revenue (not profit) is measured, and the discount is already
+// reflected by using the special PRICE rather than the RRP.
 function projectScenario(s, a, g, isReplace, altPrice) {
-  // NOTE: This is an interim model pending the full Step 9 rebuild (attributable-revenue
-  // comparison + 1:1 bev scaling). It now uses the mains-based take-up basis so it's at
-  // least internally consistent: take-up is "% of main dishes that are this special",
-  // and demand change scales the mains base.
-  //
-  // Mains base scales with demand (more customers = more mains ordered).
   const baseMains = a.avgMains || a.avgFoodTx || 0;
+  const currentUnits = a.unitsPerNight || 0;
+
+  // Bev per special unit (1:1 weekday scaling): the special's share of bev tracks its
+  // share of mains, so per unit that's simply total bev / total mains.
+  const bevPerUnit = baseMains > 0 ? (a.avgBevRev || 0) / baseMains : 0;
+  // Advanced: extra bev $ per special unit from a bundle/upsell (e.g. +$5 beer with each F&C)
+  const attachUplift = (g && g.bevAttachUplift) || 0;
+
+  // Current (baseline) attributable revenue/night — fixed reference point
+  const curFood = currentUnits * a.sp;
+  const curBev = currentUnits * bevPerUnit;
+  const curAttribRev = curFood + curBev;
+
+  // Projected
   const newMains = baseMains * (1 + s.txChange / 100);
   const newUnits = newMains * (s.takeUp / 100);
-  const price = s.newPrice || (isReplace ? altPrice : a.sp);
-  const newFoodRev = newUnits * price;
-  // Bev scales 1:1 with demand (weekday assumption: bev tracks food trade)
-  const newBevRev = (a.avgBevRev || 0) * (1 + s.txChange / 100);
-  const netRev = newFoodRev + newBevRev;
-  const deltaPct = a.netRev > 0 ? ((netRev - a.netRev) / a.netRev) * 100 : 0;
+  const price = (s.newPrice && s.newPrice > 0) ? s.newPrice : (isReplace ? altPrice : a.sp);
+  const projFood = newUnits * price;
+  const projBev = newUnits * (bevPerUnit + attachUplift);
+  const projAttribRev = projFood + projBev;
+
+  const deltaAbs = projAttribRev - curAttribRev;
+  const deltaPct = curAttribRev > 0 ? (deltaAbs / curAttribRev) * 100 : 0;
+
   return {
     unitsPerNight: newUnits,
-    foodTx: newMains,
-    foodRev: newFoodRev,
-    bevRev: newBevRev,
-    netRev: netRev,
+    mains: newMains,
+    foodRev: projFood,
+    bevRev: projBev,
+    attribRev: projAttribRev,
+    curAttribRev,
+    bevPerUnit,
+    deltaAbs,
     deltaPct,
   };
 }
@@ -5600,7 +5684,7 @@ DECISION: ${branch}. ${altLine}${tweakLine}
 COMPETITORS: ${compsLine}
 SUPPLY: ${supplyLine}
 MM NOTES: ${notes || 'none'}
-REC SCENARIO (${recScenario.name}): ${recScenario.txChange>=0?'+':''}${recScenario.txChange}% tx, ${recScenario.takeUp}% take-up, $${recScenario.newPrice} price → $${Math.round(proj.netRev)}/${a.day.toLowerCase()} (${proj.deltaPct>=0?'+':''}${proj.deltaPct.toFixed(0)}% vs now).
+REC SCENARIO (${recScenario.name}): ${recScenario.txChange>=0?'+':''}${recScenario.txChange}% demand, ${recScenario.takeUp}% take-up, $${recScenario.newPrice} price → ${state.bParentOffer ? a.name + ' (one item of the offer)' : 'special'} attributable revenue $${Math.round(proj.attribRev)}/${a.day.toLowerCase()} (${proj.deltaAbs>=0?'+':''}$${Math.round(proj.deltaAbs)}, ${proj.deltaPct>=0?'+':''}${proj.deltaPct.toFixed(0)}% vs current $${Math.round(proj.curAttribRev)}). Attributable = this special's own food + bev contribution, not whole-night.
 
 TASKS:
 1. Executive summary: 3-4 paragraphs (~200-260 words). Open with clear claim about the special's performance. Cite specific numbers. State the ${branch} recommendation with reasoning tied to data${branch==='TWEAK'?' AND the specific tweak the MM is proposing':''}. Name projected impact. Close with call to action. Third person. No headings, no bullets, no em-dashes.
@@ -5795,7 +5879,7 @@ function buildReportHTML() {
   const isReplace = branch === 'REPLACE';
   const altPrice = isReplace ? alt.price : a.sp;
   const recProj = projectScenario(state.bRecommended, a, state.bGlobals, isReplace, altPrice);
-  const recDeltaCol = recProj.deltaPct >= 0 ? '#1f6f3e' : '#7a2a2a';
+  const recDeltaCol = recProj.deltaAbs >= 0 ? '#1f6f3e' : '#7a2a2a';
   const recRow = `
     <tr style="background:#e0ecf7;">
       <td><strong>★ Recommended plan</strong></td>
@@ -5805,12 +5889,12 @@ function buildReportHTML() {
       <td>${fmtN(recProj.unitsPerNight)}</td>
       <td>${fmtD(recProj.foodRev)}</td>
       <td>${fmtD(recProj.bevRev)}</td>
-      <td><strong>${fmtD(recProj.netRev)}</strong></td>
-      <td style="color:${recDeltaCol}; font-weight:600;">${recProj.deltaPct >= 0 ? '+' : ''}${recProj.deltaPct.toFixed(0)}%</td>
+      <td><strong>${fmtD(recProj.attribRev)}</strong></td>
+      <td style="color:${recDeltaCol}; font-weight:600;">${recProj.deltaAbs >= 0 ? '+' : ''}${fmtD(recProj.deltaAbs)}</td>
     </tr>`;
   const scenarioRows = recRow + state.bScenarios.map(s => {
     const p = projectScenario(s, a, state.bGlobals, isReplace, altPrice);
-    const deltaCol = p.deltaPct >= 0 ? '#1f6f3e' : '#7a2a2a';
+    const deltaCol = p.deltaAbs >= 0 ? '#1f6f3e' : '#7a2a2a';
     return `
     <tr>
       <td style="color:#666;">${escHtml(s.name)}</td>
@@ -5820,8 +5904,8 @@ function buildReportHTML() {
       <td>${fmtN(p.unitsPerNight)}</td>
       <td>${fmtD(p.foodRev)}</td>
       <td>${fmtD(p.bevRev)}</td>
-      <td><strong>${fmtD(p.netRev)}</strong></td>
-      <td style="color:${deltaCol}; font-weight:600;">${p.deltaPct >= 0 ? '+' : ''}${p.deltaPct.toFixed(0)}%</td>
+      <td><strong>${fmtD(p.attribRev)}</strong></td>
+      <td style="color:${deltaCol}; font-weight:600;">${p.deltaAbs >= 0 ? '+' : ''}${fmtD(p.deltaAbs)}</td>
     </tr>`;
   }).join('');
 
@@ -6203,19 +6287,19 @@ body {
         <thead>
           <tr>
             <th>Scenario</th>
-            <th>Tx Δ</th>
+            <th>Demand Δ</th>
             <th>Take-up</th>
             <th>Price</th>
             <th>Units</th>
             <th>Food rev</th>
             <th>Bev rev</th>
-            <th>Net rev</th>
+            <th>Attrib. rev</th>
             <th>vs now</th>
           </tr>
         </thead>
         <tbody>${scenarioRows}</tbody>
       </table>
-      <p style="font-size:11.5px; color:#94A3B8; margin-top:0.8rem;">All figures per-${a.day.toLowerCase()}. Bev revenue scales with food transactions at ${fmtD(state.bGlobals.bevPerTx)}/tx (current run rate). Recommended scenario projects ${fmtD(proj.netRev)} net revenue per ${a.day.toLowerCase()} - a ${proj.deltaPct >= 0 ? '+' : ''}${proj.deltaPct.toFixed(0)}% change from current ${fmtD(a.netRev)}.</p>
+      <p style="font-size:11.5px; color:#94A3B8; margin-top:0.8rem;">All figures per-${a.day.toLowerCase()} and show <strong>attributable revenue</strong> - this special's own food and beverage contribution (units × price, plus ${fmtD(recProj.bevPerUnit)}/unit beverage that rides along on the weekday 1:1 basis). It excludes the rest of the night so the special's own movement is visible. Recommended scenario projects ${fmtD(recProj.attribRev)}/${a.day.toLowerCase()} - a ${recProj.deltaAbs >= 0 ? '+' : ''}${fmtD(recProj.deltaAbs)} (${recProj.deltaPct >= 0 ? '+' : ''}${recProj.deltaPct.toFixed(0)}%) change from the current ${fmtD(recProj.curAttribRev)}.</p>
     </div>
 
     <!-- ACTION ITEMS -->
