@@ -510,25 +510,65 @@ body {
 .range-red   { background: var(--red-bg); color: var(--red); }
 .range-banner strong { font-weight: 600; }
 
-/* Function-exclusion notice - shown when functions auto-detected & filtered */
-.func-ex-notice {
-  background: var(--blue-bg);
-  border-left: 3px solid var(--brand-blue);
-  border-radius: var(--r-md);
-  padding: 0.75rem 1rem;
-  margin-top: 0.6rem;
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--deep-navy);
+/* ── Confirm main dishes step ──────────────────────────────── */
+.mains-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 1.25rem;
 }
-.func-ex-notice strong { font-weight: 600; color: var(--deep-navy); }
-.func-ex-help {
-  display: block;
-  font-size: 11px;
-  color: var(--support-grey);
-  margin-top: 4px;
-  font-style: italic;
-  line-height: 1.5;
+.mains-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: all 0.13s;
+}
+.mains-row:hover { border-color: var(--border2, #c8c5bc); }
+.mains-row-on {
+  border-color: var(--brand-blue);
+  background: var(--off-white);
+}
+.mains-row input[type="checkbox"] {
+  width: 18px; height: 18px;
+  accent-color: var(--brand-blue);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.mains-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+.mains-name { font-size: 13.5px; font-weight: 600; color: var(--deep-navy); }
+.mains-samples {
+  font-size: 11px; color: var(--support-grey);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mains-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  flex-shrink: 0;
+}
+.mains-qty { font-size: 12px; font-weight: 600; color: var(--body-text); font-variant-numeric: tabular-nums; }
+.mains-price { font-size: 10.5px; color: var(--support-grey); font-variant-numeric: tabular-nums; }
+.mains-summary {
+  margin-top: 1rem;
+  padding: 10px 14px;
+  background: var(--blue-bg);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--deep-navy);
+  text-align: center;
 }
 
 /* ── Errors ────────────────────────────────────────────── */
@@ -1825,6 +1865,8 @@ const state = {
   files: [],
   // Path A data
   parsedData: null,        // result of parseLineTransactions()
+  mainGroups: null,        // Set of group names confirmed as "main dishes" (take-up denominator).
+                           // null until the confirm-mains step runs; seeded from parsedData.autoMainGroups.
   specials: [],            // [{day, name, sp, items:[{name, fp}, ...]}]  -- items[] supports multi-item specials like "Locals' Night $20 for fish/schnitty/burger"
   skuMatches: {},          // { specialIdx: { itemIdx: { itemName: { selected, qty, days } } } }
   results: null,           // final per-special analysis results
@@ -2013,6 +2055,36 @@ function classifyLineItem(statGroup, groupName) {
   return 'food';
 }
 
+// Strip the "(id)" suffix Lightspeed adds and trim. e.g. "DG - Grill(140618)" -> "DG - Grill"
+function cleanGroupName(groupName) {
+  return (groupName || '').replace(/\(\d+\)$/, '').trim();
+}
+
+// Auto-detect which food groups are likely "main dishes" (vs sides, sauces, snacks,
+// desserts, mods, surcharges). Used to pre-tick the mains confirmation step.
+// Returns a Set of group names judged to be mains.
+//
+// Heuristic: a group is a "main" if BOTH:
+//   1. Its name doesn't match a known non-main keyword (mod, sauce, side, snack,
+//      dessert, surcharge, misc, kids, other, function, raffle, etc.), AND
+//   2. Its average item price is >= a sensible floor ($15) — mains are rarely cheaper.
+// This is just the default; the MM confirms/adjusts on the next screen.
+function autoDetectMainGroups(foodGroups) {
+  const mains = new Set();
+  // Match non-main keywords as word stems, allowing plural/trailing letters
+  // (e.g. "Snacks" matches "snack", "Kiddos" matches "kiddo", "Sides" matches "side").
+  // \b before the stem anchors the word start; we allow letters after the stem instead
+  // of a closing \b so plurals are caught.
+  const nonMainPattern = /\b(mod|sauce|side|snack|dessert|surcharge|service|misc|other|function|raffle|kid|kiddo|little|paddle|tip|gratuit|extra|add[- ]?on|topping|starter|entree|share|nibble)/i;
+  for (const [name, data] of foodGroups.entries()) {
+    const avgPrice = data.priceCount > 0 ? data.priceSum / data.priceCount : 0;
+    if (nonMainPattern.test(name)) continue;
+    if (avgPrice < 15) continue;
+    mains.add(name);
+  }
+  return mains;
+}
+
 // ── Line Transactions parser ───────────────────────────────────────
 // Produces a structured per-date aggregation.
 // Returns:
@@ -2024,40 +2096,16 @@ function classifyLineItem(statGroup, groupName) {
 // }
 function parseLineTransactions(rows) {
   // Column names (case-sensitive as exported by Lightspeed)
-  // Date, Type, Account, AccountName, Item, SKU, Qty, UnitPrice, FinalPrice, Discount, StatGroup, Group
+  // Date, Type, Account, Item, SKU, Qty, UnitPrice, FinalPrice, Discount, StatGroup, Group
   const byDate = new Map();
   const allItems = new Map();
+  // Global index of food GROUPS (e.g. "DG - Classics & Burgers", "BAR - Grill").
+  // Used to let the MM confirm which groups count as "main dishes" for the take-up
+  // denominator. Each entry: { qty, revenue, priceSum, priceCount, sampleItems:Map(item->qty) }
+  const foodGroups = new Map();
   let earliest = null, latest = null;
   let skippedNoDate = 0;
   let skippedNoSale = 0;
-
-  // ── PASS 1: identify accounts that are functions/events ──────────────
-  // These should be excluded from the special's analysis because functions:
-  //  - are pre-booked at separate pricing, not part of the special's mechanic
-  //  - pollute the take-up rate denominator if counted as food-bearing transactions
-  //  - inflate item qty counts (e.g. a 50th birthday booking 30 schnitties)
-  //
-  // Detection signals (any one triggers function flag):
-  //  1. AccountName contains function keywords (birthday, wedding, etc.)
-  //  2. AccountName contains an ordinal age marker (21st, 30th, 40th, 50th, etc.)
-  //  3. AccountName mentions named-event days (mothers day, fathers day, valentine's)
-  //  4. Group field = "Functions & Misc" (rare but explicit signal)
-  //
-  // We pre-scan the data and build a Set of function Account IDs, then filter them
-  // out in the main parse loop. We also count them so we can report to the MM.
-  const functionAccounts = new Set();
-  const functionRegex = /\b(birthday|wedding|anniversary|engagement|function|christening|baptism|graduation|reunion|farewell|hens|bucks|kitchen tea|baby shower|memorial|wake|catering)\b|\b\d+(st|nd|rd|th)\b|\bmothers? day\b|\bfathers? day\b|\bvalentine\b/i;
-  for (const r of rows) {
-    if ((r.Type || '').toUpperCase() !== 'SALE') continue;
-    const acct = (r.Account || '').trim();
-    if (!acct) continue;
-    const accName = (r.AccountName || '').trim();
-    const groupRaw = (r.Group || '').trim();
-    if (functionRegex.test(accName) || /functions?\s*&?\s*misc/i.test(groupRaw)) {
-      functionAccounts.add(acct);
-    }
-  }
-  let functionRowsSkipped = 0;     // for diagnostic reporting
 
   for (const r of rows) {
     if ((r.Type || '').toUpperCase() !== 'SALE') { skippedNoSale++; continue; }
@@ -2083,21 +2131,12 @@ function parseLineTransactions(rows) {
         discFood: 0,
         discBev: 0,
         items: new Map(),
+        groupQty: new Map(),   // groupName -> signed qty (for main-dish counting per night)
       };
       byDate.set(dateKey, rec);
     }
 
     const acct = (r.Account || '').trim();
-
-    // Skip function accounts entirely from item/rev/tx aggregation. We still want them
-    // counted in the high-level total tx (rec.transactions) so date-range integrity holds,
-    // but they don't pollute the specials-analysis figures.
-    if (acct && functionAccounts.has(acct)) {
-      rec.transactions.add(acct);    // it WAS a transaction (just not part of our special's mix)
-      functionRowsSkipped++;
-      continue;
-    }
-
     const sg = (r.StatGroup || '').trim();
     const groupRaw = (r.Group || '').trim();
     const qty = toNum(r.Qty);
@@ -2127,6 +2166,20 @@ function parseLineTransactions(rows) {
     if (category === 'food') {
       if (acct && qty > 0) rec.foodTx.add(acct);  // only positive rows add to the food-tx set
       rec.foodRev += finalPrice;                   // signed: negative rows reduce food rev
+
+      // Track per-night qty by group, and a global group index, so the MM can later
+      // confirm which groups are "mains". Use the cleaned group name (suffix IDs stripped).
+      const groupClean = cleanGroupName(groupRaw);
+      if (groupClean) {
+        rec.groupQty.set(groupClean, (rec.groupQty.get(groupClean) || 0) + qty);
+        let fg = foodGroups.get(groupClean);
+        if (!fg) { fg = { qty: 0, revenue: 0, priceSum: 0, priceCount: 0, sampleItems: new Map() }; foodGroups.set(groupClean, fg); }
+        fg.qty += qty;
+        fg.revenue += finalPrice;
+        if (unitPrice > 0 && qty > 0) { fg.priceSum += unitPrice; fg.priceCount++; }
+        if (item && qty > 0) fg.sampleItems.set(item, (fg.sampleItems.get(item) || 0) + qty);
+      }
+
       if (item) {
         let it = rec.items.get(item);
         if (!it) { it = { qty: 0, revenue: 0 }; rec.items.set(item, it); }
@@ -2212,6 +2265,7 @@ function parseLineTransactions(rows) {
       discFood: rec.discFood,
       discBev: rec.discBev,
       items: rec.items,
+      groupQty: rec.groupQty,   // Map(groupName -> qty) for main-dish counting
     });
   }
 
@@ -2228,16 +2282,26 @@ function parseLineTransactions(rows) {
     else status = 'amber-long';
   }
 
+  // Convert foodGroups Map into a plain array for the UI, with avg price and top items.
+  const foodGroupsList = Array.from(foodGroups.entries()).map(([name, d]) => ({
+    name,
+    qty: d.qty,
+    revenue: d.revenue,
+    avgPrice: d.priceCount > 0 ? d.priceSum / d.priceCount : 0,
+    topItems: Array.from(d.sampleItems.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([item]) => item),
+  })).sort((a, b) => b.qty - a.qty);
+
   return {
     dateRange: { start: startDate, end: endDate, weeks, status, droppedCount: droppedDates.size },
     byDate,
     byDow,
     allItems,
+    foodGroups: foodGroupsList,
+    autoMainGroups: autoDetectMainGroups(foodGroups),  // Set of auto-detected main group names
     stats: { totalRows: rows.length, skippedNoSale, skippedNoDate, datesCount: sortedKeys.length - droppedDates.size },
-    functionExclusion: {
-      accountsFlagged: functionAccounts.size,
-      rowsExcluded: functionRowsSkipped,
-    },
   };
 }
 
@@ -2348,6 +2412,29 @@ function computeEffectiveFullPrice(selectedItems, specialDay, parsed) {
 // ── Compute per-special results ────────────────────────────────────
 function avg(arr) { return arr.length ? arr.reduce((a,b) => a+b, 0) / arr.length : 0; }
 
+// Average main dishes sold per night for a given day-of-week.
+// "Main dishes" = sum of qty across the groups the MM confirmed as mains
+// (state.mainGroups). Used as the take-up denominator: take-up = special units / mains.
+// Falls back to food-bearing tx if mainGroups isn't set (shouldn't happen post-confirm step).
+function mainDishesPerNight(day, parsed, mainGroups) {
+  const buckets = parsed.byDow[day] || [];
+  if (!buckets.length) return 0;
+  if (!mainGroups || !mainGroups.size) {
+    // Fallback: use food-bearing tx (legacy behaviour) so we never divide by zero
+    return avg(buckets.map(b => b.foodTx));
+  }
+  const perNight = buckets.map(b => {
+    let mains = 0;
+    if (b.groupQty) {
+      for (const g of mainGroups) {
+        mains += b.groupQty.get(g) || 0;
+      }
+    }
+    return mains;
+  });
+  return avg(perNight);
+}
+
 function computeResults() {
   const parsed = state.parsedData;
   const results = [];
@@ -2415,13 +2502,13 @@ function computeResults() {
     }
     const unitsPerNight = nights > 0 ? totalSpecialQty / nights : 0;
 
-    // Take-up rate: total units (all sub-items) ÷ food-bearing transactions per night.
-    // Can legitimately exceed 100% because a single transaction (one account / table) can
-    // buy multiple specials — a couple sharing a fish & chips AND a schnitzel registers as
-    // 2 units on 1 food transaction, giving 200% take-up for that table. We DON'T cap at
-    // 100% because that would hide this signal (which is genuinely useful — high take-up >100%
-    // indicates the special is the WHOLE menu people are ordering, not just one item per table).
-    const takeUp = avgFoodTx > 0 ? unitsPerNight / avgFoodTx : 0;
+    // Take-up rate: special units sold ÷ MAIN DISHES sold per night.
+    // "Mains" excludes sides, sauces, mods, desserts, snacks/entrees, surcharges — only
+    // actual main courses count (the groups the MM confirmed). This answers the real
+    // question: "of all the mains people ordered, what share were this special?"
+    // Naturally caps at ~100% because the special is itself a main (subset of the total).
+    const avgMains = mainDishesPerNight(sp.day, parsed, state.mainGroups);
+    const takeUp = avgMains > 0 ? unitsPerNight / avgMains : 0;
 
     // Discount % - use effective full price across all selected items (multi-item-aware).
     // computeEffectiveFullPrice returns the weighted-avg non-special-day price across
@@ -2513,6 +2600,7 @@ function computeResults() {
       unitsPerNight: Math.round(unitsPerNight),
       avgTx: Math.round(avgTx),
       avgFoodTx: Math.round(avgFoodTx),
+      avgMains: Math.round(avgMains),   // main dishes/night = take-up denominator
       // Revenue
       avgFoodRev: Math.round(avgFoodRev),
       avgBevRev: Math.round(avgBevRev),
@@ -2597,7 +2685,7 @@ function generateInsights(analysis) {
   for (const s of stars.slice(0, 2)) {
     insights.push({
       color: DAY_COLORS[s.day],
-      html: `<strong>${s.day} ${escHtml(s.name)} - the special is doing the work.</strong> ${fmtN(s.unitsPerNight)} units across ${fmtN(s.avgFoodTx)} food transactions (${fmtPct(s.takeUp * 100)} take-up). Food (${fmtD(s.avgFoodRev)}) leads beverage (${fmtD(s.avgBevRev)}). ${fmtD(s.totalDisc)} discount cost is justified by the trade it drives.`,
+      html: `<strong>${s.day} ${escHtml(s.name)} - the special is doing the work.</strong> ${fmtN(s.unitsPerNight)} units across ${fmtN(s.avgMains)} main dishes (${fmtPct(s.takeUp * 100)} take-up). Food (${fmtD(s.avgFoodRev)}) leads beverage (${fmtD(s.avgBevRev)}). ${fmtD(s.totalDisc)} discount cost is justified by the trade it drives.`,
     });
   }
 
@@ -2833,12 +2921,14 @@ function render() {
   if (state.screen === 'home') { wizard.innerHTML = renderHome(); setProgress('Get started'); }
   else if (state.screen === 'path-a-venue')     { wizard.innerHTML = renderVenue('A'); setProgress('Performance Review · Step 1 of 5'); }
   else if (state.screen === 'path-a-upload')    { wizard.innerHTML = renderUpload('A'); setupDropZone(); setProgress('Performance Review · Step 2 of 5'); }
+  else if (state.screen === 'path-a-confirm-mains') { wizard.innerHTML = renderConfirmMains('A'); setProgress('Performance Review · Confirm mains'); }
   else if (state.screen === 'path-a-specials')  { wizard.innerHTML = renderSpecials(); setupSpecialsDefaults(); setProgress('Performance Review · Step 3 of 5'); }
   else if (state.screen === 'path-a-sku')       { wizard.innerHTML = renderSkuMatch(); setProgress('Performance Review · Step 4 of 5'); }
   else if (state.screen === 'path-a-dashboard') { wizard.innerHTML = renderDashboard(); setProgress('Performance Review · Complete'); }
   // Path B
   else if (state.screen === 'path-b-venue')     { wizard.innerHTML = renderVenue('B'); setProgress('Strategic Plan · Step 1 of 9'); }
   else if (state.screen === 'path-b-upload')    { wizard.innerHTML = renderUpload('B'); setupDropZone(); setProgress('Strategic Plan · Step 2 of 9'); }
+  else if (state.screen === 'path-b-confirm-mains') { wizard.innerHTML = renderConfirmMains('B'); setProgress('Strategic Plan · Confirm mains'); }
   else if (state.screen === 'path-b-pick')      { wizard.innerHTML = renderPickSpecial(); setProgress('Strategic Plan · Step 3 of 9'); }
   else if (state.screen === 'path-b-subitem-pick') { wizard.innerHTML = renderSubItemPicker(); setProgress('Strategic Plan · Pick item'); }
   else if (state.screen === 'path-b-sku')       { wizard.innerHTML = renderBSkuMatch(); setProgress('Strategic Plan · Step 4 of 9'); }
@@ -3008,13 +3098,90 @@ async function processUpload(path) {
     if (parsed.stats.datesCount === 0) throw new Error('No SALE rows found with valid dates. Check your export.');
 
     state.parsedData = parsed;
-    state.screen = isB ? 'path-b-pick' : 'path-a-specials';
+    // Seed the main-groups selection from auto-detection. The MM confirms/adjusts
+    // on the next screen before we use it as the take-up denominator.
+    state.mainGroups = new Set(parsed.autoMainGroups);
+    state.screen = isB ? 'path-b-confirm-mains' : 'path-a-confirm-mains';
     render();
   } catch (e) {
     state.screen = isB ? 'path-b-upload' : 'path-a-upload';
     render();
     setTimeout(() => showErr('upload-err', e.message), 50);
   }
+}
+
+// ── Screen: Confirm main dishes ────────────────────────────────────
+// After upload, the MM confirms which food groups count as "main dishes".
+// This defines the take-up denominator (take-up = special units / main dishes).
+// Auto-detected mains are pre-ticked; the MM adjusts. Non-main groups (sides,
+// snacks, desserts, mods) are shown unticked so the MM can add any we missed.
+function renderConfirmMains(path) {
+  const parsed = state.parsedData;
+  const groups = parsed.foodGroups || [];
+  const isB = path === 'B';
+  const nextScreen = isB ? 'path-b-pick' : 'path-a-specials';
+  const backScreen = isB ? 'path-b-upload' : 'path-a-upload';
+
+  if (!state.mainGroups) state.mainGroups = new Set(parsed.autoMainGroups);
+
+  const rows = groups.map(g => {
+    const checked = state.mainGroups.has(g.name);
+    const sampleStr = g.topItems.slice(0, 3).join(', ');
+    return `
+      <label class="mains-row ${checked ? 'mains-row-on' : ''}">
+        <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleMainGroup('${g.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}', this.checked)">
+        <span class="mains-info">
+          <span class="mains-name">${escHtml(g.name)}</span>
+          <span class="mains-samples">${escHtml(sampleStr)}${g.topItems.length > 3 ? '…' : ''}</span>
+        </span>
+        <span class="mains-stats">
+          <span class="mains-qty">${fmtN(g.qty)} sold</span>
+          <span class="mains-price">avg ${fmtD(g.avgPrice)}</span>
+        </span>
+      </label>`;
+  }).join('');
+
+  return `
+<div class="page">
+  <div class="step-eyebrow">${isB ? 'Strategic Plan' : 'Performance Review'} · Confirm main dishes</div>
+  <h1 class="step-title"><span class="light">Which of these are</span> main dishes?</h1>
+  <div class="step-divider"></div>
+  <p class="step-sub">
+    Take-up rate is measured as <strong>special sales ÷ main dishes sold</strong>. To get that right, confirm which menu groups are mains. We've pre-ticked the ones that look like mains (sides, sauces, snacks, desserts and surcharges are left out). Tick or untick to adjust - this is a one-time setup for ${escHtml(state.venue.name)}.
+  </p>
+
+  <div class="mains-list">
+    ${rows || '<p class="no-data-msg">No food groups detected in this data.</p>'}
+  </div>
+
+  <div class="mains-summary" id="mains-summary">${mainsSummaryTextPlain()}</div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="state.screen='${backScreen}'; render();">← Back</button>
+    <button class="btn btn-primary" onclick="state.screen='${nextScreen}'; render();">Looks right →</button>
+  </div>
+</div>`;
+}
+
+function toggleMainGroup(name, checked) {
+  if (!state.mainGroups) state.mainGroups = new Set();
+  if (checked) state.mainGroups.add(name);
+  else state.mainGroups.delete(name);
+  const summaryEl = document.getElementById('mains-summary');
+  if (summaryEl) summaryEl.textContent = mainsSummaryTextPlain();
+  if (typeof event !== 'undefined' && event && event.target) {
+    const row = event.target.closest('.mains-row');
+    if (row) row.classList.toggle('mains-row-on', checked);
+  }
+}
+
+function mainsSummaryTextPlain() {
+  const parsed = state.parsedData;
+  const groups = (parsed && parsed.foodGroups) || [];
+  let totalMains = 0;
+  for (const g of groups) if (state.mainGroups && state.mainGroups.has(g.name)) totalMains += g.qty;
+  const n = state.mainGroups ? state.mainGroups.size : 0;
+  return `${n} group${n === 1 ? '' : 's'} marked as mains · ${fmtN(totalMains)} main dishes across the whole period`;
 }
 
 // ── Screen: Specials ───────────────────────────────────────────────
@@ -3041,15 +3208,6 @@ function renderSpecials() {
 
   const blockContinue = range.status === 'red';
 
-  // Function exclusion notice - tells the MM what's been auto-filtered.
-  // Only shows when functions were actually detected, so quiet venues don't see noise.
-  const funcEx = parsed.functionExclusion || { accountsFlagged: 0, rowsExcluded: 0 };
-  const funcExNotice = funcEx.accountsFlagged > 0 ? `
-    <div class="func-ex-notice">
-      <strong>Functions excluded:</strong> ${funcEx.accountsFlagged} function-flagged account${funcEx.accountsFlagged === 1 ? '' : 's'} (${funcEx.rowsExcluded.toLocaleString('en-AU')} row${funcEx.rowsExcluded === 1 ? '' : 's'}) detected and excluded from the specials analysis.
-      <span class="func-ex-help">Functions are detected by account-name keywords (birthday, wedding, 21st, 50th, etc.) and the "Functions &amp; Misc" group. They're filtered out so your special's take-up rate isn't diluted by pre-booked event trade.</span>
-    </div>` : '';
-
   return `
 <div class="page">
   <div class="step-eyebrow">Performance Review · Step 3</div>
@@ -3060,8 +3218,6 @@ function renderSpecials() {
   <div class="range-banner ${bannerClass}">
     <span style="flex:1;">${bannerMsg}</span>
   </div>
-
-  ${funcExNotice}
 
   ${blockContinue ? '' : `
   <div class="card" style="margin-top:1.5rem;">
@@ -3077,7 +3233,7 @@ function renderSpecials() {
   `}
 
   <div class="btn-row">
-    <button class="btn-back" onclick="state.screen='path-a-upload'; render();">← Back</button>
+    <button class="btn-back" onclick="state.screen='path-a-confirm-mains'; render();">← Back</button>
     ${blockContinue
       ? `<button class="btn btn-primary" disabled>Cannot continue</button>`
       : `<button class="btn btn-primary" onclick="confirmSpecials()">Continue →</button>`
@@ -3402,7 +3558,7 @@ function renderDashboard() {
         <th>Day · Special</th>
         <th class="r">Disc %</th>
         <th class="r">Units/night</th>
-        <th class="r">Food tx</th>
+        <th class="r">Mains/night</th>
         <th class="r">Take-up</th>
         <th class="r">$/tx</th>
         <th class="r">Bev/tx</th>
@@ -3464,7 +3620,7 @@ function renderSpecCard(r, maxFood, maxBev, maxDisc, maxBpt) {
 
   const note = (() => {
     if (v.key === 'dominant') return `Anchor night. ${fmtN(r.unitsPerNight)} units · ${fmtD(r.netRev)} net rev.`;
-    if (v.key === 'star') return `${fmtPct(r.takeUp * 100)} take-up across food tx. Food beats bev.`;
+    if (v.key === 'star') return `${fmtPct(r.takeUp * 100)} take-up of mains. Food beats bev.`;
     if (v.key === 'working') return `${fmtN(r.unitsPerNight)} units, food-led. Pulling weight.`;
     if (v.key === 'efficient') return `${fmtD(r.totalDisc)} disc cost - low-overhead hook.`;
     if (v.key === 'weak') return r.isBevLed ? `Bev (${fmtD(r.avgBevRev)}) outpaces food (${fmtD(r.avgFoodRev)}). Drinks night.` : `Underperforming - food isn't doing the work.`;
@@ -3539,7 +3695,7 @@ function renderSpecCard(r, maxFood, maxBev, maxDisc, maxBpt) {
       </div>
       <div class="kpi-grid">
         <div><div class="kpi-val">${fmtN(r.unitsPerNight)}</div><div class="kpi-label">Units/${r.day.slice(0,3).toLowerCase()}</div></div>
-        <div><div class="kpi-val">${fmtN(r.avgFoodTx)}</div><div class="kpi-label">Food tx</div></div>
+        <div><div class="kpi-val">${fmtN(r.avgMains)}</div><div class="kpi-label">Mains/${r.day.slice(0,3).toLowerCase()}</div></div>
         <div><div class="kpi-val">${fmtPct(r.takeUp * 100)}</div><div class="kpi-label">Take-up</div></div>
         <div><div class="kpi-val">${fmtD(r.spendPerTx)}</div><div class="kpi-label">$/tx</div></div>
       </div>
@@ -3785,7 +3941,7 @@ function renderSumRow(r) {
     <td><strong>${r.day} · ${spLabel} ${escHtml(r.name)}${r.isTiered ? ' <span style="font-size:9px; color:var(--brand-blue); font-weight:600; background:var(--blue-bg); padding:1px 5px; border-radius:3px; letter-spacing:0.04em; text-transform:uppercase;">tiered</span>' : ''}</strong></td>
     <td class="r ${r.discPct >= 50 ? 'c-red' : r.discPct <= 30 ? 'c-green' : ''}">${r.discPct}%</td>
     <td class="r">${fmtN(r.unitsPerNight)}</td>
-    <td class="r">${fmtN(r.avgFoodTx)}</td>
+    <td class="r">${fmtN(r.avgMains)}</td>
     <td class="r ${r.takeUp >= 0.5 ? 'c-green' : r.takeUp <= 0.15 ? 'c-red' : ''}">${fmtPct(r.takeUp * 100)}</td>
     <td class="r">${fmtD(r.spendPerTx)}</td>
     <td class="r ${r.bevPerTx >= 30 ? 'c-green' : ''}">${fmtD(r.bevPerTx)}</td>
@@ -3871,14 +4027,6 @@ function renderPickSpecial() {
   }
   const block = range.status === 'red';
 
-  // Function exclusion notice (same as Path A)
-  const funcEx = parsed.functionExclusion || { accountsFlagged: 0, rowsExcluded: 0 };
-  const funcExNotice = funcEx.accountsFlagged > 0 ? `
-    <div class="func-ex-notice">
-      <strong>Functions excluded:</strong> ${funcEx.accountsFlagged} function-flagged account${funcEx.accountsFlagged === 1 ? '' : 's'} (${funcEx.rowsExcluded.toLocaleString('en-AU')} row${funcEx.rowsExcluded === 1 ? '' : 's'}) detected and excluded from the analysis.
-      <span class="func-ex-help">Functions are detected by account-name keywords (birthday, wedding, 21st, 50th, etc.) and the "Functions &amp; Misc" group.</span>
-    </div>` : '';
-
   // If carried forward from Path A, pre-fill from state.bSpecial
   const s = state.bSpecial || { day: 'Monday', name: '', sp: '', fp: '' };
 
@@ -3892,8 +4040,6 @@ function renderPickSpecial() {
   <div class="range-banner ${bannerClass}">
     <span style="flex:1;">${bannerMsg}</span>
   </div>
-
-  ${funcExNotice}
 
   ${block ? '' : `
   <div class="card" style="margin-top:1.5rem;">
@@ -3930,7 +4076,7 @@ function renderPickSpecial() {
   `}
 
   <div class="btn-row">
-    <button class="btn-back" onclick="state.screen='path-b-upload'; render();">← Back</button>
+    <button class="btn-back" onclick="state.screen='path-b-confirm-mains'; render();">← Back</button>
     ${block
       ? `<button class="btn btn-primary" disabled>Cannot continue</button>`
       : `<button class="btn btn-primary" onclick="confirmBSpecial()">Continue →</button>`
@@ -4158,8 +4304,9 @@ function runBAnalysis() {
     }
   }
   const unitsPerNight = nights > 0 ? totalSpecialQty / nights : 0;
-  // No 100% cap on take-up - can legitimately exceed when one transaction buys multiple specials
-  const takeUp = avgFoodTx > 0 ? unitsPerNight / avgFoodTx : 0;
+  // Take-up = special units ÷ main dishes/night (mains = MM-confirmed groups).
+  const avgMains = mainDishesPerNight(sp.day, parsed, state.mainGroups);
+  const takeUp = avgMains > 0 ? unitsPerNight / avgMains : 0;
   // Effective full price - weighted avg from non-special-day sales for selected items
   const effective = computeEffectiveFullPrice(selectedItems, sp.day, parsed);
   const fpForDisc = effective ? effective.effectiveFullPrice : sp.fp;
@@ -4192,6 +4339,7 @@ function runBAnalysis() {
     unitsPerNight: Math.round(unitsPerNight),
     avgTx: Math.round(avgTx),
     avgFoodTx: Math.round(avgFoodTx),
+    avgMains: Math.round(avgMains),
     avgFoodRev: Math.round(avgFoodRev),
     avgBevRev: Math.round(avgBevRev),
     netRev: Math.round(netRev),
@@ -4233,9 +4381,10 @@ function suggestBranch(verdictKey, a) {
 }
 
 // ── Build 12-week trend (or however many weeks available) ──────────
-// Returns array of { weekStart, weekEnd, transactions, foodTx, specialUnits, takeUp, partial }
+// Returns array of { weekStart, weekEnd, transactions, foodTx, mains, specialUnits, takeUp, partial }
 function buildWeeklyTrend(dayBuckets, selectedItems) {
   if (!dayBuckets.length) return [];
+  const mainGroups = state.mainGroups;
   // Group dayBuckets by ISO week (Monday-start)
   const weeks = new Map();
   for (const b of dayBuckets) {
@@ -4251,21 +4400,30 @@ function buildWeeklyTrend(dayBuckets, selectedItems) {
       const it = b.items.get(itemName);
       if (it) specialQty += it.qty;
     }
+    // Count main dishes this night (sum qty across confirmed main groups)
+    let mainsQty = 0;
+    if (b.groupQty && mainGroups && mainGroups.size) {
+      for (const g of mainGroups) mainsQty += b.groupQty.get(g) || 0;
+    } else {
+      mainsQty = b.foodTx;  // fallback
+    }
     weeks.set(wk, {
       weekStart: new Date(mon),
       transactions: b.transactions,
       foodTx: b.foodTx,
+      mains: mainsQty,
       specialUnits: specialQty,
     });
   }
 
   // Sort and compute take-up + partial flag
   const sorted = Array.from(weeks.values()).sort((a, b) => a.weekStart - b.weekStart);
-  // Calculate median foodTx to detect partial weeks
-  const median = sorted.map(s => s.foodTx).sort((a,b)=>a-b)[Math.floor(sorted.length/2)] || 0;
+  // Calculate median mains to detect partial weeks
+  const median = sorted.map(s => s.mains).sort((a,b)=>a-b)[Math.floor(sorted.length/2)] || 0;
   for (const w of sorted) {
-    w.takeUp = w.foodTx > 0 ? Math.min(w.specialUnits / w.foodTx, 1) : 0;
-    w.partial = median > 0 && w.foodTx < median * 0.25;
+    // Take-up = special units / main dishes (capped at 100% since special is a subset of mains)
+    w.takeUp = w.mains > 0 ? Math.min(w.specialUnits / w.mains, 1) : 0;
+    w.partial = median > 0 && w.mains < median * 0.25;
   }
   return sorted;
 }
@@ -4296,7 +4454,7 @@ function renderBAnalysis() {
       <div>
         <div class="b-hero-stat-label">Take-up rate</div>
         <div class="b-hero-stat-val">${fmtPct(a.takeUp * 100)}</div>
-        <div class="b-hero-stat-sub">of ${fmtN(a.avgFoodTx)} food tx</div>
+        <div class="b-hero-stat-sub">of ${fmtN(a.avgMains || a.avgFoodTx)} mains</div>
       </div>
       <div>
         <div class="b-hero-stat-label">Net rev/night</div>
@@ -4313,10 +4471,10 @@ function renderBAnalysis() {
 
   <div class="combo-chart" id="combo-chart-wrap">
     <h3>${a.day} Trend · ${a.weeklyTrend.length} weeks</h3>
-    <div class="combo-chart-sub">Each column is one ${a.day} - height shows total food-bearing transactions, filled portion shows units of the special. Line shows take-up rate.</div>
+    <div class="combo-chart-sub">Each column is one ${a.day} - height shows total main dishes sold, filled portion shows units of the special. Line shows take-up rate.</div>
     <svg id="combo-svg" viewBox="0 0 780 280"></svg>
     <div class="combo-legend">
-      <div class="combo-legend-item"><span class="legend-swatch" style="background:${DAY_COLORS[a.day]}; opacity:0.25;"></span>Food-bearing transactions</div>
+      <div class="combo-legend-item"><span class="legend-swatch" style="background:${DAY_COLORS[a.day]}; opacity:0.25;"></span>Main dishes sold</div>
       <div class="combo-legend-item"><span class="legend-swatch" style="background:${DAY_COLORS[a.day]};"></span>Special units sold</div>
       <div class="combo-legend-item"><span class="legend-line" style="background:var(--deep-navy);"></span>Take-up rate (%)</div>
       <div class="combo-legend-item" style="margin-left:auto;"><span style="display:inline-block; width:14px; height:14px; background:repeating-linear-gradient(45deg, var(--line) 0 3px, var(--off-white) 3px 6px); border-radius:2px;"></span>Partial week</div>
@@ -4345,7 +4503,7 @@ function drawComboChart() {
   const innerH = H - padT - padB;
   const colW = innerW / trend.length;
   const barW = colW * 0.65;
-  const maxFoodTx = Math.max(...trend.map(w => w.foodTx), 1);
+  const maxFoodTx = Math.max(...trend.map(w => w.mains), 1);
   // Round up the max for nicer axis
   const yMax = Math.ceil(maxFoodTx / 50) * 50;
 
@@ -4365,7 +4523,7 @@ function drawComboChart() {
   }
 
   // Y-axis labels (rotated)
-  elts.push(`<text x="14" y="${padT + innerH / 2}" text-anchor="middle" fill="#94A3B8" font-size="10" transform="rotate(-90, 14, ${padT + innerH / 2})">Food-bearing tx</text>`);
+  elts.push(`<text x="14" y="${padT + innerH / 2}" text-anchor="middle" fill="#94A3B8" font-size="10" transform="rotate(-90, 14, ${padT + innerH / 2})">Main dishes</text>`);
   elts.push(`<text x="${W - 14}" y="${padT + innerH / 2}" text-anchor="middle" fill="#94A3B8" font-size="10" transform="rotate(90, ${W - 14}, ${padT + innerH / 2})">Take-up rate (%)</text>`);
 
   // Patterns for partial weeks
@@ -4374,7 +4532,7 @@ function drawComboChart() {
   // Bars
   trend.forEach((w, i) => {
     const x = padL + i * colW + (colW - barW) / 2;
-    const foodH = (w.foodTx / yMax) * innerH;
+    const foodH = (w.mains / yMax) * innerH;
     const foodY = padT + innerH - foodH;
     const specialH = (w.specialUnits / yMax) * innerH;
     const specialY = padT + innerH - specialH;
@@ -4632,8 +4790,8 @@ CURRENT SPECIAL UNDER REVIEW:
 ${multiItemContext}
 PERFORMANCE DATA (averaged across ${a.nights} ${a.day}s):
 - Units of special sold per night: ${a.unitsPerNight}
-- Food transactions per night: ${a.avgFoodTx}
-- Take-up rate: ${Math.round(a.takeUp * 100)}%
+- Main dishes sold per night: ${a.avgMains || a.avgFoodTx}
+- Take-up rate (special as % of main dishes): ${Math.round(a.takeUp * 100)}%
 - Net revenue per night: $${a.netRev}
 - Food revenue per night: $${a.avgFoodRev}
 - Beverage revenue per night: $${a.avgBevRev}
@@ -5086,16 +5244,16 @@ function renderProjections() {
   <div class="card">
     <div class="card-head">Tune your assumptions</div>
 
-    <!-- Food tx slider -->
+    <!-- Demand slider -->
     <div class="slider-block">
       <div class="slider-head">
         <div class="slider-label">
-          <strong>Food transactions change</strong>
-          <div class="slider-desc">How much will the number of customers ordering food on ${a.day}s shift after this change? Currently ${fmtN(a.avgFoodTx)} food tx/${dayShort}. Negative means fewer customers (e.g. a price rise turns some away); positive means more (e.g. a hot new offer brings in new faces).</div>
+          <strong>Demand change</strong>
+          <div class="slider-desc">How much will the number of main dishes ordered on ${a.day}s shift after this change? Currently ${fmtN(a.avgMains || a.avgFoodTx)} mains/${dayShort}. Negative means fewer customers (e.g. a price rise turns some away); positive means more (e.g. a hot new offer brings in new faces). Beverage revenue scales with this 1:1.</div>
         </div>
         <div class="slider-val ${rec.txChange >= 0 ? 'pos' : 'neg'}">
           ${rec.txChange >= 0 ? '+' : ''}${rec.txChange}%
-          <div class="slider-val-sub">${fmtN(Math.round(a.avgFoodTx * (1 + rec.txChange / 100)))} food tx</div>
+          <div class="slider-val-sub">${fmtN(Math.round((a.avgMains || a.avgFoodTx) * (1 + rec.txChange / 100)))} mains</div>
         </div>
       </div>
       <input type="range" class="slider" id="slider-tx" min="-50" max="100" step="5" value="${rec.txChange}" oninput="updateRecommended('txChange', this.value)">
@@ -5109,10 +5267,10 @@ function renderProjections() {
       <div class="slider-head">
         <div class="slider-label">
           <strong>Take-up rate</strong>
-          <div class="slider-desc">Of all food-bearing transactions on a ${a.day}, what % will buy this special? Currently ${fmtPct(a.takeUp * 100)}. Higher means more of your customers choose the offer over other menu items; lower means they stick with off-menu choices.</div>
+          <div class="slider-desc">Of all the main dishes ordered on a ${a.day}, what % will be this special? Currently ${fmtPct(a.takeUp * 100)}. Higher means more diners choose the special over other mains; lower means they pick other menu items.</div>
         </div>
         <div class="slider-val">${rec.takeUp}%
-          <div class="slider-val-sub">${fmtN(Math.round(a.avgFoodTx * (1 + rec.txChange / 100) * (rec.takeUp / 100)))} units of special</div>
+          <div class="slider-val-sub">${fmtN(Math.round((a.avgMains || a.avgFoodTx) * (1 + rec.txChange / 100) * (rec.takeUp / 100)))} units of special</div>
         </div>
       </div>
       <input type="range" class="slider" id="slider-takeup" min="0" max="100" step="5" value="${rec.takeUp}" oninput="updateRecommended('takeUp', this.value)">
@@ -5186,19 +5344,24 @@ function applyReferenceScenario(name) {
 
 // ── Scenario projection math ───────────────────────────────────────
 function projectScenario(s, a, g, isReplace, altPrice) {
-  // Projected food tx for this scenario
-  const newFoodTx = a.avgFoodTx * (1 + s.txChange / 100);
-  const newUnits = newFoodTx * (s.takeUp / 100);
+  // NOTE: This is an interim model pending the full Step 9 rebuild (attributable-revenue
+  // comparison + 1:1 bev scaling). It now uses the mains-based take-up basis so it's at
+  // least internally consistent: take-up is "% of main dishes that are this special",
+  // and demand change scales the mains base.
+  //
+  // Mains base scales with demand (more customers = more mains ordered).
+  const baseMains = a.avgMains || a.avgFoodTx || 0;
+  const newMains = baseMains * (1 + s.txChange / 100);
+  const newUnits = newMains * (s.takeUp / 100);
   const price = s.newPrice || (isReplace ? altPrice : a.sp);
   const newFoodRev = newUnits * price;
-  // Bev = transactions × bev/tx (transactions scale with food tx)
-  const newBevRev = newFoodTx * g.bevPerTx;
-  // Net rev (no discount line - the price IS the price now if REPLACE, or the special price)
+  // Bev scales 1:1 with demand (weekday assumption: bev tracks food trade)
+  const newBevRev = (a.avgBevRev || 0) * (1 + s.txChange / 100);
   const netRev = newFoodRev + newBevRev;
   const deltaPct = a.netRev > 0 ? ((netRev - a.netRev) / a.netRev) * 100 : 0;
   return {
     unitsPerNight: newUnits,
-    foodTx: newFoodTx,
+    foodTx: newMains,
     foodRev: newFoodRev,
     bevRev: newBevRev,
     netRev: netRev,
@@ -5430,7 +5593,7 @@ async function generateExecSummary(onWaitUpdate) {
 
   const userPrompt = `${v.name} (${v.area}). ${a.day} ${a.name} at $${a.sp} (RRP ${a.isRange ? '$'+Math.round(a.priceMin)+'-'+Math.round(a.priceMax) : '$'+a.fp}, ${a.discPct}% off). Analysed ${a.nights} ${a.day}s.${parentContextLine}
 
-PERF: ${a.unitsPerNight} units/${a.day.toLowerCase()}, ${Math.round(a.takeUp*100)}% take-up (${a.avgFoodTx} food tx). Food $${a.avgFoodRev}/bev $${a.avgBevRev} (${a.isBevLed?'BEV-LED':'FOOD-LED'}). Disc cost $${a.totalDisc}. Net rev $${a.netRev}. $/tx $${a.spendPerTx}. Trend: ${trendSignal}. Verdict: ${a.verdict.label.replace(/[🏆⭐✓◐⚠?]/g,'').trim()}.
+PERF: ${a.unitsPerNight} units/${a.day.toLowerCase()}, ${Math.round(a.takeUp*100)}% take-up (${a.avgMains || a.avgFoodTx} mains). Food $${a.avgFoodRev}/bev $${a.avgBevRev} (${a.isBevLed?'BEV-LED':'FOOD-LED'}). Disc cost $${a.totalDisc}. Net rev $${a.netRev}. $/tx $${a.spendPerTx}. Trend: ${trendSignal}. Verdict: ${a.verdict.label.replace(/[🏆⭐✓◐⚠?]/g,'').trim()}.
 
 DECISION: ${branch}. ${altLine}${tweakLine}
 
@@ -5975,10 +6138,10 @@ body {
       <div class="rep-section-divider"></div>
       ${(state.bParentOffer && state.bParentOffer.items && state.bParentOffer.items.length > 1) ? `
       <p style="background:var(--off-white); border-left:3px solid ${dayColor}; padding:10px 14px; font-size:12.5px; color:#334155; margin-bottom:1.1rem;">
-        <strong>Context:</strong> ${escHtml(a.name)} is one of ${state.bParentOffer.items.length} options in the <strong>${escHtml(state.bParentOffer.name)}</strong> offer (${fmtD(state.bParentOffer.sp)} on ${a.day}s, guests choose one). The figures below reflect this item's portion of the offer only. Take-up rate is the share of food-bearing transactions on a typical ${a.day} that bought this specific item.
+        <strong>Context:</strong> ${escHtml(a.name)} is one of ${state.bParentOffer.items.length} options in the <strong>${escHtml(state.bParentOffer.name)}</strong> offer (${fmtD(state.bParentOffer.sp)} on ${a.day}s, guests choose one). The figures below reflect this item's portion of the offer only. Take-up rate is this item's share of all main dishes ordered on a typical ${a.day}.
       </p>
       ` : ''}
-      <p>${a.day} ${escHtml(a.name)} sells <strong>${fmtN(a.unitsPerNight)} units per ${a.day.toLowerCase()}</strong> on average across ${fmtN(a.avgFoodTx)} food-bearing transactions - a <strong>${fmtPct(a.takeUp * 100)} take-up rate</strong>. The special is priced at ${fmtD(a.sp)} against ${a.isRange ? `a range of ${fmtD(a.priceMin)}-${fmtD(a.priceMax)} (avg ${fmtD(a.effectiveFullPrice)})` : `an RRP of ${fmtD(a.fp)}`}, giving a <strong>${a.discPct}% discount depth</strong>.</p>
+      <p>${a.day} ${escHtml(a.name)} sells <strong>${fmtN(a.unitsPerNight)} units per ${a.day.toLowerCase()}</strong> on average against ${fmtN(a.avgMains || a.avgFoodTx)} main dishes ordered - a <strong>${fmtPct(a.takeUp * 100)} take-up rate</strong>. The special is priced at ${fmtD(a.sp)} against ${a.isRange ? `a range of ${fmtD(a.priceMin)}-${fmtD(a.priceMax)} (avg ${fmtD(a.effectiveFullPrice)})` : `an RRP of ${fmtD(a.fp)}`}, giving a <strong>${a.discPct}% discount depth</strong>.</p>
       <p>Food revenue averages ${fmtD(a.avgFoodRev)} per ${a.day.toLowerCase()} against beverage at ${fmtD(a.avgBevRev)}, making this a <strong>${a.isBevLed ? 'beverage-led' : 'food-led'} night</strong>. Discount cost runs at ${fmtD(a.totalDisc)} per ${a.day.toLowerCase()} (${fmtD(a.discPerTx)}/tx), and net revenue averages ${fmtD(a.netRev)}.</p>
 
       <div class="rep-chart">
@@ -5986,7 +6149,7 @@ body {
         <div class="rep-chart-sub">Each column is one ${a.day} - height shows food-bearing transactions, filled portion shows units of the special. Line shows take-up rate.</div>
         ${comboSvg}
         <div class="rep-chart-legend">
-          <div class="rep-legend-item"><span class="rep-legend-swatch" style="background:${dayColor}; opacity:0.25;"></span>Food-bearing transactions</div>
+          <div class="rep-legend-item"><span class="rep-legend-swatch" style="background:${dayColor}; opacity:0.25;"></span>Main dishes sold</div>
           <div class="rep-legend-item"><span class="rep-legend-swatch" style="background:${dayColor};"></span>Special units sold</div>
           <div class="rep-legend-item"><span class="rep-legend-line" style="background:#0B1F3A;"></span>Take-up rate (%)</div>
         </div>
@@ -6085,7 +6248,7 @@ function buildComboChartSVG(a, dayColor) {
   const innerH = H - padT - padB;
   const colW = innerW / trend.length;
   const barW = colW * 0.65;
-  const maxFoodTx = Math.max(...trend.map(w => w.foodTx), 1);
+  const maxFoodTx = Math.max(...trend.map(w => w.mains), 1);
   const yMax = Math.ceil(maxFoodTx / 50) * 50;
 
   const elts = [];
@@ -6097,13 +6260,13 @@ function buildComboChartSVG(a, dayColor) {
     const pct = (5 - i) * 20;
     elts.push(`<text x="${W - padR + 8}" y="${y + 4}" text-anchor="start" fill="#94A3B8" font-size="10">${pct}%</text>`);
   }
-  elts.push(`<text x="14" y="${padT + innerH / 2}" text-anchor="middle" fill="#94A3B8" font-size="10" transform="rotate(-90, 14, ${padT + innerH / 2})">Food-bearing tx</text>`);
+  elts.push(`<text x="14" y="${padT + innerH / 2}" text-anchor="middle" fill="#94A3B8" font-size="10" transform="rotate(-90, 14, ${padT + innerH / 2})">Main dishes</text>`);
   elts.push(`<text x="${W - 14}" y="${padT + innerH / 2}" text-anchor="middle" fill="#94A3B8" font-size="10" transform="rotate(90, ${W - 14}, ${padT + innerH / 2})">Take-up rate (%)</text>`);
   elts.push(`<defs><pattern id="repPartialPat" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)"><rect width="6" height="6" fill="${dayColor}" opacity="0.18"/><line x1="0" y1="0" x2="0" y2="6" stroke="${dayColor}" stroke-width="2" opacity="0.55"/></pattern></defs>`);
 
   trend.forEach((w, i) => {
     const x = padL + i * colW + (colW - barW) / 2;
-    const foodH = (w.foodTx / yMax) * innerH;
+    const foodH = (w.mains / yMax) * innerH;
     const foodY = padT + innerH - foodH;
     const specialH = (w.specialUnits / yMax) * innerH;
     const specialY = padT + innerH - specialH;
